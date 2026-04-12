@@ -1,0 +1,136 @@
+# Проект 3: Disaster Recovery
+
+---
+
+## Цель
+
+RTO < 30 минут, RPO < 5 минут.
+
+| Сценарий | RTO | RPO |
+|----------|-----|-----|
+| Pod упал | < 30 сек | 0 |
+| Broken deploy | < 3 мин | 0 |
+| Потеря PVC | < 10 мин | < 1 мин |
+| Потеря сервера | < 30 мин | < 5 мин |
+
+---
+
+## Playbook
+
+### Сценарий 1: Pod упал
+
+```bash
+# 1. Убить Pod
+kubectl delete pod myapp-xxx
+
+# 2. Наблюдать
+kubectl get pods --watch
+
+# Результат: Pod поднялся за < 30 сек
+```
+
+### Сценарий 2: Broken deploy
+
+```bash
+# 1. Сломать
+kubectl set image deployment/myapp app=broken:latest
+
+# 2. CrashLoopBackOff
+kubectl get pods
+
+# 3. Получить алерт в Telegram
+
+# 4. Откат
+argocd app rollback myapp 1
+
+# 5. Проверить
+curl https://myapp.ru/health
+```
+
+### Сценарий 3: Потеря данных PostgreSQL
+
+```bash
+# 1. Создать тестовые данные
+kubectl exec -it postgres-0 -- psql -U postgres -c "CREATE TABLE test (id INT); INSERT INTO test VALUES (1);"
+
+# 2. Удалить PVC
+kubectl delete pvc pgdata-postgres-0
+
+# 3. Удалить StatefulSet
+kubectl delete statefulset postgres
+
+# 4. Восстановить (из backup или новый PVC)
+kubectl apply -f k8s/postgres/
+
+# 5. Проверить данные
+kubectl exec -it postgres-0 -- psql -U postgres -c "SELECT * FROM test;"
+```
+
+### Сценарий 4: Потеря всего сервера
+
+```bash
+# 1. Уничтожить
+terraform destroy
+
+# 2. Восстановить
+time (terraform apply && ansible-playbook setup-server.yml)
+
+# 3. Проверить
+kubectl get nodes
+curl https://myapp.ru/health
+kubectl exec -it postgres-0 -- psql -U postgres -c "SELECT 1;"
+```
+
+---
+
+## Runbook
+
+### Если приложение недоступно
+
+```
+1. kubectl get pods -n prod
+2. kubectl describe pod myapp-xxx
+3. kubectl logs myapp-xxx --tail=100
+4. argocd app get myapp
+5. Grafana → MyApp dashboard
+6. argocd app rollback myapp 1
+```
+
+### Если БД недоступна
+
+```
+1. kubectl get pods -n prod | grep postgres
+2. kubectl describe pod postgres-0
+3. kubectl logs postgres-0 --tail=100
+4. kubectl exec -it postgres-0 -- psql -U postgres -c "SELECT 1;"
+```
+
+---
+
+## Checklist (20 пунктов)
+
+### Сценарии (7)
+- [ ] Сценарий 1 пройден: Pod → восстановлен < 30 сек
+- [ ] Сценарий 2 пройден: broken → rollback < 3 мин
+- [ ] Сценарий 3 пройден: потеря PVC → данные восстановлены
+- [ ] Сценарий 4 пройден: потеря сервера → полное восстановление < 30 мин
+- [ ] RPO подтверждён: потеря данных < 5 мин
+- [ ] Runbook написан для каждого сценария
+- [ ] Runbook проверен: второй человек следовал и восстановил
+
+### Бэкапы (7)
+- [ ] Velero или ручной backup создан
+- [ ] Backup PostgreSQL (pg_dump) автоматизирован по cron
+- [ ] Terraform state в remote backend
+- [ ] Алерт: backup не выполнялся > 24 часов
+- [ ] Тест restore выполнен
+- [ ] Бэкапы зашифрованы
+- [ ] Мониторинг бэкапов: метрики в Prometheus
+
+### Документация (6)
+- [ ] Архитектурная схема актуальна
+- [ ] Секреты документированы (где, как ротировать)
+- [ ] SLA: RTO, RPO, uptime %
+- [ ] Процедура обновления кластера описана
+- [ ] Oncall runbook: кто что делает
+- [ ] Тайминги записаны для каждого сценария

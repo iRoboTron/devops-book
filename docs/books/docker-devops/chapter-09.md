@@ -1,0 +1,455 @@
+# Глава 9: Итоговый проект
+
+> **Запомни:** Эта глава — не теория. Ты соберёшь полный стек самостоятельно. Без подсказок, по чеклисту. Как настоящий DevOps.
+
+---
+
+## 9.1 Цель
+
+Собрать полный стек с нуля:
+
+```
+docker-compose up -d
+        │
+        ├── [nginx:443] ← обратный прокси + SSL
+        │       │ proxy_pass → app:8000
+        │       ▼
+        ├── [python-app:8000] ← Dockerfile (твой код)
+        │       │ DATABASE_URL
+        │       ▼
+        └── [postgres:5432] ← volume: pgdata
+                │
+                └── volume: pgdata (данные не теряются)
+```
+
+**Требования:**
+- ✅ Dockerfile для Python-приложения
+- ✅ docker-compose.yml с app + db + nginx
+- ✅ Секреты в `.env` (не в коде!)
+- ✅ Healthcheck для базы данных
+- ✅ Volume для данных PostgreSQL
+- ✅ Nginx как reverse proxy
+- ✅ `restart: unless-stopped`
+- ✅ Makefile для удобства
+
+---
+
+## 9.2 Шаг 1: Подготовка проекта
+
+### Структура
+
+```
+myproject/
+├── docker-compose.yml
+├── Dockerfile
+├── .env
+├── .env.example
+├── .gitignore
+├── Makefile
+├── main.py
+├── requirements.txt
+└── nginx/
+    └── conf.d/
+        └── app.conf
+```
+
+### Создай директорию
+
+```bash
+mkdir -p ~/docker-final/nginx/conf.d
+cd ~/docker-final
+```
+
+---
+
+## 9.3 Шаг 2: Python-приложение
+
+### main.py
+
+```python
+import os
+import psycopg2
+import json
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import datetime
+
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == '/':
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html')
+            self.end_headers()
+            html = f"""
+            <!DOCTYPE html>
+            <html>
+            <head><title>Docker DevOps</title></head>
+            <body>
+                <h1>Full Stack in Docker!</h1>
+                <p>Time: {datetime.datetime.now().strftime('%H:%M:%S')}</p>
+                <p><a href="/health">Health Check</a></p>
+                <p><a href="/users">Users Count</a></p>
+            </body>
+            </html>
+            """
+            self.wfile.write(html.encode())
+        elif self.path == '/health':
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({"status": "ok", "service": "python-app"}).encode())
+        elif self.path == '/users':
+            try:
+                conn = psycopg2.connect(os.environ['DATABASE_URL'])
+                cur = conn.cursor()
+                cur.execute("SELECT count(*) FROM users;")
+                count = cur.fetchone()[0]
+                cur.close()
+                conn.close()
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"users": count}).encode())
+            except Exception as e:
+                self.send_response(500)
+                self.end_headers()
+                self.wfile.write(f"DB Error: {str(e)}".encode())
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+    def log_message(self, format, *args):
+        pass
+
+if __name__ == '__main__':
+    server = HTTPServer(('0.0.0.0', 8000), Handler)
+    print("Running on http://0.0.0.0:8000")
+    server.serve_forever()
+```
+
+### requirements.txt
+
+```
+psycopg2-binary
+```
+
+---
+
+## 9.4 Шаг 3: Dockerfile
+
+```dockerfile
+FROM python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 8000
+
+CMD ["python", "main.py"]
+```
+
+---
+
+## 9.5 Шаг 4: .env и секреты
+
+### .env.example
+
+```env
+POSTGRES_USER=app_user
+POSTGRES_PASSWORD=
+POSTGRES_DB=app_db
+DATABASE_URL=postgresql://app_user:CHANGE_ME@db:5432/app_db
+SECRET_KEY=change-me-to-random-string
+```
+
+### .env
+
+```env
+POSTGRES_USER=app_user
+POSTGRES_PASSWORD=x7k9mP2qR5wN
+POSTGRES_DB=app_db
+DATABASE_URL=postgresql://app_user:x7k9mP2qR5wN@db:5432/app_db
+SECRET_KEY=django-insecure-abc123def456
+```
+
+### .gitignore
+
+```
+.env
+__pycache__/
+*.pyc
+venv/
+```
+
+---
+
+## 9.6 Шаг 5: Nginx конфиг
+
+### nginx/conf.d/app.conf
+
+```nginx
+upstream app {
+    server app:8000;
+}
+
+server {
+    listen 80;
+    server_name _;
+
+    location / {
+        proxy_pass http://app;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_connect_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+
+    access_log /var/log/nginx/app-access.log;
+    error_log /var/log/nginx/app-error.log;
+}
+```
+
+---
+
+## 9.7 Шаг 6: docker-compose.yml
+
+```yaml
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - app
+    restart: unless-stopped
+    networks:
+      - frontend
+      - backend
+
+  app:
+    build: .
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      SECRET_KEY: ${SECRET_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - backend
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - backend
+
+volumes:
+  pgdata:
+
+networks:
+  frontend:
+  backend:
+```
+
+---
+
+## 9.8 Шаг 7: Makefile
+
+```makefile
+.PHONY: up down build restart logs shell db-shell clean
+
+up:
+	docker compose up -d
+
+down:
+	docker compose down
+
+build:
+	docker compose up -d --build
+
+restart:
+	docker compose restart
+
+logs:
+	docker compose logs -f app
+
+logs-nginx:
+	docker compose logs -f nginx
+
+logs-db:
+	docker compose logs -f db
+
+shell:
+	docker compose exec app bash
+
+db-shell:
+	docker compose exec db psql -U $$(grep POSTGRES_USER .env | cut -d= -f2) -d $$(grep POSTGRES_DB .env | cut -d= -f2)
+
+ps:
+	docker compose ps
+
+clean:
+	docker compose down -v
+	docker compose rm -f
+```
+
+> **Важно:** В Makefile нужны табы, не пробелы!
+
+Использование:
+
+```bash
+make up        # запустить
+make down      # остановить
+make build     # пересобрать и запустить
+make logs      # логи приложения
+make shell     # зайти в app
+make db-shell  # зайти в БД
+make ps        # статус
+```
+
+---
+
+## 9.9 Шаг 8: Запуск и проверка
+
+### Запустить
+
+```bash
+make up
+# или: docker compose up -d
+```
+
+### Проверить
+
+```bash
+# 1. Статус
+make ps
+# Все Up (healthy)?
+
+# 2. Главная страница
+curl http://localhost/
+
+# 3. Health check
+curl http://localhost/health
+
+# 4. Users (должно быть 0)
+curl http://localhost/users
+
+# 5. Логи
+make logs
+```
+
+### Проверить данные сохраняются
+
+```bash
+# Зайди в БД
+make db-shell
+
+# Создай таблицу
+CREATE TABLE users (id SERIAL PRIMARY KEY, name TEXT);
+INSERT INTO users (name) VALUES ('Ivan');
+\q
+
+# Проверь через API
+curl http://localhost/users
+# {"users": 1}
+
+# Пересоздай контейнеры
+make down
+make up
+
+# Данные на месте?
+curl http://localhost/users
+# {"users": 1} ← да!
+```
+
+---
+
+## 9.10 Финальный чеклист
+
+```
+□ docker compose up -d — всё поднимается без ошибок
+□ docker compose ps — все сервисы Up
+□ db — Up (healthy)
+□ curl http://localhost/ — возвращает HTML
+□ curl http://localhost/health — {"status": "ok"}
+□ curl http://localhost/users — работает с БД
+□ docker compose down && docker compose up -d — данные сохранились
+□ После reboot сервера — всё поднялось само (restart: unless-stopped)
+□ .env НЕТ в git
+□ docker images — образ app не тяжелее 200МБ
+□ db НЕ доступна снаружи (nc -zv localhost 5432 → timeout)
+```
+
+### Если что-то не работает
+
+```bash
+# 1. Статус
+docker compose ps
+
+# 2. Логи
+docker compose logs db      # БД
+docker compose logs app     # приложение
+docker compose logs nginx   # прокси
+
+# 3. Проверить соединение
+docker compose exec app ping db
+
+# 4. Проверить конфиг
+docker compose config
+
+# 5. Healthcheck
+docker inspect --format='{{.State.Health.Status}}' myproject-db-1
+```
+
+---
+
+## 9.11 Что дальше
+
+Ты прошёл Модуль 3. Вот что ты теперь умеешь:
+
+- ✅ Писать Dockerfile для Python-приложения
+- ✅ Описывать стек в docker-compose.yml
+- ✅ Управлять секретами через `.env`
+- ✅ Настраивать healthcheck для БД
+- ✅ Использовать volumes для данных
+- ✅ Настраивать сети Docker (frontend/backend)
+- ✅ Добавлять Nginx в compose
+- ✅ Использовать Makefile для удобства
+
+### Следующий модуль: CI/CD
+
+В Модуле 4:
+- GitHub Actions
+- Автоматический билд и push образа
+- Автодеплой на сервер по push в main
+- Zero-downtime deployment
+
+---
+
+> **Поздравляю!** Ты упаковал полноценный стек в Docker.
+> Одна команда — и всё работает.
+> Это уровень настоящего DevOps.

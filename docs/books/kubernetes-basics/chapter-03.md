@@ -1,0 +1,84 @@
+# Глава 3: Service — сетевой доступ
+
+> **Запомни:** Pods получают случайные IP. Service = стабильный адрес для группы Pods.
+
+---
+
+## 3.1 ClusterIP (по умолчанию)
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-svc
+spec:
+  selector:
+    app: myapp
+  ports:
+  - port: 80
+    targetPort: 8000
+```
+
+Доступен только внутри кластера.
+
+```bash
+kubectl get services
+# myapp-svc  ClusterIP  10.43.x.x  80/TCP
+```
+
+Другие Pods обращаются: `curl http://myapp-svc:80`
+
+---
+
+## 3.2 NodePort (для тестов)
+
+```yaml
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 8000
+    nodePort: 30080
+```
+
+Доступен снаружи: `http://node-ip:30080`
+
+---
+
+## 3.3 Как Service находит Pods
+
+Через labels:
+
+```
+Service selector: app=myapp
+    ↓
+Находит Pods с label: app=myapp
+    ↓
+Балансирует трафик между ними
+```
+
+---
+
+## 📝 Упражнения
+
+### Упражнение 3.1: ClusterIP
+**Задача:**
+1. Создай Service (ClusterIP)
+2. `kubectl get services` — появился?
+3. Подключись из другого Pod: `kubectl exec -it <other-pod> -- curl http://myapp-svc:80`
+
+### Упражнение 3.2: NodePort
+**Задача:**
+1. Измени тип на NodePort
+2. `curl http://node-ip:30080` — работает?
+
+---
+
+## 📋 Чеклист главы 3
+
+- [ ] Я понимаю зачем Service (стабильный адрес)
+- [ ] Я могу создать ClusterIP Service
+- [ ] Я могу создать NodePort Service
+- [ ] Я понимаю как Service находит Pods (labels)
+
+**Всё отметил?** Переходи к Главе 4 — ConfigMap и Secret.
