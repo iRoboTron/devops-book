@@ -28,9 +28,8 @@
 ### 0.6 SSH-подключение
 - Узнай IP виртуалки: `hostname -I`
 - Подключись со своего компьютера: `ssh username@IP`
-- Сгенерируй ключ: `ssh-keygen -t ed25519`
-- Скопируй ключ: `ssh-copy-id username@IP`
-- Настрой алиас в `~/.ssh/config`
+- Введи пароль — убедись что вход работает
+- Выйди обратно: `exit`
 
 ---
 
@@ -355,16 +354,17 @@ sudo gpasswd -d deploy devteam
 ```bash
 # Генерация
 ssh-keygen -t ed25519 -C "your@email"
+# задай passphrase когда спросит
 
 # Копирование на сервер
 ssh-copy-id username@server-ip
 
-# Проверка — пароль не спрашивает?
+# Проверка — пароль сервера больше не спрашивается?
 ssh username@server-ip
 
 # Алиас
 nano ~/.ssh/config
-# Host dev
+# Host devops
 #     HostName 192.168.1.100
 #     User username
 #     IdentityFile ~/.ssh/id_ed25519

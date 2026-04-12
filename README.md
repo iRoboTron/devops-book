@@ -86,19 +86,26 @@
 
 ## 🚀 Текущий статус
 
-**Модуль 0:** Ожидает начала — нужно поднять виртуалку
+На **12 апреля 2026 г.** ситуация такая:
+
+- **Практика ещё не начата:** Модуль 0 по-прежнему ждёт поднятия виртуалки и первого SSH-доступа
+- **Материалы курса уже собраны:** в `docs/books` есть книги и практические файлы для модулей 1–14
+- **Курс DevOps 1.0 фактически заполнен:** Linux, Nginx/HTTPS, Docker, CI/CD, инфраструктура, безопасность и финальный playbook уже лежат в проекте
+- **Курс DevOps 2.0 уже создан целиком, но неравномерно по глубине:** Terraform и часть базовых модулей проработаны заметно глубже, а Monitoring, GitOps и финальные проекты пока короче
 
 ## 📚 Курс DevOps 1.0 — Книги
 
+> Статус ниже отражает **фактическое содержимое репозитория** на 12 апреля 2026 г., а не только изначальный план.
+
 | Модуль | Книга | Инструкция для агента | Статус |
 |--------|-------|-----------------------|--------|
-| 1 | Linux для DevOps | [AGENT-INSTRUCTIONS.md](docs/books/AGENT-INSTRUCTIONS.md) | Написана (главы 0–14) |
-| 2 | Сеть для DevOps: Nginx, HTTPS, безопасность и Caddy | [AGENT-INSTRUCTIONS-module-02.md](docs/books/AGENT-INSTRUCTIONS-module-02.md) | Инструкция готова, книга не начата |
-| 3 | Docker для DevOps: Контейнеры, образы и Compose | [AGENT-INSTRUCTIONS-module-03.md](docs/books/AGENT-INSTRUCTIONS-module-03.md) | Инструкция готова, книга не начата |
-| 4 | CI/CD для DevOps: Автоматизация от push до продакшна | [AGENT-INSTRUCTIONS-module-04.md](docs/books/AGENT-INSTRUCTIONS-module-04.md) | Инструкция готова, книга не начата |
-| 5 | Инфраструктура сервера: База данных, бэкапы и надёжность | [AGENT-INSTRUCTIONS-module-05.md](docs/books/AGENT-INSTRUCTIONS-module-05.md) | Инструкция готова, книга не начата |
-| 6 | Безопасность и мониторинг: Защита, наблюдение и алертинг | [AGENT-INSTRUCTIONS-module-06.md](docs/books/AGENT-INSTRUCTIONS-module-06.md) | Инструкция готова, книга не начата |
-| 7 | Финальный проект: Production-сервер с нуля | [AGENT-INSTRUCTIONS-module-07.md](docs/books/AGENT-INSTRUCTIONS-module-07.md) | Инструкция готова, книга не начата |
+| 1 | Linux для DevOps | [AGENT-INSTRUCTIONS.md](docs/books/AGENT-INSTRUCTIONS.md) | Книга в репозитории: 19 `.md` файлов, ~8.3k строк |
+| 2 | Сеть для DevOps: Nginx, HTTPS, безопасность и Caddy | [AGENT-INSTRUCTIONS-module-02.md](docs/books/AGENT-INSTRUCTIONS-module-02.md) | Книга в репозитории: 14 `.md` файлов, ~5.5k строк |
+| 3 | Docker для DevOps: Контейнеры, образы и Compose | [AGENT-INSTRUCTIONS-module-03.md](docs/books/AGENT-INSTRUCTIONS-module-03.md) | Книга в репозитории: 14 `.md` файлов, ~4.7k строк |
+| 4 | CI/CD для DevOps: Автоматизация от push до продакшна | [AGENT-INSTRUCTIONS-module-04.md](docs/books/AGENT-INSTRUCTIONS-module-04.md) | Книга в репозитории: 14 `.md` файлов, ~4.1k строк |
+| 5 | Инфраструктура сервера: База данных, бэкапы и надёжность | [AGENT-INSTRUCTIONS-module-05.md](docs/books/AGENT-INSTRUCTIONS-module-05.md) | Книга в репозитории: 14 `.md` файлов, ~3.8k строк |
+| 6 | Безопасность и мониторинг: Защита, наблюдение и алертинг | [AGENT-INSTRUCTIONS-module-06.md](docs/books/AGENT-INSTRUCTIONS-module-06.md) | Книга в репозитории: 14 `.md` файлов, ~2.8k строк |
+| 7 | Финальный проект: Production-сервер с нуля | [AGENT-INSTRUCTIONS-module-07.md](docs/books/AGENT-INSTRUCTIONS-module-07.md) | Практический модуль в репозитории: 3 `.md` файла, ~780 строк |
 
 ---
 
@@ -158,15 +165,17 @@
 
 ### 📚 Книги курса 2.0
 
+> Статус ниже отражает **фактическое содержимое репозитория** на 12 апреля 2026 г., а не только изначальный план.
+
 | Модуль | Книга | Инструкция для агента | Статус |
 |--------|-------|-----------------------|--------|
-| 8 | Terraform: Инфраструктура как код | [AGENT-INSTRUCTIONS-module-08.md](docs/books/AGENT-INSTRUCTIONS-module-08.md) | Инструкция готова, книга не начата |
-| 9 | Ansible: Управление конфигурацией | [AGENT-INSTRUCTIONS-module-09.md](docs/books/AGENT-INSTRUCTIONS-module-09.md) | Инструкция готова, книга не начата |
-| 10 | Kubernetes: Основы | [AGENT-INSTRUCTIONS-module-10.md](docs/books/AGENT-INSTRUCTIONS-module-10.md) | Инструкция готова, книга не начата |
-| 11 | Kubernetes: Продвинутый уровень и Helm | [AGENT-INSTRUCTIONS-module-11.md](docs/books/AGENT-INSTRUCTIONS-module-11.md) | Инструкция готова, книга не начата |
-| 12 | Prometheus + Grafana + Loki: Production-мониторинг | [AGENT-INSTRUCTIONS-module-12.md](docs/books/AGENT-INSTRUCTIONS-module-12.md) | Инструкция готова, книга не начата |
-| 13 | GitLab CI + GitOps: ArgoCD и продвинутый CI/CD | [AGENT-INSTRUCTIONS-module-13.md](docs/books/AGENT-INSTRUCTIONS-module-13.md) | Инструкция готова, книга не начата |
-| 14 | Финальные проекты: Production-инфраструктура с нуля | [AGENT-INSTRUCTIONS-module-14.md](docs/books/AGENT-INSTRUCTIONS-module-14.md) | Инструкция готова, книга не начата |
+| 8 | Terraform: Инфраструктура как код | [AGENT-INSTRUCTIONS-module-08.md](docs/books/AGENT-INSTRUCTIONS-module-08.md) | Книга в репозитории: 12 `.md` файлов, ~2.9k строк |
+| 9 | Ansible: Управление конфигурацией | [AGENT-INSTRUCTIONS-module-09.md](docs/books/AGENT-INSTRUCTIONS-module-09.md) | Книга в репозитории: 12 `.md` файлов, ~1.5k строк |
+| 10 | Kubernetes: Основы | [AGENT-INSTRUCTIONS-module-10.md](docs/books/AGENT-INSTRUCTIONS-module-10.md) | Книга в репозитории: 11 `.md` файлов, ~1.0k строк |
+| 11 | Kubernetes: Продвинутый уровень и Helm | [AGENT-INSTRUCTIONS-module-11.md](docs/books/AGENT-INSTRUCTIONS-module-11.md) | Книга в репозитории: 12 `.md` файлов, ~1.1k строк |
+| 12 | Prometheus + Grafana + Loki: Production-мониторинг | [AGENT-INSTRUCTIONS-module-12.md](docs/books/AGENT-INSTRUCTIONS-module-12.md) | Книга в репозитории: 10 `.md` файлов, ~540 строк |
+| 13 | GitLab CI + GitOps: ArgoCD и продвинутый CI/CD | [AGENT-INSTRUCTIONS-module-13.md](docs/books/AGENT-INSTRUCTIONS-module-13.md) | Книга в репозитории: 8 `.md` файлов, ~400 строк |
+| 14 | Финальные проекты: Production-инфраструктура с нуля | [AGENT-INSTRUCTIONS-module-14.md](docs/books/AGENT-INSTRUCTIONS-module-14.md) | Проекты в репозитории: 6 `.md` файлов, ~630 строк |
 
 ## 📝 Заметки и решения
 
@@ -182,3 +191,4 @@
 *Инструкция для Модуля 6 добавлена 11 апреля 2026 г.*
 *Инструкция для Модуля 7 (финальный проект) добавлена 12 апреля 2026 г. — курс 1.0 полностью спланирован.*
 *Курс DevOps 2.0 спланирован 12 апреля 2026 г. — модули 8–14, инструкции для агента написаны.*
+*README актуализирован по фактическому содержимому `docs/books` 12 апреля 2026 г.*

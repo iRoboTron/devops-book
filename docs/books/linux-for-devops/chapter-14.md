@@ -74,31 +74,13 @@ if __name__ == '__main__':
 
 ---
 
-## 14.4 Шаг 3: Виртуальное окружение
-
-```bash
-# Создать виртуальное окружение
-sudo python3 -m venv /var/www/myapp/venv
-
-# Активировать
-source /var/www/myapp/venv/bin/activate
-
-# Установить Flask
-pip install flask gunicorn
-
-# Проверить
-pip list
-```
-
----
-
-## 14.5 Шаг 4: Создать пользователя для приложения
+## 14.4 Шаг 3: Создать пользователя для приложения
 
 ```bash
 # Создать пользователя без логина
 sudo useradd -r -s /usr/sbin/nologin myapp
 
-# Передать файлы
+# Передать каталог приложению
 sudo chown -R myapp:myapp /var/www/myapp
 ```
 
@@ -106,6 +88,26 @@ sudo chown -R myapp:myapp /var/www/myapp
 |-------|----------|
 | `-r` | Системный пользователь |
 | `-s /usr/sbin/nologin` | Не может войти |
+
+---
+
+> **Запомни:** Сначала создай пользователя и отдай ему каталог.
+> Виртуальное окружение и зависимости ставь от имени этого пользователя, иначе потом легко словить проблемы с правами.
+
+---
+
+## 14.5 Шаг 4: Виртуальное окружение
+
+```bash
+# Создать виртуальное окружение от имени пользователя приложения
+sudo -u myapp python3 -m venv /var/www/myapp/venv
+
+# Установить Flask и Gunicorn в это окружение
+sudo -u myapp /var/www/myapp/venv/bin/pip install flask gunicorn
+
+# Проверить
+sudo -u myapp /var/www/myapp/venv/bin/pip list
+```
 
 ---
 
@@ -147,7 +149,7 @@ Description=My Flask Application
 After=network.target
 
 [Service]
-Type=notify
+Type=simple
 User=myapp
 Group=myapp
 WorkingDirectory=/var/www/myapp

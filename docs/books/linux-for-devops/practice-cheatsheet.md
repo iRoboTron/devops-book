@@ -224,7 +224,8 @@ chmod 700 ~/.ssh
 
 **39. Сгенерировать SSH-ключ**
 ```bash
-ssh-keygen -t rsa -b 4096 -N "" -f ~/.ssh/id_devops_practice
+ssh-keygen -t ed25519 -C "devops-practice" -f ~/.ssh/id_devops_practice
+# когда спросит — задай passphrase
 ```
 
 **40. Посмотреть публичный ключ**
@@ -732,4 +733,4 @@ ls ~/devops-practice
 | Удалить пакет | `sudo apt remove -y имя` |
 | Найти в файле | `grep "текст" файл` |
 | Найти файлы | `find путь -name "*.ext"` |
-| SSH-ключ | `ssh-keygen -t rsa -b 4096 -f ~/.ssh/имя` |
+| SSH-ключ | `ssh-keygen -t ed25519 -f ~/.ssh/имя` |
