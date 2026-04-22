@@ -206,17 +206,34 @@ sudo ufw status verbose
 
 ## B.6 systemd сервис для Python-приложения
 
+Перед этим у проекта должны быть:
+
+```text
+/var/www/myapp/app.py
+/var/www/myapp/requirements.txt
+/var/www/myapp/.venv/
+```
+
+Минимальный `requirements.txt` для итогового проекта:
+
+```text
+Flask>=3.0,<4
+gunicorn>=22,<24
+```
+
 ```ini
 [Unit]
-Description=My Python Application
-After=network.target
+Description=My DevOps Python Application
+Wants=network-online.target
+After=network-online.target
 
 [Service]
 Type=simple
 User=myapp
 Group=myapp
 WorkingDirectory=/var/www/myapp
-ExecStart=/usr/bin/python3 /var/www/myapp/app.py
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/var/www/myapp/.venv/bin/gunicorn --workers 2 --bind 127.0.0.1:8000 app:app
 Restart=always
 RestartSec=5
 StandardOutput=append:/var/log/myapp/app.log
@@ -234,9 +251,10 @@ WantedBy=multi-user.target
 ```bash
 #!/bin/bash
 # /usr/local/bin/check-myapp.sh
+set -u
 
 APP_URL="http://127.0.0.1:8000/health"
-NGINX_URL="https://myapp.local"
+NGINX_URL="https://myapp.local/health"
 LOG_FILE="/var/log/myapp/monitor.log"
 
 log() {
@@ -244,20 +262,20 @@ log() {
 }
 
 # Проверка Python
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL" 2>/dev/null)
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL" 2>/dev/null || true)
 if [ "$HTTP_CODE" != "200" ]; then
-    log "❌ Python не отвечает (код: $HTTP_CODE). Перезапуск..."
-    sudo systemctl restart myapp
+    log "[FAIL] Python не отвечает (код: $HTTP_CODE). Перезапуск..."
+    systemctl restart myapp
 else
-    log "✅ Python OK"
+    log "[OK] Python"
 fi
 
 # Проверка Nginx
-HTTP_CODE=$(curl -sk -o /dev/null -w "%{http_code}" "$NGINX_URL" 2>/dev/null)
+HTTP_CODE=$(curl -sk -o /dev/null -w "%{http_code}" "$NGINX_URL" 2>/dev/null || true)
 if [ "$HTTP_CODE" != "200" ]; then
-    log "❌ Nginx не отвечает (код: $HTTP_CODE)"
+    log "[FAIL] Nginx не отвечает (код: $HTTP_CODE)"
 else
-    log "✅ Nginx OK"
+    log "[OK] Nginx"
 fi
 
 log "---"
