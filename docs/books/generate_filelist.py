@@ -18,18 +18,34 @@ base = os.path.dirname(os.path.abspath(__file__))
 # Можно передать путь явно: python3 generate_filelist.py /path/to/courses
 scan_dir = sys.argv[1] if len(sys.argv) > 1 else base
 
+def read_title(filepath):
+    """Читает первую строку H1 из .md файла."""
+    try:
+        with open(filepath, encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith('# '):
+                    return line[2:].strip()
+    except Exception:
+        pass
+    return None
+
 courses = {}
 for entry in sorted(os.listdir(scan_dir)):
     course_path = os.path.join(scan_dir, entry)
     if not os.path.isdir(course_path):
         continue
-    files = sorted(
+    filenames = sorted(
         [f for f in os.listdir(course_path) if f.endswith('.md')],
         key=lambda x: [int(c) if c.isdigit() else c
                        for c in x.replace('.', ' ').split()]
     )
-    if files:
-        courses[entry] = files
+    if filenames:
+        items = []
+        for fn in filenames:
+            title = read_title(os.path.join(course_path, fn))
+            items.append({"file": fn, "title": title} if title else fn)
+        courses[entry] = items
 
 out = os.path.join(base, "files.json")
 with open(out, 'w', encoding='utf-8') as f:

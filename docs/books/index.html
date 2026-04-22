@@ -195,6 +195,26 @@ const COURSE_NAMES = {
     "final-project":              "7: Финальный проект",
 };
 
+const COURSE_ALIASES = {
+    "1": "linux-for-devops",
+    "linux": "linux-for-devops",
+    "2": "nginx-https-devops",
+    "net": "nginx-https-devops",
+    "network": "nginx-https-devops",
+    "nginx": "nginx-https-devops",
+    "3": "docker-devops",
+    "docker": "docker-devops",
+    "4": "cicd-devops",
+    "ci": "cicd-devops",
+    "cicd": "cicd-devops",
+    "5": "infrastructure-devops",
+    "infra": "infrastructure-devops",
+    "6": "security-monitoring-devops",
+    "security": "security-monitoring-devops",
+    "7": "final-project",
+    "final": "final-project"
+};
+
 const sidebar    = document.getElementById('sidebar');
 const toggleBtn  = document.getElementById('toggleBtn');
 const resizer    = document.getElementById('resizer');
@@ -240,15 +260,23 @@ function stopDrag() {
 // ── Data ───────────────────────────────────────────────────────────────────
 let courses = {};   // { courseName: [filenames] }
 const cache = {};   // { "course/file": text }
+let currentCourse = null;
+let currentFile = null;
 
-function prettyName(fn) {
-    return fn.replace(/\.md$/, '').replace(/[-_]/g, ' ')
-             .replace(/\b\w/g, c => c.toUpperCase());
+function itemFile(item) { return typeof item === 'string' ? item : item.file; }
+function itemLabel(item) {
+    if (typeof item === 'string') {
+        return item.replace(/\.md$/, '').replace(/[-_]/g, ' ')
+                   .replace(/\b\w/g, c => c.toUpperCase());
+    }
+    return item.title || itemFile(item).replace(/\.md$/, '').replace(/[-_]/g, ' ')
+                                        .replace(/\b\w/g, c => c.toUpperCase());
 }
 
-function groupFiles(fns) {
+function groupFiles(items) {
     const groups = {};
-    for (const fn of fns) {
+    for (const item of items) {
+        const fn = itemFile(item);
         let g;
         if (fn.startsWith('chapter-')) {
             const n = parseInt(fn.match(/\d+/)?.[0] || '0');
@@ -257,9 +285,93 @@ function groupFiles(fns) {
         } else if (fn === 'book.md')           { g = 'Обзор';
         } else                                  { g = 'Другое'; }
         if (!groups[g]) groups[g] = [];
-        groups[g].push(fn);
+        groups[g].push(item);
     }
     return groups;
+}
+
+function sortedCourseKeys() {
+    return Object.keys(courses).sort((a, b) => {
+        const oa = Object.keys(COURSE_NAMES).indexOf(a);
+        const ob = Object.keys(COURSE_NAMES).indexOf(b);
+        return (oa === -1 ? 999 : oa) - (ob === -1 ? 999 : ob);
+    });
+}
+
+function courseParamFor(key) {
+    const idx = sortedCourseKeys().indexOf(key);
+    return idx >= 0 ? String(idx + 1) : key;
+}
+
+function fileParamFor(filename) {
+    if (filename === 'book.md') return 'book';
+    const chapter = filename.match(/^chapter-(\d+)\.md$/);
+    if (chapter) return String(parseInt(chapter[1], 10));
+    const appendix = filename.match(/^appendix-([a-z])\.md$/i);
+    if (appendix) return appendix[1].toLowerCase();
+    return filename.replace(/\.md$/, '');
+}
+
+function resolveCourseParam(raw) {
+    const keys = sortedCourseKeys();
+    if (!keys.length) return null;
+    if (!raw) return keys[0];
+
+    const value = String(raw).trim().toLowerCase();
+    if (courses[value]) return value;
+    if (COURSE_ALIASES[value] && courses[COURSE_ALIASES[value]]) return COURSE_ALIASES[value];
+
+    const numeric = Number(value);
+    if (Number.isInteger(numeric) && numeric >= 1 && numeric <= keys.length) {
+        return keys[numeric - 1];
+    }
+
+    return keys[0];
+}
+
+function resolveFileParam(course, raw) {
+    const items = courses[course] || [];
+    const files = items.map(itemFile);
+    if (!files.length) return null;
+    if (!raw) return files[0];
+
+    const value = String(raw).trim().toLowerCase();
+    const exact = files.find(fn => fn.toLowerCase() === value || fn.toLowerCase() === value + '.md');
+    if (exact) return exact;
+    if (value === 'book') return files.includes('book.md') ? 'book.md' : files[0];
+
+    const chapterMatch = value.match(/^c?(?:hapter-)?0*(\d+)$/);
+    if (chapterMatch) {
+        const n = chapterMatch[1].padStart(2, '0');
+        const chapter = files.find(fn => fn === `chapter-${n}.md`);
+        if (chapter) return chapter;
+    }
+
+    const appendixMatch = value.match(/^(?:a|app|appendix-)?([a-z])$/);
+    if (appendixMatch) {
+        const appendix = files.find(fn => fn.toLowerCase() === `appendix-${appendixMatch[1]}.md`);
+        if (appendix) return appendix;
+    }
+
+    const slug = files.find(fn => fn.replace(/\.md$/, '').toLowerCase() === value);
+    return slug || files[0];
+}
+
+function readRoute() {
+    const params = new URLSearchParams(window.location.search);
+    const course = resolveCourseParam(params.get('b') || params.get('book'));
+    const file = course ? resolveFileParam(course, params.get('c') || params.get('chapter')) : null;
+    return { course, file };
+}
+
+function updateUrl(course, filename, replace = false) {
+    if (!course || !filename) return;
+    const next = new URL(window.location.href);
+    next.search = '';
+    next.searchParams.set('b', courseParamFor(course));
+    next.searchParams.set('c', fileParamFor(filename));
+    if (next.href === window.location.href) return;
+    history[replace ? 'replaceState' : 'pushState']({ course, filename }, '', next);
 }
 
 // ── Load file list (static JSON generated by generate_filelist.py) ─────────
@@ -270,7 +382,7 @@ async function init() {
         const data = await r.json();
         courses = data.courses || {};
         if (Object.keys(courses).length === 0) throw new Error('Нет файлов');
-        buildSidebar();
+        buildSidebar(readRoute(), true);
         loadingMsg.style.display = 'none';
     } catch(err) {
         loadingMsg.innerHTML = '<div class="error-msg">Ошибка загрузки: ' + err.message + '</div>';
@@ -278,12 +390,8 @@ async function init() {
 }
 
 // ── Sidebar ────────────────────────────────────────────────────────────────
-function buildSidebar() {
-    const sortedKeys = Object.keys(courses).sort((a, b) => {
-        const oa = Object.keys(COURSE_NAMES).indexOf(a);
-        const ob = Object.keys(COURSE_NAMES).indexOf(b);
-        return (oa === -1 ? 999 : oa) - (ob === -1 ? 999 : ob);
-    });
+function buildSidebar(route = {}, replaceUrl = false) {
+    const sortedKeys = sortedCourseKeys();
     courseSel.innerHTML = '';
     for (const key of sortedKeys) {
         const opt = document.createElement('option');
@@ -291,12 +399,13 @@ function buildSidebar() {
         opt.textContent = COURSE_NAMES[key] || key;
         courseSel.appendChild(opt);
     }
-    if (sortedKeys.length) loadCourse(sortedKeys[0]);
+    if (sortedKeys.length) loadCourse(route.course || sortedKeys[0], route.file, { replaceUrl });
 }
 
-function loadCourse(key) {
+function loadCourse(key, preferredFile = null, options = {}) {
     const fns = courses[key] || [];
     const groups = groupFiles(fns);
+    courseSel.value = key;
     chListEl.innerHTML = '';
     for (const [gname, gfns] of Object.entries(groups)) {
         if (gfns.length > 1 || gname !== 'Другое') {
@@ -304,19 +413,28 @@ function loadCourse(key) {
             d.className = 'ch-group'; d.textContent = gname;
             chListEl.appendChild(d);
         }
-        for (const fn of gfns) {
+        for (const item of gfns) {
+            const fn = itemFile(item);
             const li = document.createElement('li');
-            li.textContent = prettyName(fn); li.title = fn;
+            li.textContent = itemLabel(item); li.title = fn;
             li.onclick = () => loadChapter(key, fn);
             chListEl.appendChild(li);
         }
     }
     fileCountEl.textContent = fns.length + ' файлов';
-    if (fns.length) loadChapter(key, fns[0]);
+    if (fns.length) {
+        const files = fns.map(itemFile);
+        const filename = preferredFile && files.includes(preferredFile) ? preferredFile : itemFile(fns[0]);
+        loadChapter(key, filename, options);
+    }
 }
 
 // ── Chapter loader ─────────────────────────────────────────────────────────
-async function loadChapter(course, filename) {
+async function loadChapter(course, filename, options = {}) {
+    currentCourse = course;
+    currentFile = filename;
+    if (options.updateUrl !== false) updateUrl(course, filename, Boolean(options.replaceUrl));
+
     chListEl.querySelectorAll('li').forEach(li =>
         li.classList.toggle('active', li.title === filename));
 
@@ -344,6 +462,11 @@ function renderContent(text) {
 }
 
 courseSel.onchange = () => loadCourse(courseSel.value);
+
+window.addEventListener('popstate', () => {
+    const route = readRoute();
+    loadCourse(route.course, route.file, { updateUrl: false });
+});
 
 init();
 </script>

@@ -1,195 +1,684 @@
 {
   "courses": {
     "ansible-devops": [
-      "appendix-a.md",
-      "book.md",
-      "chapter-00.md",
-      "chapter-01.md",
-      "chapter-02.md",
-      "chapter-03.md",
-      "chapter-04.md",
-      "chapter-05.md",
-      "chapter-06.md",
-      "chapter-07.md",
-      "chapter-08.md",
-      "chapter-09.md"
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шпаргалка команд"
+      },
+      {
+        "file": "book.md",
+        "title": "Ansible: Управление конфигурацией"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Зачем Ansible и как он работает"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Inventory и ansible.cfg"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: Ad-hoc команды и модули"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: Переменные"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Первый playbook"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Templates (Jinja2)"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Roles"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Vault — шифрование секретов"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Loops и conditions"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Тестирование и отладка"
+      }
     ],
     "cicd-devops": [
-      "appendix-a.md",
-      "appendix-b.md",
-      "appendix-c.md",
-      "book.md",
-      "chapter-00.md",
-      "chapter-01.md",
-      "chapter-02.md",
-      "chapter-03.md",
-      "chapter-04.md",
-      "chapter-05.md",
-      "chapter-06.md",
-      "chapter-07.md",
-      "chapter-08.md",
-      "chapter-09.md"
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шпаргалка по GitHub Actions"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Готовые шаблоны workflow"
+      },
+      {
+        "file": "appendix-c.md",
+        "title": "Приложение C: Диагностика пайплайнов"
+      },
+      {
+        "file": "book.md",
+        "title": "CI/CD для DevOps: Автоматизация от push до продакшна"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Что такое CI/CD и зачем это нужно"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Git — ветки, merge, pull request"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: Git Hooks — автоматизация на уровне git"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: Первый пайплайн"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Тесты в пайплайне"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Секреты и переменные окружения"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Сборка и публикация Docker-образа"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Автодеплой на сервер"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Стратегии деплоя"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Итоговый проект"
+      }
     ],
     "docker-devops": [
-      "appendix-a.md",
-      "appendix-b.md",
-      "appendix-c.md",
-      "book.md",
-      "chapter-00.md",
-      "chapter-01.md",
-      "chapter-02.md",
-      "chapter-03.md",
-      "chapter-04.md",
-      "chapter-05.md",
-      "chapter-06.md",
-      "chapter-07.md",
-      "chapter-08.md",
-      "chapter-09.md"
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шпаргалка команд Docker"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Готовые шаблоны"
+      },
+      {
+        "file": "appendix-c.md",
+        "title": "Приложение C: Диагностика"
+      },
+      {
+        "file": "book.md",
+        "title": "Docker для DevOps: Контейнеры, образы и Compose"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Зачем Docker и чем он отличается от виртуалки"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Первый контейнер"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: Образы"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: Dockerfile — написать свой образ"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Тома (Volumes) — данные которые не исчезают"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Сети Docker"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: docker-compose — весь стек одной командой"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Переменные окружения и секреты"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Nginx в Docker и полный стек"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Итоговый проект"
+      }
     ],
     "final-project": [
-      "book.md",
-      "checklist.md",
-      "playbook.md"
+      {
+        "file": "book.md",
+        "title": "Финальный проект: Production-сервер с нуля"
+      },
+      {
+        "file": "checklist.md",
+        "title": "Финальный чеклист: 30 пунктов"
+      },
+      {
+        "file": "playbook.md",
+        "title": "Playbook: Production-сервер с нуля"
+      }
     ],
     "final-projects-2": [
-      "appendix-a.md",
-      "book.md",
-      "project-1.md",
-      "project-2.md",
-      "project-3.md",
-      "project-4.md"
+      {
+        "file": "appendix-a.md",
+        "title": "Финальные проекты — Приложения"
+      },
+      {
+        "file": "book.md",
+        "title": "Финальные проекты: Production-инфраструктура"
+      },
+      {
+        "file": "project-1.md",
+        "title": "Проект 1: Production Python App"
+      },
+      {
+        "file": "project-2.md",
+        "title": "Проект 2: Микросервисы"
+      },
+      {
+        "file": "project-3.md",
+        "title": "Проект 3: Disaster Recovery"
+      },
+      {
+        "file": "project-4.md",
+        "title": "Проект 4: Platform Engineering"
+      }
     ],
     "gitops-devops": [
-      "appendix-a.md",
-      "book.md",
-      "chapter-00.md",
-      "chapter-01.md",
-      "chapter-02.md",
-      "chapter-03.md",
-      "chapter-04.md",
-      "chapter-05.md"
+      {
+        "file": "appendix-a.md",
+        "title": "GitOps — Приложения"
+      },
+      {
+        "file": "book.md",
+        "title": "GitOps: ArgoCD и продвинутый CI/CD"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Боль ручного деплоя"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: CI пайплайн"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: GitOps идея"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: ArgoCD установка"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: CI + ArgoCD — полный цикл"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Progressive Delivery"
+      }
     ],
     "infrastructure-devops": [
-      "appendix-a.md",
-      "appendix-b.md",
-      "appendix-c.md",
-      "book.md",
-      "chapter-00.md",
-      "chapter-01.md",
-      "chapter-02.md",
-      "chapter-03.md",
-      "chapter-04.md",
-      "chapter-05.md",
-      "chapter-06.md",
-      "chapter-07.md",
-      "chapter-08.md",
-      "chapter-09.md"
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шпаргалка команд PostgreSQL"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Готовые скрипты"
+      },
+      {
+        "file": "appendix-c.md",
+        "title": "Приложение C: Типичные проблемы"
+      },
+      {
+        "file": "book.md",
+        "title": "Инфраструктура сервера: База данных, бэкапы и надёжность"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Аудит текущего состояния"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Управление переменными окружения"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: Nginx — продвинутая настройка"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: PostgreSQL — правильная настройка"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Миграции базы данных"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Стратегия бэкапов"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Автоматические бэкапы"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Восстановление из бэкапа"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Управление ресурсами и стабильность сервера"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Итоговый проект"
+      }
     ],
     "kubernetes-advanced": [
-      "appendix-a.md",
-      "book.md",
-      "chapter-00.md",
-      "chapter-01.md",
-      "chapter-02.md",
-      "chapter-03.md",
-      "chapter-04.md",
-      "chapter-05.md",
-      "chapter-06.md",
-      "chapter-07.md",
-      "chapter-08.md",
-      "chapter-09.md"
+      {
+        "file": "appendix-a.md",
+        "title": "K8s Advanced — Приложения"
+      },
+      {
+        "file": "book.md",
+        "title": "K8s Advanced + Helm"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Что будем строить"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Ingress — HTTPS по домену"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: HPA — автомасштабирование"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: Resources — limits, requests"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: StatefulSet — БД в K8s"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: NetworkPolicy — фаервол для Pod'ов"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: RBAC — права в кластере"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Helm зачем"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Создаём Chart"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Helm практика"
+      }
     ],
     "kubernetes-basics": [
-      "appendix-a.md",
-      "book.md",
-      "chapter-00.md",
-      "chapter-01.md",
-      "chapter-02.md",
-      "chapter-03.md",
-      "chapter-04.md",
-      "chapter-05.md",
-      "chapter-06.md",
-      "chapter-07.md",
-      "chapter-08.md"
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шпаргалка kubectl"
+      },
+      {
+        "file": "book.md",
+        "title": "Kubernetes: Основы"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Зачем Kubernetes — честный разговор"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Pod — минимальная единица"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: Deployment — управление репликами"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: Service — сетевой доступ"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: ConfigMap и Secret"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Volume и PersistentVolume"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Namespace — изоляция окружений"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Деплой реального Python-приложения"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: kubectl шпаргалка (справочник)"
+      }
     ],
     "linux-for-devops": [
-      "book.md",
-      "chapter-00.md",
-      "chapter-01.md",
-      "chapter-02.md",
-      "chapter-03.md",
-      "chapter-04.md",
-      "chapter-05.md",
-      "chapter-06.md",
-      "chapter-07.md",
-      "chapter-08.md",
-      "chapter-09.md",
-      "chapter-10.md",
-      "chapter-11.md",
-      "chapter-12.md",
-      "chapter-13.md",
-      "chapter-14.md",
-      "exercises.md",
-      "practice-cheatsheet.md",
-      "practice-drill.md"
+      {
+        "file": "book.md",
+        "title": "Linux для DevOps: От новичка к уверенному пользователю"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Подготовка окружения"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Что такое Linux и зачем он DevOps'у"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: Первая команда и файловая система"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: Файлы и директории"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Права и владельцы"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Редакторы в терминале"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Процессы"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Системные сервисы и systemd"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Логи и диагностика"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Пользователи и группы"
+      },
+      {
+        "file": "chapter-10.md",
+        "title": "Глава 10: Сетевые основы"
+      },
+      {
+        "file": "chapter-11.md",
+        "title": "Глава 11: Диски и файловые системы"
+      },
+      {
+        "file": "chapter-12.md",
+        "title": "Глава 12: Shell-скрипты"
+      },
+      {
+        "file": "chapter-13.md",
+        "title": "Глава 13: Пакетные менеджеры и софт"
+      },
+      {
+        "file": "chapter-14.md",
+        "title": "Глава 14: Итоговый проект"
+      },
+      {
+        "file": "exercises.md",
+        "title": "Упражнения к книге «Linux для DevOps»"
+      },
+      {
+        "file": "practice-cheatsheet.md",
+        "title": "Шпаргалка к тренировочному списку — Книга 1: Linux для DevOps"
+      },
+      {
+        "file": "practice-drill.md",
+        "title": "Тренировочный список — Книга 1: Linux для DevOps"
+      }
     ],
     "monitoring-devops": [
-      "appendix-a.md",
-      "book.md",
-      "chapter-00.md",
-      "chapter-01.md",
-      "chapter-02.md",
-      "chapter-03.md",
-      "chapter-04.md",
-      "chapter-05.md",
-      "chapter-06.md",
-      "chapter-07.md"
+      {
+        "file": "appendix-a.md",
+        "title": "Мониторинг — Приложения"
+      },
+      {
+        "file": "book.md",
+        "title": "Prometheus + Grafana + Loki: Production-мониторинг"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Ломаем сервис — зачем мониторинг"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Prometheus — сбор метрик"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: PromQL"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: Инструментирование Python"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Grafana — дашборды"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Alertmanager — алерты в Telegram"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Loki — агрегация логов"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: LogQL — поиск по логам"
+      }
     ],
     "nginx-https-devops": [
-      "appendix-a.md",
-      "appendix-b.md",
-      "appendix-c.md",
-      "book.md",
-      "chapter-00.md",
-      "chapter-01.md",
-      "chapter-02.md",
-      "chapter-03.md",
-      "chapter-04.md",
-      "chapter-05.md",
-      "chapter-06.md",
-      "chapter-07.md",
-      "chapter-08.md",
-      "chapter-09.md"
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шпаргалка команд"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Готовые конфиги"
+      },
+      {
+        "file": "appendix-c.md",
+        "title": "Приложение C: Частые ошибки"
+      },
+      {
+        "file": "book.md",
+        "title": "Сеть для DevOps: Nginx, HTTPS, безопасность и Caddy"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Подготовка и обзор"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: HTTP/HTTPS изнутри"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: DNS — от домена до IP"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: Nginx — первые шаги"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Nginx как обратный прокси"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: HTTPS с Let's Encrypt"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Фаервол с ufw"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Диагностика сетевых проблем"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Caddy — твой реальный сервер"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Итоговый проект"
+      }
     ],
     "security-monitoring-devops": [
-      "appendix-a.md",
-      "appendix-b.md",
-      "appendix-c.md",
-      "book.md",
-      "chapter-00.md",
-      "chapter-01.md",
-      "chapter-02.md",
-      "chapter-03.md",
-      "chapter-04.md",
-      "chapter-05.md",
-      "chapter-06.md",
-      "chapter-07.md",
-      "chapter-08.md",
-      "chapter-09.md"
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шпаргалка команд"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Готовые скрипты"
+      },
+      {
+        "file": "appendix-c.md",
+        "title": "Приложение C: Признаки взлома"
+      },
+      {
+        "file": "book.md",
+        "title": "Безопасность и мониторинг: Защита, наблюдение и алертинг"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Модель угроз — от чего защищаемся"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: SSH — только ключи, никаких паролей"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: fail2ban — автоматическая блокировка"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: Обновления и патчи"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Минимизация поверхности атаки"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Метрики в реальном времени — Netdata"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Алерты в Telegram"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Логи и logwatch"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Аварийное восстановление — план действий"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Итоговый проект — hardened сервер"
+      }
     ],
     "terraform-devops": [
-      "appendix-a.md",
-      "book.md",
-      "chapter-00.md",
-      "chapter-01.md",
-      "chapter-02.md",
-      "chapter-03.md",
-      "chapter-04.md",
-      "chapter-05.md",
-      "chapter-06.md",
-      "chapter-07.md",
-      "chapter-08.md",
-      "chapter-09.md"
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шпаргалка команд"
+      },
+      {
+        "file": "book.md",
+        "title": "Terraform: Инфраструктура как код"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Зачем Terraform и что такое IaC"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Первый ресурс — читаем terraform plan"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: Переменные, outputs и data sources"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: Locals, выражения и функции"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Первый сервер — полный ресурс"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: State-файл — сердце Terraform"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Modules — переиспользуемые блоки"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Workspaces — dev/staging/prod"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Terraform + CI/CD"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Опасные операции"
+      }
     ]
   }
 }
