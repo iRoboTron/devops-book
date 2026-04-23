@@ -116,8 +116,12 @@ cd /opt/myapp
 ## ФАЗА 4: Файл переменных окружения (~5 мин)
 
 ```bash
-# Создать .env (заменить значения на реальные!)
-cat > /opt/myapp/.env << 'EOF'
+nano /opt/myapp/.env
+```
+
+Вставь в файл и замени значения на реальные:
+
+```env
 POSTGRES_USER=myapp
 POSTGRES_PASSWORD=ЗАМЕНИ_НА_СВОЙ_ПАРОЛЬ
 POSTGRES_DB=myapp_prod
@@ -128,8 +132,11 @@ BACKUP_DIR=/var/backups/myapp
 TG_TOKEN=TELEGRAM_BOT_TOKEN
 TG_CHAT_ID=TELEGRAM_CHAT_ID
 IMAGE_TAG=latest
-EOF
+```
 
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
+
+```bash
 # Закрыть от других пользователей (М5)
 chmod 600 /opt/myapp/.env
 ```
@@ -146,7 +153,12 @@ stat -c "%a" /opt/myapp/.env
 ## ФАЗА 5: docker-compose.yml (~10 мин)
 
 ```bash
-cat > /opt/myapp/docker-compose.yml << 'EOF'
+nano /opt/myapp/docker-compose.yml
+```
+
+Вставь в файл:
+
+```yaml
 services:
   app:
     image: ghcr.io/GITHUB_USER/REPO_NAME:${IMAGE_TAG}
@@ -182,8 +194,9 @@ volumes:
 
 networks:
   backend:
-EOF
 ```
+
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
 
 > Замени `GITHUB_USER/REPO_NAME` на свой репозиторий
 
@@ -192,15 +205,26 @@ EOF
 ## ФАЗА 6: Caddy — reverse proxy + авто-SSL (~15 мин)
 
 ```bash
-# Caddyfile
-cat > /opt/myapp/proxy/Caddyfile << 'EOF'
+nano /opt/myapp/proxy/Caddyfile
+```
+
+Вставь в файл:
+
+```caddy
 domain.ru {
     reverse_proxy localhost:8000
 }
-EOF
+```
 
-# docker-compose для Caddy
-cat > /opt/myapp/proxy/docker-compose.yml << 'EOF'
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
+
+```bash
+nano /opt/myapp/proxy/docker-compose.yml
+```
+
+Вставь в файл:
+
+```yaml
 services:
   caddy:
     image: caddy:2.10-alpine
@@ -210,8 +234,11 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ./data:/data
       - ./config:/config
-EOF
+```
 
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
+
+```bash
 # Запустить
 cd /opt/myapp/proxy
 docker compose up -d
@@ -287,9 +314,17 @@ rclone config
 # Директория бэкапов
 sudo mkdir -p /var/backups/myapp
 sudo chown deploy:deploy /var/backups/myapp
+```
 
-# Скрипт бэкапа
-cat > /opt/myapp/scripts/backup.sh << 'SCRIPT'
+Открой скрипт бэкапа:
+
+```bash
+nano /opt/myapp/scripts/backup.sh
+```
+
+Вставь в файл:
+
+```bash
 #!/bin/bash
 set -euo pipefail
 
@@ -319,8 +354,11 @@ rclone copy "$DEST" "remote:myapp-backup/${DATE}/"
 find "$BACKUP_DIR" -maxdepth 1 -type d -mtime +7 -exec rm -rf {} +
 
 echo "[$(date)] Backup OK: ${DEST}"
-SCRIPT
+```
 
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
+
+```bash
 chmod +x /opt/myapp/scripts/backup.sh
 
 # Проверить вручную
@@ -328,10 +366,16 @@ chmod +x /opt/myapp/scripts/backup.sh
 ```
 
 ```bash
-# Cron: 03:00 каждую ночь
-echo "0 3 * * * deploy /opt/myapp/scripts/backup.sh >> /var/log/myapp-backup.log 2>&1" \
-  | sudo tee /etc/cron.d/myapp-backup
+sudo nano /etc/cron.d/myapp-backup
 ```
+
+Вставь в файл:
+
+```cron
+0 3 * * * deploy /opt/myapp/scripts/backup.sh >> /var/log/myapp-backup.log 2>&1
+```
+
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
 
 ### Проверка фазы 9
 
@@ -349,8 +393,12 @@ rclone ls remote:myapp-backup/
 
 ```bash
 sudo apt install -y fail2ban
+sudo nano /etc/fail2ban/jail.local
+```
 
-sudo cat > /etc/fail2ban/jail.local << 'EOF'
+Вставь в файл:
+
+```ini
 [DEFAULT]
 bantime  = 1h
 findtime = 10m
@@ -362,8 +410,11 @@ enabled = true
 
 [nginx-http-auth]
 enabled = true
-EOF
+```
 
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
+
+```bash
 sudo systemctl enable --now fail2ban
 ```
 
@@ -420,14 +471,31 @@ systemctl status netdata
 
 ```bash
 # Конфиг с токенами
-sudo cat > /etc/alerting.env << 'EOF'
+sudo nano /etc/alerting.env
+```
+
+Вставь в файл:
+
+```env
 TG_TOKEN=TELEGRAM_BOT_TOKEN
 TG_CHAT_ID=TELEGRAM_CHAT_ID
-EOF
-sudo chmod 600 /etc/alerting.env
+```
 
-# Скрипт мониторинга
-cat > /opt/myapp/scripts/health-monitor.sh << 'SCRIPT'
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
+
+```bash
+sudo chmod 600 /etc/alerting.env
+```
+
+Открой скрипт мониторинга:
+
+```bash
+nano /opt/myapp/scripts/health-monitor.sh
+```
+
+Вставь в файл:
+
+```bash
 #!/bin/bash
 set -euo pipefail
 
@@ -464,12 +532,23 @@ if [ ${#ALERTS[@]} -gt 0 ]; then
     MSG+="\n⏰ $(date '+%Y-%m-%d %H:%M')"
     send_alert "$MSG"
 fi
-SCRIPT
+```
 
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
+
+```bash
 chmod +x /opt/myapp/scripts/health-monitor.sh
+```
 
-# Ежедневный отчёт
-cat > /opt/myapp/scripts/daily-report.sh << 'SCRIPT'
+Открой скрипт ежедневного отчёта:
+
+```bash
+nano /opt/myapp/scripts/daily-report.sh
+```
+
+Вставь в файл:
+
+```bash
 #!/bin/bash
 source /etc/alerting.env
 HOSTNAME=$(hostname)
@@ -487,14 +566,28 @@ MSG+="\n⏰ $(date '+%Y-%m-%d')"
 
 curl -s -X POST "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
   -d "chat_id=${TG_CHAT_ID}" -d "text=${MSG}" -d "parse_mode=HTML" > /dev/null
-SCRIPT
-
-chmod +x /opt/myapp/scripts/daily-report.sh
-
-# Cron: каждые 5 минут + ежедневный отчёт
-echo "*/5 * * * * deploy /opt/myapp/scripts/health-monitor.sh" | sudo tee /etc/cron.d/myapp-monitor
-echo "0 8 * * * deploy /opt/myapp/scripts/daily-report.sh" | sudo tee -a /etc/cron.d/myapp-monitor
 ```
+
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
+
+```bash
+chmod +x /opt/myapp/scripts/daily-report.sh
+```
+
+Открой cron-файл:
+
+```bash
+sudo nano /etc/cron.d/myapp-monitor
+```
+
+Вставь в файл:
+
+```cron
+*/5 * * * * deploy /opt/myapp/scripts/health-monitor.sh
+0 8 * * * deploy /opt/myapp/scripts/daily-report.sh
+```
+
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
 
 ### Проверка фазы 13
 
@@ -513,9 +606,19 @@ echo "0 8 * * * deploy /opt/myapp/scripts/daily-report.sh" | sudo tee -a /etc/cr
 # SSH-ключ для GitHub Actions
 ssh-keygen -t ed25519 -f ~/.ssh/github_actions -N ""
 
-# Добавить публичный ключ
-cat ~/.ssh/github_actions.pub >> ~/.ssh/authorized_keys
+# Показать публичный ключ
+cat ~/.ssh/github_actions.pub
+```
 
+Скопируй выведенную строку, открой `authorized_keys`:
+
+```bash
+nano ~/.ssh/authorized_keys
+```
+
+Вставь публичный ключ новой строкой, сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
+
+```bash
 # Показать приватный — скопировать в GitHub Secrets
 cat ~/.ssh/github_actions
 ```
@@ -534,7 +637,12 @@ Settings → Secrets and variables → Actions → New repository secret:
 
 ```bash
 mkdir -p .github/workflows
-cat > .github/workflows/deploy.yml << 'EOF'
+nano .github/workflows/deploy.yml
+```
+
+Вставь в файл:
+
+```yaml
 name: Deploy
 
 on:
@@ -586,8 +694,11 @@ jobs:
             docker compose up -d --no-deps app
             docker compose exec -T app alembic upgrade head || true
             docker image prune -f
-EOF
+```
 
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
+
+```bash
 git add .github/workflows/deploy.yml
 git commit -m "Add CI/CD pipeline"
 git push

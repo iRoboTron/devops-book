@@ -47,7 +47,18 @@ ansible-playbook site.yml --ask-vault-pass
 Или через файл пароля:
 
 ```bash
-echo "my-vault-password" > .vault_pass
+nano .vault_pass
+```
+
+Вставь в файл пароль одной строкой:
+
+```text
+my-vault-password
+```
+
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
+
+```bash
 chmod 600 .vault_pass
 
 ansible-playbook site.yml --vault-password-file .vault_pass

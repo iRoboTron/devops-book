@@ -306,7 +306,7 @@ git log --oneline --graph --all
 1. Создай репозиторий на GitHub (или используй существующий)
 2. Клонируй: `git clone git@github.com:user/repo.git`
 3. Создай ветку: `git checkout -b feature/test`
-4. Создай файл: `echo "test" > test.txt`
+4. Создай файл: `nano test.txt`, вставь `test`, сохрани: `Ctrl+O`, `Enter`, `Ctrl+X`
 5. Закоммить: `git add . && git commit -m "Add test file"`
 6. Запушь: `git push -u origin feature/test`
 

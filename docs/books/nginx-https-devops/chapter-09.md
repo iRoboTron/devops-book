@@ -257,7 +257,12 @@ sudo -u myapp /var/www/myapp/.venv/bin/pip list
 ### Создай приложение
 
 ```bash
-sudo tee /var/www/myapp/app.py > /dev/null <<'EOF'
+sudo -u myapp nano /var/www/myapp/app.py
+```
+
+Вставь в файл:
+
+```python
 from datetime import datetime, timezone
 
 from flask import Flask, jsonify, request
@@ -295,8 +300,9 @@ def health():
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=8000)
-EOF
 ```
+
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
 
 Верни правильного владельца:
 
@@ -339,7 +345,12 @@ curl http://127.0.0.1:8000/health
 ### Создай сервис
 
 ```bash
-sudo tee /etc/systemd/system/myapp.service > /dev/null <<'EOF'
+sudo nano /etc/systemd/system/myapp.service
+```
+
+Вставь в файл:
+
+```ini
 [Unit]
 Description=My DevOps Python Application
 Wants=network-online.target
@@ -360,8 +371,9 @@ SyslogIdentifier=myapp
 
 [Install]
 WantedBy=multi-user.target
-EOF
 ```
+
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
 
 ### Запусти
 
@@ -405,7 +417,12 @@ ss -tlnp | grep 8000
 ### Создай конфиг
 
 ```bash
-sudo tee /etc/nginx/sites-available/myapp.conf > /dev/null <<'EOF'
+sudo nano /etc/nginx/sites-available/myapp.conf
+```
+
+Вставь в файл:
+
+```nginx
 server {
     listen 80;
     server_name myapp.local;
@@ -427,8 +444,9 @@ server {
         proxy_send_timeout 60s;
     }
 }
-EOF
 ```
+
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
 
 Если используешь реальный домен, замени `myapp.local`:
 
@@ -492,7 +510,12 @@ sudo openssl req -x509 -nodes -days 365 \
 Добавь SSL в конфиг Nginx:
 
 ```bash
-sudo tee /etc/nginx/sites-available/myapp.conf > /dev/null <<'EOF'
+sudo nano /etc/nginx/sites-available/myapp.conf
+```
+
+Полностью замени содержимое файла на:
+
+```nginx
 # HTTP — редирект
 server {
     listen 80;
@@ -526,8 +549,9 @@ server {
         proxy_send_timeout 60s;
     }
 }
-EOF
 ```
+
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
 
 ```bash
 sudo nginx -t
@@ -584,7 +608,12 @@ ss -tlnp | grep 8000
 
 ```bash
 sudo mkdir -p /var/www/errors
-sudo tee /var/www/errors/502.html > /dev/null <<'EOF'
+sudo nano /var/www/errors/502.html
+```
+
+Вставь в файл:
+
+```html
 <!DOCTYPE html>
 <html>
 <head><title>Сервис временно недоступен</title></head>
@@ -595,8 +624,9 @@ sudo tee /var/www/errors/502.html > /dev/null <<'EOF'
     <p><small>Попробуйте обновить страницу через минуту.</small></p>
 </body>
 </html>
-EOF
 ```
+
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
 
 ### Добавь в конфиг Nginx
 
@@ -641,7 +671,12 @@ sudo systemctl start myapp
 ### Создай скрипт
 
 ```bash
-sudo tee /usr/local/bin/check-myapp.sh > /dev/null <<'EOF'
+sudo nano /usr/local/bin/check-myapp.sh
+```
+
+Вставь в файл:
+
+```bash
 #!/bin/bash
 set -u
 
@@ -689,8 +724,9 @@ if command -v certbot &>/dev/null; then
 fi
 
 log "---"
-EOF
 ```
+
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
 
 ### Сделай выполняемым
 

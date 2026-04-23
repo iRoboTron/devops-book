@@ -90,13 +90,29 @@ touch config/settings.conf
 
 **16. Записать строку в файл**
 ```bash
-echo "PORT=8000" > config/settings.conf
+nano config/settings.conf
 ```
+
+Вставь:
+
+```text
+PORT=8000
+```
+
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
 
 **17. Добавить строку не затирая (append)**
 ```bash
-echo "DEBUG=true" >> config/settings.conf
+nano config/settings.conf
 ```
+
+Добавь второй строкой:
+
+```text
+DEBUG=true
+```
+
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
 
 **18. Вывести содержимое файла**
 ```bash
@@ -163,9 +179,17 @@ chmod 600 config/settings.conf
 
 **29. Записать строку в main.py**
 ```bash
-echo '#!/usr/bin/env python3' > app/main.py
-echo 'print("Hello from DevOps practice!")' >> app/main.py
+nano app/main.py
 ```
+
+Вставь в файл:
+
+```python
+#!/usr/bin/env python3
+print("Hello from DevOps practice!")
+```
+
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
 
 **30. Запустить файл как исполняемый**
 ```bash
@@ -600,7 +624,12 @@ sudo apt remove -y tree
 
 **99–101. Создать и написать скрипт**
 ```bash
-cat > ~/devops-practice/app/check.sh << 'EOF'
+nano ~/devops-practice/app/check.sh
+```
+
+Вставь в файл:
+
+```bash
 #!/bin/bash
 set -e
 
@@ -616,8 +645,11 @@ if [ "$FREE_GB" -lt 1 ]; then
 else
     echo "OK: disk space is fine"
 fi
-EOF
+```
 
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
+
+```bash
 chmod +x ~/devops-practice/app/check.sh
 ```
 

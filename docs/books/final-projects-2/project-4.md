@@ -32,8 +32,13 @@ terraform apply → ansible-playbook → ArgoCD → Prometheus → Loki
 ### Фаза 2: Guardrails
 
 ```bash
-# 1. ResourceQuota
-kubectl apply -f - <<EOF
+mkdir -p guardrails
+nano guardrails/resourcequota.yaml
+```
+
+Вставь в файл:
+
+```yaml
 apiVersion: v1
 kind: ResourceQuota
 metadata:
@@ -44,10 +49,17 @@ spec:
     requests.cpu: "4"
     requests.memory: 8Gi
     pods: "20"
-EOF
+```
 
-# 2. LimitRange
-kubectl apply -f - <<EOF
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
+
+```bash
+nano guardrails/limitrange.yaml
+```
+
+Вставь в файл:
+
+```yaml
 apiVersion: v1
 kind: LimitRange
 metadata:
@@ -62,10 +74,17 @@ spec:
     defaultRequest:
       cpu: "100m"
       memory: "128Mi"
-EOF
+```
 
-# 3. NetworkPolicy (deny all)
-kubectl apply -f - <<EOF
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
+
+```bash
+nano guardrails/networkpolicy-deny-all.yaml
+```
+
+Вставь в файл:
+
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -76,7 +95,14 @@ spec:
   policyTypes:
   - Ingress
   - Egress
-EOF
+```
+
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
+
+```bash
+kubectl apply -f guardrails/resourcequota.yaml
+kubectl apply -f guardrails/limitrange.yaml
+kubectl apply -f guardrails/networkpolicy-deny-all.yaml
 
 # 4. PodSecurity
 kubectl label namespace tenant pod-security.kubernetes.io/enforce=restricted

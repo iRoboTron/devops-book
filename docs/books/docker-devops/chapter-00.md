@@ -286,12 +286,18 @@ sudo chmod a+r /etc/apt/keyrings/docker.gpg
 ### Шаг 4: Добавь репозиторий
 
 ```bash
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
-  https://download.docker.com/linux/ubuntu \
-  $(lsb_release -cs) stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+dpkg --print-architecture
+lsb_release -cs
+sudo nano /etc/apt/sources.list.d/docker.list
 ```
+
+Вставь одну строку. Замени `amd64` на вывод `dpkg --print-architecture`, а `noble` — на вывод `lsb_release -cs`:
+
+```text
+deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu noble stable
+```
+
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
 
 ### Шаг 5: Установи Docker
 

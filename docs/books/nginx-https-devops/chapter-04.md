@@ -474,8 +474,13 @@ access_log /var/log/nginx/upstream.log upstream_log;
 1. Создай статический файл:
    ```bash
    mkdir -p /var/www/myapp/static
-   echo "<h1>Static!</h1>" > /var/www/myapp/static/test.html
+   nano /var/www/myapp/static/test.html
    ```
+   Вставь в файл:
+   ```html
+   <h1>Static!</h1>
+   ```
+   Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
 2. Добавь `location /static/` в конфиг (как в 4.5)
 3. Проверь: `curl http://myapp.local/static/test.html`
 4. Проверь что динамика тоже работает: `curl http://myapp.local/api`
