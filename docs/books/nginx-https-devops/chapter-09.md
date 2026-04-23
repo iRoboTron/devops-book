@@ -209,12 +209,20 @@ ls -ld /var/www/myapp /var/log/myapp
 
 В этом проекте приложение будет на Flask, а запускать его в production-стиле будет Gunicorn.
 
+Открой файл в редакторе. Если файла ещё нет, `nano` создаст его при сохранении:
+
 ```bash
-sudo tee /var/www/myapp/requirements.txt > /dev/null <<'EOF'
+sudo -u myapp nano /var/www/myapp/requirements.txt
+```
+
+Вставь в файл ровно эти строки:
+
+```text
 Flask>=3.0,<4
 gunicorn>=22,<24
-EOF
 ```
+
+Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
 
 Проверь:
 
