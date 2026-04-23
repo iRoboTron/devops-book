@@ -132,9 +132,10 @@
             background: #161b22;
             border: 1px solid #30363d;
             border-radius: 8px;
-            padding: 16px 20px;
+            padding: 42px 20px 16px;
             overflow-x: auto;
             margin: 14px 0;
+            position: relative;
         }
         .markdown-body pre code {
             background: transparent;
@@ -143,6 +144,35 @@
             padding: 0;
             font-size: 13.5px;
             line-height: 1.6;
+        }
+        .code-copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            background: #21262d;
+            color: #c9d1d9;
+            padding: 5px 10px;
+            font-size: 12px;
+            line-height: 1.2;
+            cursor: pointer;
+            transition: background .15s ease, color .15s ease, border-color .15s ease;
+        }
+        .code-copy-btn:hover {
+            background: #30363d;
+            color: #fff;
+            border-color: #8b949e;
+        }
+        .code-copy-btn.copied {
+            background: #238636;
+            color: #fff;
+            border-color: #2ea043;
+        }
+        .code-copy-btn.failed {
+            background: #da3633;
+            color: #fff;
+            border-color: #f85149;
         }
 
         /* Цитата (blockquote) */
@@ -459,6 +489,62 @@ function renderContent(text) {
     contentEl.innerHTML = marked.parse(text);
     document.getElementById('main').scrollTo(0, 0);
     contentEl.querySelectorAll('pre code').forEach(block => hljs.highlightElement(block));
+    enhanceCodeBlocks();
+}
+
+async function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+    }
+
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.top = '-1000px';
+    textarea.style.left = '-1000px';
+    document.body.appendChild(textarea);
+    textarea.select();
+
+    try {
+        if (!document.execCommand('copy')) throw new Error('copy failed');
+    } finally {
+        textarea.remove();
+    }
+}
+
+function enhanceCodeBlocks() {
+    contentEl.querySelectorAll('pre').forEach(pre => {
+        const code = pre.querySelector('code');
+        if (!code || pre.querySelector('.code-copy-btn')) return;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'code-copy-btn';
+        btn.textContent = 'Копировать';
+        btn.setAttribute('aria-label', 'Скопировать код');
+        btn.title = 'Скопировать код';
+
+        btn.addEventListener('click', async () => {
+            try {
+                await copyText(code.textContent);
+                btn.textContent = 'Скопировано';
+                btn.classList.remove('failed');
+                btn.classList.add('copied');
+            } catch (err) {
+                btn.textContent = 'Ошибка';
+                btn.classList.remove('copied');
+                btn.classList.add('failed');
+            }
+            setTimeout(() => {
+                btn.textContent = 'Копировать';
+                btn.classList.remove('copied', 'failed');
+            }, 1600);
+        });
+
+        pre.appendChild(btn);
+    });
 }
 
 courseSel.onchange = () => loadCourse(courseSel.value);
