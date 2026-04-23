@@ -44,7 +44,7 @@
   - Rolling update, rollback, blue-green, ручное подтверждение
 
 - [**Глава 9: Итоговый проект**](chapter-09.md)
-  - Полный пайплайн с нуля, rollback-скрипт, бейдж в README
+  - Продолжение Docker-проекта из книги 3: GitHub Actions, deploy в `/opt/myapp`, rollback, бейдж в README
 
 ### Приложения
 
@@ -91,7 +91,8 @@ CI/CD — это **конвейер** который берёт твой код 
 - Пройдены Модули 1–3 (Linux + Сеть + Docker)
 - GitHub-аккаунт
 - Сервер с Docker (виртуалка или VPS)
-- Репозиторий с Python-приложением и docker-compose.yml
+- Docker-проект из книги 3 в `/opt/myapp`
+- Репозиторий с Python-приложением и `docker-compose.yml`
 
 ---
 

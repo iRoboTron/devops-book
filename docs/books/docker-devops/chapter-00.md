@@ -384,7 +384,7 @@ Cgroup Driver: systemd
 ```
 docker-compose up -d
         │
-        ├── [nginx:443] ← обратный прокси + SSL
+        ├── [nginx:80] ← обратный прокси в Docker
         │       │
         │       ▼
         ├── [python-app:8000] ← твоё приложение

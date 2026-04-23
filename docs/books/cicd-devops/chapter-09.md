@@ -6,7 +6,7 @@
 
 ## 9.1 Цель
 
-Настроить полный пайплайн с нуля:
+Настроить полный пайплайн для Docker-проекта из книги 3:
 
 ```
 git push → Тесты → Docker build → ghcr.io → Deploy → Health check
@@ -25,6 +25,23 @@ git push → Тесты → Docker build → ghcr.io → Deploy → Health check
 - ✅ Rollback-скрипт на сервере
 - ✅ Healthcheck в docker-compose.yml
 - ✅ Бейдж статуса CI в README.md
+
+---
+
+## Стартовая точка
+
+Тип проекта: **продолжение итогового проекта книги 3**.
+
+Ты не начинаешь с чистой VM и не продолжаешь host-приложение из книги 2. До этой главы у тебя уже должен быть Docker-проект из книги 3 в каталоге `/opt/myapp`.
+
+До начала должно быть:
+- сервер или VM с Docker и Docker Compose plugin;
+- каталог `/opt/myapp` с `Dockerfile`, `docker-compose.yml`, `.env.example`, `main.py`, `requirements.txt` и `nginx/conf.d/app.conf`;
+- `docker compose up -d` поднимает `app`, `db` и `nginx`;
+- `curl http://localhost/health` возвращает успешный ответ;
+- GitHub-аккаунт и пустой или новый репозиторий для этого проекта.
+
+Если у тебя чистая VM, сначала пройди итоговый проект книги 3. Если у тебя сервер после книги 2, не смешивай его с этой главой: создай отдельную Docker-VM или останови host Nginx и перенеси проект в `/opt/myapp`.
 
 ---
 
@@ -210,6 +227,14 @@ ssh-copy-id -i ~/.ssh/ci_deploy.pub deploy@server
 ```bash
 sudo mkdir -p /opt/myapp
 sudo chown deploy:deploy /opt/myapp
+```
+
+Если `/opt/myapp` уже создан в книге 3, не удаляй его. Передай владельца пользователю `deploy` и проверь, что файлы проекта на месте:
+
+```bash
+sudo chown -R deploy:deploy /opt/myapp
+ls -la /opt/myapp
+test -f /opt/myapp/docker-compose.yml
 ```
 
 ### docker-compose.yml

@@ -44,7 +44,7 @@
   - Nginx в compose, две сети, SSL из хоста, `restart: unless-stopped`
 
 - [**Глава 9: Итоговый проект**](chapter-09.md)
-  - Полный стек с нуля, Makefile, чеклист готовности
+  - Новый Docker-проект на отдельной Docker-VM: `/opt/myapp`, app + db + nginx, Makefile, чеклист готовности
 
 ### Приложения
 
@@ -59,7 +59,7 @@
 ```
 docker-compose up -d
         │
-        ├── [nginx:443] ← ./nginx/conf.d/app.conf
+        ├── [nginx:80] ← ./nginx/conf.d/app.conf
         │       │ proxy_pass
         │       ▼
         ├── [python-app:8000] ← Dockerfile (твой код)
@@ -97,6 +97,7 @@ Docker решает одну проблему: **"у меня работает, 
 
 - Пройдены Модули 1 и 2 (Linux + Сеть/Nginx)
 - Установленная Ubuntu Server
+- Для итогового проекта — новая Docker-VM или свободный порт 80 без host Nginx из книги 2
 - Умение: `systemctl`, `nano`, `curl`, базовая сеть
 
 ---
