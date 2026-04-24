@@ -1,4 +1,4 @@
-# Cloud, Docker и Kubernetes Security: IAM, secrets, images и runtime
+# Безопасность облака, Docker и Kubernetes: IAM, secrets, images и runtime
 
 > Книга 18: связать cloud perimeter, контейнеры, secrets и runtime-защиту в один практический security-подход.
 
@@ -8,8 +8,8 @@
 
 ### Подготовка
 
-- [**Глава 0: Threat model cloud и container среды**](chapter-00.md)
-  - Активы, trust boundaries, control plane, registry и runtime.
+- [**Глава 0: Модель угроз облачной и контейнерной среды**](chapter-00.md)
+  - Активы, границы доверия, control plane, registry и runtime.
 
 ### Часть 1: Cloud и доступ
 
@@ -64,4 +64,13 @@
 
 ---
 
-*Cloud, Docker и Kubernetes Security: IAM, secrets, images и runtime — Курс Security Engineering, Модуль 18*
+## Где особенно полезна книга
+
+- один VPS с Docker и публичным приложением;
+- облачный проект с `docker-compose` или managed-сервисами;
+- команда, которая уже деплоит в cloud, но пока не собрала IAM, secrets и runtime-защиту в систему;
+- путь от небольшого контейнерного сервиса к более зрелой Kubernetes-среде.
+
+---
+
+*Безопасность облака, Docker и Kubernetes: IAM, secrets, images и runtime — Курс Security Engineering, Модуль 18*
