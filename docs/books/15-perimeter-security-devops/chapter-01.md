@@ -153,12 +153,51 @@ sudo ufw status verbose
 sudo lsof -i -P -n | grep LISTEN
 ```
 
+Пример вывода `ss -tulpn`:
+
+```
+Netid State  Local Address:Port  Process
+tcp   LISTEN 0.0.0.0:22          users:(("sshd",pid=812,fd=3))
+tcp   LISTEN 0.0.0.0:5432        users:(("postgres",pid=1044,fd=5))
+tcp   LISTEN 127.0.0.1:8000      users:(("python3",pid=1550,fd=7))
+```
+
+Что здесь искать:
+- `0.0.0.0:22` — SSH слушает все интерфейсы, это нормально только если порт реально должен быть публичным;
+- `0.0.0.0:5432` — PostgreSQL торчит наружу, для обычного VPS это плохой признак;
+- `127.0.0.1:8000` — backend доступен только локально, это правильный вариант для сервиса за reverse proxy.
+
+Задача проверки простая: публичных строк должно быть ровно столько, сколько нужно для твоего сценария.
+
 ### С другой своей машины
 
 ```bash
 nmap -Pn SERVER_IP
 nmap -Pn -p 22,80,443,5432,3306,6379 SERVER_IP
 ```
+
+Пример разницы до и после firewall:
+
+```
+# До ufw
+PORT     STATE  SERVICE
+22/tcp   open   ssh
+80/tcp   open   http
+5432/tcp open   postgresql
+```
+
+```
+# После ufw deny incoming + allow 22,80,443
+PORT     STATE     SERVICE
+22/tcp   open      ssh
+80/tcp   open      http
+5432/tcp filtered  postgresql
+```
+
+Что это значит:
+- `open` — сервис отвечает и его реально видно снаружи;
+- `filtered` — пакет режется firewall-ом или gateway, сервис уже не торчит в интернет;
+- если `5432` по-прежнему `open`, значит слой периметра настроен не так, как ты ожидал.
 
 Смысл не в самом `nmap`, а в вопросе: **видно ли снаружи что-то лишнее**.
 

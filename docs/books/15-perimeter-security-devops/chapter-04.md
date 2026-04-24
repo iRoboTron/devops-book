@@ -74,6 +74,25 @@ sudo ufw allow 443/tcp
 sudo ufw status verbose
 ```
 
+Пример правильного результата:
+
+```
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), deny (routed)
+
+To                         Action      From
+--                         ------      ----
+OpenSSH                    ALLOW IN    Anywhere
+80/tcp                     ALLOW IN    Anywhere
+443/tcp                    ALLOW IN    Anywhere
+```
+
+Что здесь проверяем:
+- `Default: deny (incoming)` — главный признак, что политика закрывает всё лишнее по умолчанию;
+- в списке правил есть только осознанно опубликованные сервисы;
+- здесь не должно быть `5432`, `3306`, `6379`, `8080`, `9090`, если это не специальный учебный сценарий.
+
 Если сервер удалённый, сначала убедись, что SSH разрешён, и только потом включай firewall.
 
 ### Включить firewall

@@ -57,6 +57,19 @@ sudo pstree -p
 - Admin panels `:8080`, `:9000`, `:9090`
 - Docker API если кто-то открыл его бездумно
 
+Пример вывода `ss -tulpn`, где уже видно проблему:
+
+```
+tcp LISTEN 0.0.0.0:6379   users:(("redis-server",pid=923,fd=6))
+tcp LISTEN 0.0.0.0:9090   users:(("grafana-server",pid=1047,fd=8))
+tcp LISTEN 127.0.0.1:8000 users:(("python3",pid=1550,fd=7))
+```
+
+Как это читать:
+- `0.0.0.0:6379` — Redis открыт всем интерфейсам, хотя чаще всего он нужен только приложению;
+- `0.0.0.0:9090` — dashboard торчит наружу, это лишняя публичная поверхность;
+- `127.0.0.1:8000` — сервис доступен только локально, это безопаснее для backend за proxy.
+
 ### Принцип
 
 Если сервис нужен только локально, он должен слушать:
@@ -118,6 +131,33 @@ ss -tulpn | grep PORT
 - PostgreSQL: `listen_addresses = 'localhost'`
 - admin UI: слушать только `127.0.0.1`
 - backend behind proxy: bind на `127.0.0.1:8000`
+
+Практический пример для PostgreSQL:
+
+```bash
+sudo nano /etc/postgresql/*/main/postgresql.conf
+```
+
+Внутри файла:
+
+```ini
+listen_addresses = 'localhost'
+```
+
+Применение:
+
+```bash
+sudo systemctl restart postgresql
+ss -tulpn | grep 5432
+```
+
+Ожидаемый вывод после:
+
+```
+tcp LISTEN 127.0.0.1:5432 users:(("postgres",pid=1044,fd=5))
+```
+
+Почему это важно: теперь PostgreSQL принимает подключения только с самого хоста, и даже ошибка во внешнем firewall не сделает его публичным.
 
 ### Шаг 4. Снова снять baseline
 

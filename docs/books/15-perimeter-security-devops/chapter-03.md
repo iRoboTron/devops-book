@@ -36,7 +36,7 @@
 
 ## 3.3 Практический baseline для `sshd_config`
 
-```text
+```ini
 PermitRootLogin no
 PasswordAuthentication no
 PubkeyAuthentication yes
@@ -109,6 +109,41 @@ sudo systemctl reload sshd
 - SSH только через VPN;
 - или через bastion/jump host;
 - или через allowlist по IP.
+
+---
+
+## 3.5а Как выглядит атака в логах
+
+После включения hardening важно уметь читать следы brute-force в логах.
+
+Пример из `/var/log/auth.log`:
+
+```
+Apr 15 03:12:01 server sshd[12345]: Failed password for invalid user admin from 185.234.10.11 port 44321 ssh2
+Apr 15 03:12:03 server sshd[12346]: Failed password for invalid user root from 185.234.10.11 port 44322 ssh2
+Apr 15 03:12:05 server sshd[12347]: Failed password for invalid user ubuntu from 185.234.10.11 port 44323 ssh2
+```
+
+Что это показывает:
+- один и тот же IP перебирает стандартные имена пользователей;
+- `Failed password` — событие, по которому fail2ban понимает, что это неудачный логин;
+- после `MaxAuthTries 3` одна SSH-сессия даёт только несколько попыток, значит бот быстрее упрётся в лимит.
+
+Быстрый подсчёт самых шумных IP:
+
+```bash
+sudo grep "Failed password" /var/log/auth.log | awk '{print $11}' | sort | uniq -c | sort -rn | head -10
+```
+
+Пример вывода:
+
+```
+124 185.234.10.11
+ 88 91.240.118.17
+ 34 203.0.113.41
+```
+
+Этот список нужен не для ручной борьбы с каждым IP, а чтобы увидеть масштаб шума до и после fail2ban.
 
 ---
 

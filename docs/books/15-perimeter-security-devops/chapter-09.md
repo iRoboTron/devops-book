@@ -126,11 +126,42 @@ sudo ufw status verbose
 - какие сервисы реально нужны;
 - какие endpoints чувствительны.
 
+Ожидаемый результат фазы:
+
+```bash
+ss -tulpn
+```
+
+```
+LISTEN 0.0.0.0:22
+LISTEN 0.0.0.0:5432
+LISTEN 127.0.0.1:8000
+```
+
+Это baseline. Ты ещё ничего не исправляешь, только отмечаешь строки с `0.0.0.0` и решаешь, какие из них действительно должны остаться публичными.
+
 ### Фаза 2: Сокращение поверхности атаки
 
 - выключи лишние сервисы;
 - закрой лишние порты;
 - убери bind на `0.0.0.0`, если не нужен.
+
+Ожидаемый результат фазы:
+
+```bash
+ss -tulpn
+nmap -Pn -p 22,80,443,5432,3306,6379 SERVER_IP
+```
+
+```
+22/tcp   open      ssh
+80/tcp   open      http
+443/tcp  open      https
+5432/tcp filtered  postgresql
+6379/tcp filtered  redis
+```
+
+Если база и внутренние сервисы всё ещё `open`, поверхность атаки реально не сократилась.
 
 ### Фаза 3: Усиление административного входа
 
@@ -138,15 +169,76 @@ sudo ufw status verbose
 - root login запрещён;
 - лимиты логина настроены.
 
+Ожидаемый результат фазы:
+
+```bash
+ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no user@SERVER
+```
+
+```
+user@SERVER: Permission denied (publickey).
+```
+
+И отдельно:
+
+```bash
+sudo sshd -T | grep -E 'permitrootlogin|passwordauthentication|maxauthtries'
+```
+
+```
+permitrootlogin no
+passwordauthentication no
+maxauthtries 3
+```
+
+Если парольный вход всё ещё проходит, hardening ещё не применился.
+
 ### Фаза 4: Веб-вход и автоматические реакции
 
 - reverse proxy на входе;
 - rate limit;
 - fail2ban/CrowdSec.
 
+Ожидаемый результат фазы:
+
+```bash
+sudo fail2ban-client status sshd
+curl -sI https://HOST | grep -Ei 'x-frame|x-content|strict-transport|referrer'
+```
+
+```
+Status for the jail: sshd
+|- Filter
+|  |- Currently failed: 0
+`- Actions
+   |- Currently banned: 0
+```
+
+```
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+```
+
+`Currently banned: 0` в спокойном режиме нормально. После controlled test должен появиться адрес в `Banned IP list`.
+
 ### Фаза 5: Controlled checks
 
 Проверяй только своими машинами и только то, что реально построил.
+
+Ожидаемый результат фазы:
+
+```bash
+ssh wronguser@SERVER_IP
+for i in $(seq 1 10); do curl -s -o /dev/null -w "%{http_code}\n" https://HOST/login; done
+sudo journalctl -u fail2ban -n 20 --no-pager
+```
+
+```
+fail2ban.actions: NOTICE  [sshd] Ban 10.0.0.5
+```
+
+Итог фазы такой: ты можешь показать не только конфиги, но и следы того, что защита реально сработала на своём стенде.
 
 ---
 

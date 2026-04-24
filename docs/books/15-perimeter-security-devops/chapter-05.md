@@ -26,12 +26,43 @@ Rate limit не решает всё, но помогает против:
 - простого brute-force на форму логина;
 - дешёвого application-layer мусора.
 
-Пример мысли, а не магии:
+Рабочий пример для `nginx`:
 
-```text
-если один IP шлёт слишком много запросов к /login
--> надо замедлить или ограничить его
+```nginx
+# /etc/nginx/nginx.conf, внутри http {}
+limit_req_zone $binary_remote_addr zone=login:10m rate=5r/m;
+
+server {
+    listen 443 ssl http2;
+    server_name example.com;
+
+    location /login {
+        limit_req zone=login burst=3 nodelay;
+        proxy_pass http://127.0.0.1:8000;
+    }
+}
 ```
+
+Что означает каждая настройка:
+- `5r/m` — максимум 5 запросов в минуту с одного IP;
+- `burst=3` — допускаем короткий всплеск ещё на 3 запроса;
+- `nodelay` — лишние запросы не ждут в очереди, а сразу получают отказ;
+- `proxy_pass http://127.0.0.1:8000` — backend остаётся локальным и не торчит наружу.
+
+Проверка:
+
+```bash
+curl -I https://HOST/login
+```
+
+При превышении лимита ожидай ответ вида:
+
+```
+HTTP/2 503
+server: nginx
+```
+
+Это означает, что nginx режет лишние запросы на входе, не отдавая их приложению.
 
 ---
 
@@ -46,6 +77,32 @@ Rate limit не решает всё, но помогает против:
 - `Strict-Transport-Security` после уверенного HTTPS.
 
 Важно: headers — полезный слой, но не замена безопасному приложению.
+
+Рабочий блок для `nginx`:
+
+```nginx
+add_header X-Frame-Options "SAMEORIGIN" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+```
+
+Проверка, что заголовки реально отдаются:
+
+```bash
+curl -sI https://HOST | grep -Ei 'x-frame|x-content|strict-transport|referrer'
+```
+
+Ожидаемый результат:
+
+```
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+```
+
+Почему это полезно: proxy выставляет единое поведение для всех ответов, и тебе не нужно надеяться, что каждое приложение выставляет заголовки одинаково.
 
 ---
 
@@ -87,6 +144,16 @@ sudo tail -f /var/log/nginx/error.log
 - backend на `127.0.0.1:PORT` или внутреннем адресе;
 - единое место логирования;
 - предсказуемая реакция на bursts к чувствительным endpoints.
+
+Практический признак успеха:
+
+```
+LISTEN 0.0.0.0:80   nginx
+LISTEN 0.0.0.0:443  nginx
+LISTEN 127.0.0.1:8000 python3
+```
+
+Это хорошая картина: наружу виден только proxy, а приложение слушает локально.
 
 ---
 
