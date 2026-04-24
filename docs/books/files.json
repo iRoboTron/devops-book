@@ -50,6 +50,60 @@
         "title": "Глава 9: Тестирование и отладка"
       }
     ],
+    "attacker-mindset-devops": [
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шпаргалка и быстрые команды"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Лаборатория, конфиги и правила безопасности"
+      },
+      {
+        "file": "book.md",
+        "title": "Attacker Mindset для защитника: Kill chain, TTP и безопасные демонстрации"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Этические и лабораторные границы"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Reconnaissance"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: Initial access"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: Credential abuse"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Privilege escalation theory"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Persistence theory"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Lateral movement theory"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Exfiltration и impact theory"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Практика безопасных демонстраций"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Итоговый проект"
+      }
+    ],
     "cicd-devops": [
       {
         "file": "appendix-a.md",
@@ -102,6 +156,60 @@
       {
         "file": "chapter-08.md",
         "title": "Глава 8: Стратегии деплоя"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Итоговый проект"
+      }
+    ],
+    "cloud-container-security-devops": [
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шпаргалка и быстрые команды"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Лаборатория, конфиги и правила безопасности"
+      },
+      {
+        "file": "book.md",
+        "title": "Cloud, Docker и Kubernetes Security: IAM, secrets, images и runtime"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Threat model cloud и container среды"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Cloud perimeter и публичные сервисы"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: IAM и минимальные права"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: Secrets и конфиденциальные данные"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Docker image hardening"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Runtime security"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Registry и supply chain"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Kubernetes security basics"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Практика безопасных проверок"
       },
       {
         "file": "chapter-09.md",
@@ -238,6 +346,60 @@
       {
         "file": "chapter-05.md",
         "title": "Глава 5: Progressive Delivery"
+      }
+    ],
+    "incident-response-devops": [
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шпаргалка и быстрые команды"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Лаборатория, конфиги и правила безопасности"
+      },
+      {
+        "file": "book.md",
+        "title": "Detection, Monitoring и Incident Response: Сигналы, triage и восстановление"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Что считать инцидентом"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Логи как сырье для защиты"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: Метрики и алерты"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: Host-level detection"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Triage и быстрые проверки"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Recovery и проверка восстановления"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Ransomware resilience без вредоносной практики"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Forensics basics для инженера"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Практика incident drills"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Итоговый проект"
       }
     ],
     "infrastructure-devops": [
@@ -514,6 +676,60 @@
         "title": "Глава 7: LogQL — поиск по логам"
       }
     ],
+    "network-defense-devops": [
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шпаргалка и быстрые команды"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Лаборатория, конфиги и правила безопасности"
+      },
+      {
+        "file": "book.md",
+        "title": "Сетевая защита и защитные устройства: Firewall, DMZ, VPN, IDS/IPS"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Карта сети и точки контроля"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Router, firewall, UTM и NGFW"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: NAT, port forwarding и DMZ"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: VLAN и сегментация"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: VPN и безопасный административный доступ"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: IDS/IPS на сетевом уровне"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: DNS и сетевые злоупотребления"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Tcpdump, Wireshark и pcap basics"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Практика по масштабам"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Итоговый проект"
+      }
+    ],
     "nginx-https-devops": [
       {
         "file": "appendix-a.md",
@@ -566,6 +782,114 @@
       {
         "file": "chapter-08.md",
         "title": "Глава 8: Caddy — твой реальный сервер"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Итоговый проект"
+      }
+    ],
+    "perimeter-security-devops": [
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шпаргалка команд"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Лаборатория и конфиги"
+      },
+      {
+        "file": "book.md",
+        "title": "Защита от внешних атак: Публичный сервер, периметр и Linux hardening"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Threat model и поверхность атаки"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Что ставят на входе перед сервером"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: Базовый Linux hardening"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: SSH hardening"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Firewall и политика доступа"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Reverse proxy, rate limiting и WAF basics"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Fail2ban и CrowdSec"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: IDS/IPS и сетевые сигналы"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: DDoS, бот-сканирование и пределы локальной защиты"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Итоговый проект"
+      }
+    ],
+    "security-architecture-devops": [
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шпаргалка и быстрые команды"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Лаборатория, конфиги и правила безопасности"
+      },
+      {
+        "file": "book.md",
+        "title": "Security Architecture: От домашней лаборатории до крупной организации"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Архитектурное мышление в security"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Домашняя лаборатория и personal infrastructure"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: Один VPS / один публичный сервис"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: Small business pattern"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Enterprise patterns"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Выбор решений и tradeoffs"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Security roadmap"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Интеграция Linux в большую организацию"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Практика reference-архитектур"
       },
       {
         "file": "chapter-09.md",
@@ -678,6 +1002,60 @@
       {
         "file": "chapter-09.md",
         "title": "Глава 9: Опасные операции"
+      }
+    ],
+    "web-security-devops": [
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шпаргалка и быстрые команды"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Лаборатория, конфиги и правила безопасности"
+      },
+      {
+        "file": "book.md",
+        "title": "Web Security для программиста: Приложение, конфигурация и безопасные проверки"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Threat model веб-приложения"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Аутентификация, сессии и password reset"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: SQLi и безопасная работа с базой"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: XSS, output encoding и CSP basics"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: CSRF, CORS и browser trust boundaries"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: SSRF, file upload и внешние ресурсы"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Секреты, .env и безопасность reverse proxy"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Dependency и supply chain risks"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Практика безопасной проверки"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Итоговый проект"
       }
     ]
   }
