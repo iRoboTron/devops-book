@@ -21,7 +21,7 @@
 
 **Название:** "Cloud, Docker и Kubernetes Security: IAM, secrets, images и runtime"
 
-**Каталог:** `cloud-container-security-devops`
+**Каталог:** `18-cloud-container-security-devops`
 
 **Для кого особенно полезна:**
 - VPS;

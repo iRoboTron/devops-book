@@ -22,7 +22,7 @@
 
 **Название:** "Attacker Mindset для защитника: Kill chain, TTP и безопасные демонстрации"
 
-**Каталог:** `attacker-mindset-devops`
+**Каталог:** `20-attacker-mindset-devops`
 
 **Для кого особенно полезна:**
 - всем;

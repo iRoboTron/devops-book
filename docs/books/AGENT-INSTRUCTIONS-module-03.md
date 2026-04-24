@@ -526,9 +526,9 @@ docs/books/
 ├── AGENT-INSTRUCTIONS.md                    # Модуль 1
 ├── AGENT-INSTRUCTIONS-module-02.md          # Модуль 2
 ├── AGENT-INSTRUCTIONS-module-03.md          # Этот файл
-├── linux-for-devops/                        # Книга 1
-├── nginx-https-devops/                      # Книга 2
-└── docker-devops/                           # Книга 3 (создать)
+├── 01-linux-for-devops/                        # Книга 1
+├── 02-nginx-https-devops/                      # Книга 2
+└── 03-docker-devops/                           # Книга 3 (создать)
     ├── book.md                              # Оглавление
     ├── chapter-00.md
     ├── chapter-01.md

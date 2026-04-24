@@ -20,7 +20,7 @@
 
 **Название:** "Security Architecture: От домашней лаборатории до крупной организации"
 
-**Каталог:** `security-architecture-devops`
+**Каталог:** `21-security-architecture-devops`
 
 **Для кого особенно полезна:**
 - VPS;

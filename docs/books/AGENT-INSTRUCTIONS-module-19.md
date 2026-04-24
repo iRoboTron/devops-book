@@ -20,7 +20,7 @@
 
 **Название:** "Detection, Monitoring и Incident Response: Сигналы, triage и восстановление"
 
-**Каталог:** `incident-response-devops`
+**Каталог:** `19-incident-response-devops`
 
 **Для кого особенно полезна:**
 - всем;

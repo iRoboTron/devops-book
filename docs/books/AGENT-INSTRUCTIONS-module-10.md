@@ -730,7 +730,7 @@ restart: always      →     restartPolicy: Always
 ```
 docs/books/
 ├── AGENT-INSTRUCTIONS-module-10.md      # Этот файл
-└── kubernetes-basics/                   # Книга 10 (создать)
+└── 10-kubernetes-basics/                   # Книга 10 (создать)
     ├── book.md
     ├── chapter-00.md                    # Зачем K8s, честный разговор
     ├── chapter-01.md                    # Pod

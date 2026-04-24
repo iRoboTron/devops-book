@@ -609,7 +609,7 @@ helm install myapp ./charts/myapp -f values.prod.yaml
 
 #### Мини-проект 3: Миграция docker-compose → K8s
 
-Взять docker-compose.yml из Модуля 3 (книга docker-devops, Глава 9) и мигрировать в K8s:
+Взять docker-compose.yml из Модуля 3 (книга 03-docker-devops, Глава 9) и мигрировать в K8s:
 - Каждый service → Deployment
 - ports → Service (ClusterIP + Ingress вместо NodePort)
 - environment → ConfigMap + Secret
@@ -707,7 +707,7 @@ helm install myapp ./chart -f values.yaml
 ```
 docs/books/
 ├── AGENT-INSTRUCTIONS-module-11.md         # Этот файл
-└── kubernetes-advanced/                    # Книга 11 (создать)
+└── 11-kubernetes-advanced/                    # Книга 11 (создать)
     ├── book.md
     ├── chapter-00.md                       # Что строим
     ├── chapter-01.md                       # Ingress

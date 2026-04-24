@@ -549,7 +549,7 @@ docs/books/
 ├── AGENT-INSTRUCTIONS-module-03.md
 ├── AGENT-INSTRUCTIONS-module-04.md
 ├── AGENT-INSTRUCTIONS-module-05.md          # Этот файл
-└── infrastructure-devops/                   # Книга 5 (создать)
+└── 05-infrastructure-devops/                   # Книга 5 (создать)
     ├── book.md
     ├── chapter-00.md
     └── ...

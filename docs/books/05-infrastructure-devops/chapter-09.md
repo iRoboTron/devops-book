@@ -380,7 +380,41 @@ chmod +x /opt/myapp/scripts/health-check.sh
 
 ---
 
-## 9.11 Поздравляю!
+## 9.11 Сохранение VM для книги 6
+
+После финального чеклиста сделай снапшот VM. Это входная точка для книги 6: в следующей книге ты будешь проводить аудит, hardening, мониторинг и runbook уже на этом production-ready сервере.
+
+Перед снапшотом проверь:
+
+```bash
+cd /opt/myapp
+docker compose ps
+/opt/myapp/scripts/health-check.sh
+ls -lah /var/backups/myapp
+sudo systemctl status cron
+```
+
+Сохрани VM с понятным именем, например:
+
+```text
+after-book-5-infra-myapp
+```
+
+В снапшоте уже должны быть:
+
+- рабочий Docker Compose стек в `/opt/myapp`;
+- CI/CD из книги 4;
+- `.env` с правами `600`;
+- PostgreSQL с закрытым внешним портом;
+- backup/restore-скрипты;
+- cron для бэкапов и health-check;
+- проверенный restore на тестовой машине.
+
+Если в книге 6 ты ошибёшься с SSH hardening, fail2ban, ufw или алертами, откат к этому снапшоту вернёт сервер к рабочему состоянию после инфраструктурной настройки.
+
+---
+
+## 9.12 Поздравляю!
 
 Ты прошёл 5 модулей из 6. Вот что ты теперь умеешь:
 

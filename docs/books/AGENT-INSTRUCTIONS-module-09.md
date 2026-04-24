@@ -578,7 +578,7 @@ web2 : ok=5  changed=2  unreachable=0  failed=0
 ```
 docs/books/
 ├── AGENT-INSTRUCTIONS-module-09.md      # Этот файл
-└── ansible-devops/                      # Книга 9 (создать)
+└── 09-ansible-devops/                      # Книга 9 (создать)
     ├── book.md
     ├── chapter-00.md                    # Зачем Ansible
     ├── chapter-01.md                    # Inventory + динамический из Terraform

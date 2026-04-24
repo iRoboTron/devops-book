@@ -28,7 +28,7 @@
 **Состоит из 4 проектов:**
 
 ```
-final-projects-2.0/
+14-14-07-final-projects-2/
 ├── book.md                     — обзор: как работать с проектами
 ├── project-1/                  — Production Python App
 │   ├── README.md               — что строим, архитектура
@@ -640,7 +640,7 @@ time (terraform apply && ansible-playbook setup.yml && velero restore ...)
 ```
 docs/books/
 ├── AGENT-INSTRUCTIONS-module-14.md          # Этот файл
-└── final-projects-2.0/                      # Модуль 14 (создать)
+└── 14-14-07-final-projects-2/                      # Модуль 14 (создать)
     ├── book.md                              # Обзор и как работать
     ├── project-1/
     │   ├── README.md                        # Архитектура, требования

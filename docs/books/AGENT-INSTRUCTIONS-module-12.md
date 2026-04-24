@@ -652,7 +652,7 @@ Loki: "ERROR: db connection pool exhausted" в 15:32 (лог)
 ```
 docs/books/
 ├── AGENT-INSTRUCTIONS-module-12.md          # Этот файл
-└── monitoring-devops/                       # Книга 12 (создать)
+└── 12-monitoring-devops/                       # Книга 12 (создать)
     ├── book.md
     ├── chapter-00.md                        # Намеренно ломаем сервис
     ├── chapter-01.md                        # Prometheus: pull-модель

@@ -693,7 +693,7 @@ resource A → resource B → resource C
 ```
 docs/books/
 ├── AGENT-INSTRUCTIONS-module-08.md      # Этот файл
-└── terraform-devops/                    # Книга 8 (создать)
+└── 08-terraform-devops/                    # Книга 8 (создать)
     ├── book.md                          # Оглавление
     ├── chapter-00.md                    # Зачем Terraform, IaC
     ├── chapter-01.md                    # Первый ресурс, null/local провайдеры

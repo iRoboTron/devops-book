@@ -453,11 +453,11 @@
 docs/books/
 ├── AGENT-INSTRUCTIONS.md               # Модуль 1
 ├── AGENT-INSTRUCTIONS-module-02.md     # Этот файл (Модуль 2)
-├── linux-for-devops/                   # Книга 1
+├── 01-linux-for-devops/                   # Книга 1
 │   ├── book.md
 │   ├── chapter-00.md
 │   └── ...
-└── nginx-https-devops/                 # Книга 2 (создать)
+└── 02-nginx-https-devops/                 # Книга 2 (создать)
     ├── book.md                         # Оглавление
     ├── chapter-00.md
     ├── chapter-01.md

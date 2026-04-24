@@ -574,7 +574,7 @@ done
 ```
 docs/books/
 ├── AGENT-INSTRUCTIONS-module-06.md          # Этот файл
-└── security-monitoring-devops/              # Книга 6 (создать)
+└── 06-security-12-monitoring-devops/              # Книга 6 (создать)
     ├── book.md
     ├── chapter-00.md
     └── ...

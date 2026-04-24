@@ -25,7 +25,7 @@
 **Состоит из двух документов:**
 
 ```
-final-project/
+07-final-project/
 ├── book.md        — обзор: архитектура, как пользоваться playbook'ом
 ├── playbook.md    — пошаговые команды от чистого сервера до продакшна
 └── checklist.md   — финальная проверка: 30 пунктов
@@ -718,7 +718,7 @@ ghcr.io/GITHUB_USER/REPO_NAME:latest
 ```
 docs/books/
 ├── AGENT-INSTRUCTIONS-module-07.md   # Этот файл
-└── final-project/                    # Модуль 7 (создать)
+└── 07-final-project/                    # Модуль 7 (создать)
     ├── book.md                       # Обзор + архитектурная схема
     ├── playbook.md                   # Пошаговый playbook
     └── checklist.md                  # Финальная проверка

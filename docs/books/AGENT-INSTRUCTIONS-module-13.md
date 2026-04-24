@@ -673,7 +673,7 @@ app-repo  → код → CI → образ
 ```
 docs/books/
 ├── AGENT-INSTRUCTIONS-module-13.md          # Этот файл
-└── gitops-devops/                           # Книга 13 (создать)
+└── 13-gitops-devops/                           # Книга 13 (создать)
     ├── book.md
     ├── chapter-00.md                        # Боль ручного деплоя
     ├── chapter-01.md                        # .gitlab-ci.yml

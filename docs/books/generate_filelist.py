@@ -5,8 +5,10 @@
 Локальный запуск (из docs/books/):
     python3 generate_filelist.py
 
-Папки с курсами ищутся прямо в директории скрипта (linux-for-devops, docker-devops и т.д.).
-На сервере структура: devops/books/linux-for-devops/ — скрипт запускается из devops/books/.
+Папки с курсами ищутся прямо в директории скрипта (`01-linux-for-devops`,
+`02-nginx-https-devops`, `03-docker-devops` и т.д.).
+На сервере структура: `devops/books/01-linux-for-devops/` — скрипт запускается
+из `devops/books/`.
 """
 import os
 import sys

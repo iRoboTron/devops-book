@@ -227,7 +227,7 @@
 ```
 docs/books/
 ├── AGENT-INSTRUCTIONS.md          # этот файл
-├── linux-for-devops/              # книга
+├── 01-linux-for-devops/              # книга
 │   ├── book.md                    # полный текст книги
 │   └── exercises/                 # упражнения отдельно
 │       ├── ch01.md

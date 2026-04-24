@@ -21,7 +21,7 @@
 
 **Название:** "Сетевая защита и защитные устройства: Firewall, DMZ, VPN, IDS/IPS"
 
-**Каталог:** `network-defense-devops`
+**Каталог:** `17-network-defense-devops`
 
 **Для кого особенно полезна:**
 - дом;

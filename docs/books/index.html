@@ -153,11 +153,19 @@
             border-radius: 6px;
             background: #21262d;
             color: #c9d1d9;
-            padding: 5px 10px;
-            font-size: 12px;
-            line-height: 1.2;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
             transition: background .15s ease, color .15s ease, border-color .15s ease;
+        }
+        .code-copy-btn svg {
+            width: 16px;
+            height: 16px;
+            pointer-events: none;
         }
         .code-copy-btn:hover {
             background: #30363d;
@@ -216,33 +224,68 @@ marked.setOptions({
 });
 
 const COURSE_NAMES = {
-    "linux-for-devops":           "1: Linux",
-    "nginx-https-devops":         "2: Сеть / Nginx",
-    "docker-devops":              "3: Docker",
-    "cicd-devops":                "4: CI/CD",
-    "infrastructure-devops":      "5: Инфраструктура",
-    "security-monitoring-devops": "6: Безопасность",
-    "final-project":              "7: Финальный проект",
+    "01-linux-for-devops": "01: Linux",
+    "02-nginx-https-devops": "02: Сеть / Nginx",
+    "03-docker-devops": "03: Docker",
+    "04-cicd-devops": "04: CI/CD",
+    "05-infrastructure-devops": "05: Инфраструктура",
+    "06-security-monitoring-devops": "06: Безопасность",
+    "07-final-project": "07: Финальный проект",
+    "08-terraform-devops": "08: Terraform",
+    "09-ansible-devops": "09: Ansible",
+    "10-kubernetes-basics": "10: Kubernetes основы",
+    "11-kubernetes-advanced": "11: Kubernetes Advanced",
+    "12-monitoring-devops": "12: Мониторинг",
+    "13-gitops-devops": "13: GitOps",
+    "14-final-projects-2": "14: Финальные проекты",
+    "15-perimeter-security-devops": "15: Периметр и hardening",
+    "16-web-security-devops": "16: Веб-безопасность",
+    "17-network-defense-devops": "17: Сетевая защита",
+    "18-cloud-container-security-devops": "18: Cloud / Docker / K8s Security",
+    "19-incident-response-devops": "19: Incident Response",
+    "20-attacker-mindset-devops": "20: Attacker Mindset",
+    "21-security-architecture-devops": "21: Архитектура безопасности",
 };
 
 const COURSE_ALIASES = {
-    "1": "linux-for-devops",
-    "linux": "linux-for-devops",
-    "2": "nginx-https-devops",
-    "net": "nginx-https-devops",
-    "network": "nginx-https-devops",
-    "nginx": "nginx-https-devops",
-    "3": "docker-devops",
-    "docker": "docker-devops",
-    "4": "cicd-devops",
-    "ci": "cicd-devops",
-    "cicd": "cicd-devops",
-    "5": "infrastructure-devops",
-    "infra": "infrastructure-devops",
-    "6": "security-monitoring-devops",
-    "security": "security-monitoring-devops",
-    "7": "final-project",
-    "final": "final-project"
+    "linux-for-devops": "01-linux-for-devops",
+    "linux": "01-linux-for-devops",
+    "nginx-https-devops": "02-nginx-https-devops",
+    "net": "02-nginx-https-devops",
+    "network": "02-nginx-https-devops",
+    "nginx": "02-nginx-https-devops",
+    "docker-devops": "03-docker-devops",
+    "docker": "03-docker-devops",
+    "cicd-devops": "04-cicd-devops",
+    "ci": "04-cicd-devops",
+    "cicd": "04-cicd-devops",
+    "infrastructure-devops": "05-infrastructure-devops",
+    "infra": "05-infrastructure-devops",
+    "security-monitoring-devops": "06-security-monitoring-devops",
+    "security": "06-security-monitoring-devops",
+    "final-project": "07-final-project",
+    "final": "07-final-project",
+    "terraform-devops": "08-terraform-devops",
+    "terraform": "08-terraform-devops",
+    "ansible-devops": "09-ansible-devops",
+    "ansible": "09-ansible-devops",
+    "kubernetes-basics": "10-kubernetes-basics",
+    "k8s": "10-kubernetes-basics",
+    "kubernetes-advanced": "11-kubernetes-advanced",
+    "k8s-advanced": "11-kubernetes-advanced",
+    "monitoring-devops": "12-monitoring-devops",
+    "monitoring": "12-monitoring-devops",
+    "gitops-devops": "13-gitops-devops",
+    "gitops": "13-gitops-devops",
+    "final-projects-2": "14-final-projects-2",
+    "projects": "14-final-projects-2",
+    "perimeter-security-devops": "15-perimeter-security-devops",
+    "web-security-devops": "16-web-security-devops",
+    "network-defense-devops": "17-network-defense-devops",
+    "cloud-container-security-devops": "18-cloud-container-security-devops",
+    "incident-response-devops": "19-incident-response-devops",
+    "attacker-mindset-devops": "20-attacker-mindset-devops",
+    "security-architecture-devops": "21-security-architecture-devops"
 };
 
 const sidebar    = document.getElementById('sidebar');
@@ -320,11 +363,17 @@ function groupFiles(items) {
     return groups;
 }
 
+function courseNumber(key) {
+    const match = String(key).match(/^(\d+)-/);
+    return match ? parseInt(match[1], 10) : Number.MAX_SAFE_INTEGER;
+}
+
 function sortedCourseKeys() {
     return Object.keys(courses).sort((a, b) => {
-        const oa = Object.keys(COURSE_NAMES).indexOf(a);
-        const ob = Object.keys(COURSE_NAMES).indexOf(b);
-        return (oa === -1 ? 999 : oa) - (ob === -1 ? 999 : ob);
+        const na = courseNumber(a);
+        const nb = courseNumber(b);
+        if (na !== nb) return na - nb;
+        return a.localeCompare(b, 'ru');
     });
 }
 
@@ -476,13 +525,27 @@ async function loadChapter(course, filename, options = {}) {
 
     contentEl.innerHTML = '<p style="color:#656d76">Загружаю…</p>';
     try {
-        const r = await fetch('books/' + course + '/' + filename);
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        cache[key] = await r.text();
+        cache[key] = await fetchChapterText(course, filename);
         renderContent(cache[key]);
     } catch(err) {
         contentEl.innerHTML = '<div class="error-msg">Ошибка загрузки файла: ' + err.message + '</div>';
     }
+}
+
+async function fetchChapterText(course, filename) {
+    const paths = [
+        'books/' + course + '/' + filename,
+        course + '/' + filename,
+    ];
+
+    let lastStatus = 'not found';
+    for (const path of paths) {
+        const r = await fetch(path);
+        if (r.ok) return await r.text();
+        lastStatus = 'HTTP ' + r.status + ' for ' + path;
+    }
+
+    throw new Error(lastStatus);
 }
 
 function renderContent(text) {
@@ -514,6 +577,10 @@ async function copyText(text) {
     }
 }
 
+const COPY_ICON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="3" width="8" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/><rect x="3" y="1" width="8" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/></svg>';
+const COPY_SUCCESS_ICON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 8.5 6.5 11.5 12.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const COPY_ERROR_ICON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 4.25v4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="11.75" r=".9" fill="currentColor"/><path d="M8.87 1.88 14.14 11a1 1 0 0 1-.87 1.5H2.73a1 1 0 0 1-.87-1.5l5.27-9.12a1 1 0 0 1 1.74 0Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>';
+
 function enhanceCodeBlocks() {
     contentEl.querySelectorAll('pre').forEach(pre => {
         const code = pre.querySelector('code');
@@ -522,23 +589,23 @@ function enhanceCodeBlocks() {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'code-copy-btn';
-        btn.textContent = 'Копировать';
+        btn.innerHTML = COPY_ICON;
         btn.setAttribute('aria-label', 'Скопировать код');
         btn.title = 'Скопировать код';
 
         btn.addEventListener('click', async () => {
             try {
                 await copyText(code.textContent);
-                btn.textContent = 'Скопировано';
+                btn.innerHTML = COPY_SUCCESS_ICON;
                 btn.classList.remove('failed');
                 btn.classList.add('copied');
             } catch (err) {
-                btn.textContent = 'Ошибка';
+                btn.innerHTML = COPY_ERROR_ICON;
                 btn.classList.remove('copied');
                 btn.classList.add('failed');
             }
             setTimeout(() => {
-                btn.textContent = 'Копировать';
+                btn.innerHTML = COPY_ICON;
                 btn.classList.remove('copied', 'failed');
             }, 1600);
         });

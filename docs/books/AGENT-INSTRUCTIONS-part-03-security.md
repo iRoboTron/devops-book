@@ -43,13 +43,13 @@
 
 | Модуль | Черновое имя | Каталог книги |
 |---|---|---|
-| 15 | Защита от внешних атак | `perimeter-security-devops` |
-| 16 | Web Security для программиста | `web-security-devops` |
-| 17 | Сетевая защита и защитные устройства | `network-defense-devops` |
-| 18 | Cloud, Docker и Kubernetes Security | `cloud-container-security-devops` |
-| 19 | Detection, Monitoring, Incident Response | `incident-response-devops` |
-| 20 | Attacker Mindset для защитника | `attacker-mindset-devops` |
-| 21 | Security Architecture: от дома до организации | `security-architecture-devops` |
+| 15 | Защита от внешних атак | `15-perimeter-security-devops` |
+| 16 | Web Security для программиста | `16-web-security-devops` |
+| 17 | Сетевая защита и защитные устройства | `17-network-defense-devops` |
+| 18 | Cloud, Docker и Kubernetes Security | `18-cloud-container-security-devops` |
+| 19 | Detection, Monitoring, Incident Response | `19-incident-response-devops` |
+| 20 | Attacker Mindset для защитника | `20-attacker-mindset-devops` |
+| 21 | Security Architecture: от дома до организации | `21-security-architecture-devops` |
 
 ---
 
