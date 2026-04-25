@@ -63,6 +63,71 @@ kubectl apply -f application.yaml -n argocd
 
 ---
 
+## 3.4 ArgoCD UI: основные экраны
+
+После `kubectl port-forward svc/argocd-server -n argocd 8080:443` открой `https://localhost:8080`.
+
+- `Applications` — список приложений
+  - `Synced + Healthy` — всё хорошо
+  - `OutOfSync` — Git и кластер отличаются
+  - `Degraded` — ресурсы применены, но Pod или Service в плохом состоянии
+
+- Внутри Application видно:
+  - граф ресурсов `Deployment -> ReplicaSet -> Pods`
+  - состояние каждого ресурса
+  - кнопки `Sync`, `Refresh`, `Delete`
+
+- Во вкладке `Diff` видно что изменится при следующем sync.
+
+---
+
+## 3.5 argocd CLI: основные команды
+
+```bash
+# Статус всех приложений
+argocd app list
+
+# Детали одного приложения
+argocd app get myapp
+
+# Принудительный sync
+argocd app sync myapp
+
+# История и откат
+argocd app history myapp
+argocd app rollback myapp 2
+
+# Diff: что изменится
+argocd app diff myapp
+```
+
+---
+
+## 📝 Упражнения
+
+### Упражнение 3.1: Первое Application
+1. Создай `app-infra` репозиторий
+2. Добавь туда простой Deployment
+3. Примени `application.yaml`
+4. Выполни `argocd app list`
+5. Убедись что приложение появилось со статусом `Synced`
+
+### Упражнение 3.2: OutOfSync
+1. Измени `replicas` в Git
+2. Выполни `argocd app get myapp`
+3. Убедись что статус стал `OutOfSync`
+4. Выполни `argocd app sync myapp`
+5. Проверь что кластер обновился
+
+### Упражнение 3.3: UI
+1. Открой ArgoCD UI
+2. Найди своё Application
+3. Посмотри граф ресурсов
+4. Открой вкладку `Diff`
+5. Пойми какие ресурсы меняются при sync
+
+---
+
 ## 📋 Чеклист
 
 - [ ] ArgoCD установлен

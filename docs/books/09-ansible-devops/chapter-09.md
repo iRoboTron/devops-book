@@ -1,36 +1,134 @@
 # Глава 9: Тестирование и отладка
 
-> **Запомни:** `--check` покажет что изменится. `--diff` покажет diff файлов. Используй ДО apply.
+> **Запомни:** Хороший playbook доказывает себя повторным запуском: второй запуск = `changed=0`.
+>
+> **Проект этой главы:** проверяем, что наш деплой идемпотентен и покрыт тестами роли.
+> К концу книги: Flask-приложение за Nginx, деплой одной командой.
 
 ---
 
-## 9.1 `--check` — dry-run
+## 9.1 Финальная проверка идемпотентности playbook
+
+Сначала примени весь проект:
 
 ```bash
-ansible-playbook site.yml --check
+ansible-playbook site.yml
 ```
 
-Покажет что изменится БЕЗ применения.
+Теперь запусти тот же playbook второй раз:
 
 ```bash
-ansible-playbook site.yml --check --diff
+ansible-playbook site.yml
 ```
 
-Покажет diff для файлов и шаблонов.
+Ожидаемый результат второго запуска:
+
+```text
+PLAY RECAP ********************************
+web1 : ok=8  changed=0  unreachable=0  failed=0
+```
+
+Вот это и есть правильно написанный playbook: он не делает лишней работы, если сервер уже находится в нужном состоянии.
+
+Если на втором запуске `changed > 0`, ищи неидемпотентную задачу:
+
+```bash
+ansible-playbook site.yml -vv 2>&1 | grep "CHANGED"
+```
+
+Обычно виноваты:
+
+- `shell` вместо модуля;
+- шаблон, который каждый раз генерируется по-разному;
+- task без `changed_when: false` для чистой проверки;
+- неправильные права или владелец файла.
 
 ---
 
-## 9.2 Verbose
+## 9.2 Molecule: полный пример
+
+Molecule тестирует роль в изолированном окружении, обычно в Docker.
+
+### Установить
 
 ```bash
-ansible-playbook site.yml -v    # коротко
-ansible-playbook site.yml -vv   # подробнее
-ansible-playbook site.yml -vvv  # очень подробно (для отладки)
+pip install molecule molecule-plugins[docker]
 ```
+
+### Создать scaffold теста для роли
+
+```bash
+cd roles/nginx
+molecule init scenario
+```
+
+После `init` структура будет такой:
+
+```text
+molecule/
+└── default/
+    ├── molecule.yml
+    ├── converge.yml
+    └── verify.yml
+```
+
+- `molecule.yml` описывает тестовое окружение;
+- `converge.yml` применяет роль;
+- `verify.yml` проверяет результат.
+
+Пример `verify.yml`:
+
+```yaml
+- name: Verify nginx роль
+  hosts: all
+  tasks:
+    - name: nginx запущен
+      command: systemctl is-active nginx
+      register: result
+      changed_when: false
+      failed_when: result.stdout != "active"
+
+    - name: Порт 80 открыт
+      wait_for:
+        port: 80
+        timeout: 5
+
+    - name: nginx отвечает
+      uri:
+        url: http://localhost
+        status_code: 200
+```
+
+Запустить тест:
+
+```bash
+molecule test
+```
+
+Что происходит:
+
+```text
+--> Scenario: default
+--> Action: create
+--> Action: converge
+--> Action: verify
+--> Action: destroy
+
+PLAY RECAP
+instance: ok=3 changed=0 failed=0
+```
+
+Когда нужен Molecule:
+
+- роль используется в нескольких проектах;
+- над ней работают несколько человек;
+- хочется ловить регрессии до деплоя на реальный сервер.
 
 ---
 
 ## 9.3 `debug` — вывод переменных
+
+Когда тест или деплой ведут себя странно, сначала проверь входные данные:
 
 ```yaml
 - debug:
@@ -40,54 +138,82 @@ ansible-playbook site.yml -vvv  # очень подробно (для отлад
     msg: "Сервер: {{ inventory_hostname }}, IP: {{ ansible_default_ipv4.address }}"
 ```
 
+`debug` помогает быстро увидеть, что именно Ansible знает о хосте и какую переменную реально использует.
+
 ---
 
 ## 9.4 `assert` — проверка условий
+
+`assert` позволяет остановить playbook с понятной ошибкой до того, как начнётся деплой.
 
 ```yaml
 - assert:
     that:
       - ansible_memory_mb.real.total > 512
-    fail_msg: "Недостаточно RAM: нужно минимум 512MB"
-    success_msg: "RAM OK: {{ ansible_memory_mb.real.total }}MB"
+      - app_port is defined
+    fail_msg: "Сервер не готов: мало RAM или не задан app_port"
+    success_msg: "Проверка пройдена, можно деплоить"
 ```
+
+Это хороший способ зафиксировать минимальные требования роли или окружения.
 
 ---
 
-## 9.5 Molecule — тестирование ролей
+## 9.5 Что делать если тест не прошёл
+
+Если что-то падает, действуй по порядку:
+
+1. Проверь, это ошибка подключения, конфигурации или логики роли.
+2. Запусти playbook с `-vvv`, если не хватает деталей.
+3. Посмотри последние логи сервиса на сервере или внутри Molecule-контейнера.
+4. Проверь, что повторный запуск не даёт лишний `changed`.
+
+Минимальный набор полезных команд:
 
 ```bash
-pip install molecule molecule-plugins[docker]
-molecule init role myapp
+ansible-playbook site.yml -vvv
+ansible web -m command -a "systemctl is-active nginx"
+ansible web -m shell -a "journalctl -u nginx -n 20 --no-pager" -b
 molecule test
 ```
 
-Запускает роль в Docker-контейнере и проверяет результат.
+Отладка Ansible почти всегда сводится к трём вопросам:
 
-> **Когда нужен:** роль используется несколькими людьми/проектами.
+- к правильному ли хосту подключились;
+- те ли переменные подставились;
+- тот ли сервис реально запущен после применения роли.
 
 ---
 
 ## 📝 Упражнения
 
-### Упражнение 9.1: --check
+### Упражнение 9.1: Идемпотентность
 **Задача:**
-1. `ansible-playbook site.yml --check --diff`
-2. Что изменилось бы?
-3. Примени: `ansible-playbook site.yml`
+1. Запусти `ansible-playbook site.yml`
+2. Запусти его второй раз
+3. Добейся `changed=0` на втором запуске
+4. Если нет — найди проблемную задачу через `-vv`
 
 ### Упражнение 9.2: assert
 **Задача:**
-1. Добавь assert для проверки RAM > 256MB
-2. Запусти — прошло?
+1. Добавь `assert` для проверки `RAM > 256MB`
+2. Добавь `assert`, что `domain` определён
+3. Запусти playbook — проверки сработали?
+
+### Упражнение 9.3: Molecule
+**Задача:**
+1. Внутри `roles/nginx` создай `molecule`-сценарий
+2. Добавь `verify.yml` с проверкой сервиса и HTTP-ответа
+3. Запусти `molecule test`
+4. Понял последовательность `create -> converge -> verify -> destroy`?
 
 ---
 
 ## 📋 Чеклист главы 9
 
-- [ ] Я использую `--check` перед apply
-- [ ] Я могу использовать `--diff` для просмотра изменений
-- [ ] Я могу использовать `-vvv` для отладки
+- [ ] Я проверил идемпотентность playbook повторным запуском
+- [ ] Я понимаю как использовать Molecule для ролей
+- [ ] Я могу использовать `debug` для отладки переменных
 - [ ] Я понимаю `assert` для проверок
 
 **Всё отметил?** Книга 9 завершена!

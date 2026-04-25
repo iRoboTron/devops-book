@@ -66,6 +66,41 @@ spec:
 
 ---
 
+## 4.4 Проверить что переменные видны в Pod
+
+```bash
+kubectl exec -it myapp-xxx -- env | grep DB_
+```
+
+```text
+DB_HOST=postgres-svc
+DB_PORT=5432
+DB_PASSWORD=password
+```
+
+Это подтверждает, что `envFrom` работает.
+
+Важно: Secret внутри Pod тоже виден как plaintext. Kubernetes не шифрует его автоматически внутри контейнера, он просто подставляет значение в переменную окружения.
+
+---
+
+## 📝 Упражнения
+
+### Упражнение 4.1: ConfigMap
+**Задача:**
+1. Создай ConfigMap с `APP_ENV=production`
+2. Подключи через `envFrom`
+3. `kubectl exec` — переменная видна?
+
+### Упражнение 4.2: Secret
+**Задача:**
+1. `kubectl create secret generic myapp-secrets --from-literal=DB_PASSWORD=secret123`
+2. Подключи через `envFrom`
+3. `kubectl exec` — `DB_PASSWORD` видна?
+4. `kubectl get secret myapp-secrets -o yaml` — что видишь в `data`?
+
+---
+
 ## 📋 Чеклист главы 4
 
 - [ ] Я могу создать ConfigMap

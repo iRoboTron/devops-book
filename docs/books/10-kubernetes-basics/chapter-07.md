@@ -164,6 +164,44 @@ kubectl apply -f k8s/
 kubectl get all -n myapp
 ```
 
+```text
+NAME                          READY   STATUS    RESTARTS
+pod/postgres-xxx              1/1     Running   0
+pod/myapp-yyy                 1/1     Running   0
+pod/myapp-zzz                 1/1     Running   0
+
+NAME                 TYPE       CLUSTER-IP     PORT(S)
+service/postgres-svc ClusterIP  10.43.100.1    5432/TCP
+service/myapp-svc    NodePort   10.43.100.2    80:30080/TCP
+
+NAME                     READY   UP-TO-DATE   AVAILABLE
+deployment.apps/postgres 1/1     1            1
+deployment.apps/myapp    2/2     2            2
+```
+
+---
+
+## 7.4 Проверить что приложение работает
+
+Сначала узнай IP ноды:
+
+```bash
+kubectl get nodes -o wide
+```
+
+```text
+NAME        STATUS   ROLES                  AGE   VERSION   INTERNAL-IP
+k3s-node1   Ready    control-plane,master   12d   v1.30.0   192.168.1.100
+```
+
+Теперь можно проверить приложение:
+
+```bash
+curl http://192.168.1.100:30080
+```
+
+Если пришёл ответ приложения, значит цепочка `Deployment -> Pod -> Service -> NodePort` работает правильно.
+
 ---
 
 ## 📋 Чеклист главы 7

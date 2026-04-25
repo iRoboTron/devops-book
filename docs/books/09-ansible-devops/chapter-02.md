@@ -1,6 +1,9 @@
 # Глава 2: Ad-hoc команды и модули
 
 > **Запомни:** Ad-hoc = быстрая команда без playbook. Для разовых задач. Для повторяющихся — playbook.
+>
+> **Проект этой главы:** проверяем, что сервер жив, доступен и готов к будущему деплою.
+> К концу книги: Flask-приложение за Nginx, деплой одной командой.
 
 ---
 
@@ -14,7 +17,17 @@ ansible <группа> -m <модуль> -a "<аргументы>" -b
 |------|----------|
 | `-m MODULE` | Модуль |
 | `-a "ARGS"` | Аргументы |
-| `-b` | sudo (become) |
+| `-b` | sudo (`become`) |
+
+Примеры:
+
+```bash
+ansible web -m ping
+ansible web -m command -a "uptime"
+ansible web -m apt -a "name=nginx state=present" -b
+```
+
+Ad-hoc команды хороши для быстрой диагностики, проверки фактов и одноразовых действий. Но если ту же команду хочется сохранить, повторять или коммитить в git, пора переносить её в playbook.
 
 ---
 
@@ -33,6 +46,20 @@ ansible web -m apt -a "name=nginx state=present update_cache=yes" -b
 ```
 
 `state=present` = установить. `state=absent` = удалить.
+
+Проверка идемпотентности:
+
+```bash
+# Первый запуск
+ansible web -m apt -a "name=nginx state=present" -b
+# web1 | CHANGED => {"changed": true}
+
+# Второй запуск
+ansible web -m apt -a "name=nginx state=present" -b
+# web1 | SUCCESS => {"changed": false}
+```
+
+Первый запуск меняет систему. Второй подтверждает: пакет уже в нужном состоянии.
 
 ### service / systemd — сервисы
 
@@ -64,16 +91,16 @@ ansible web -m command -a "uptime"
 ansible web -m shell -a "echo 'hello' > /tmp/test.txt" -b
 ```
 
-> **Правило:** Используй `command` когда можно, `shell` когда нужен pipe/redirect.
-> Всегда предпочитай модуль (apt, service) shell-команде.
+> **Правило:** Используй `command` когда можно, `shell` когда нужен pipe, redirect или shell-синтаксис.
+> Всегда предпочитай модуль (`apt`, `systemd`, `copy`) shell-команде.
 
 ### shell vs модуль
 
 ```yaml
-# НЕПРАВИЛЬНО (не идемпотентно):
-- shell: apt install nginx
+# НЕПРАВИЛЬНО: логика пакетов спрятана внутри shell
+- shell: apt install -y nginx
 
-# ПРАВИЛЬНО (идемпотентно):
+# ПРАВИЛЬНО: Ansible понимает состояние и умеет быть идемпотентным
 - apt:
     name: nginx
     state: present
@@ -86,24 +113,83 @@ ansible web -m shell -a "echo 'hello' > /tmp/test.txt" -b
 ```bash
 ansible-doc apt
 ansible-doc systemd
+ansible-doc template
 ```
 
-Показывает все параметры модуля.
+Показывает все параметры модуля, примеры и значения по умолчанию.
+
+Если не помнишь, нужен `service` или `systemd`, сначала открой `ansible-doc`. Это быстрее, чем гадать по памяти.
 
 ---
 
 ## 2.4 Результат: `ok` vs `changed`
 
-```
-web1 | SUCCESS => {"changed": false}   # уже было правильно
-web2 | SUCCESS => {"changed": true}    # только что изменено
+```text
+web1 | SUCCESS => {"changed": false}
+web2 | SUCCESS => {"changed": true}
 ```
 
 | Статус | Значение |
 |--------|----------|
-| `changed: false` | Ничего не изменилось (уже правильно) |
-| `changed: true` | Что-то изменено |
-| `failed` | Ошибка |
+| `changed: false` | Ничего не изменилось, уже было правильно |
+| `changed: true` | Ansible внёс изменение |
+| `failed` | Задача завершилась ошибкой |
+| `unreachable` | Хост недоступен по SSH |
+
+Для деплоя это критично:
+
+- `changed: true` на первом запуске ожидаем.
+- `changed: false` на повторном запуске означает идемпотентность.
+- `unreachable` значит, что проблема ещё до playbook: сеть, SSH, ключ, пользователь.
+
+---
+
+## 2.5 Полезные однострочники для диагностики
+
+Перед деплоем полезно быстро понять, жив ли сервер и в каком он состоянии.
+
+### Свободное место
+
+```bash
+ansible web -m command -a "df -h /"
+```
+
+Если на корневом разделе почти нет места, новый релиз, логи или пакеты могут не влезть.
+
+### Нагрузка
+
+```bash
+ansible web -m command -a "uptime"
+```
+
+Полезно проверить load average перед выкладкой.
+
+### Статус сервиса
+
+```bash
+ansible web -m command -a "systemctl is-active nginx"
+```
+
+Быстро отвечает: `active`, `inactive`, `failed`.
+
+### Последние логи
+
+```bash
+ansible web -m shell -a "journalctl -u nginx -n 20 --no-pager" -b
+```
+
+Если Nginx не стартует после конфигурации, первые 20 строк журнала обычно сразу показывают причину.
+
+### Открытые порты
+
+```bash
+ansible web -m command -a "ss -tulpn"
+```
+
+Так можно увидеть, слушает ли сервис нужный порт, например `80` для Nginx или `8000` для Flask.
+
+> **Практика:** Ad-hoc команды особенно полезны до playbook и после него.
+> До playbook — проверить сервер. После — быстро подтвердить результат.
 
 ---
 
@@ -115,11 +201,12 @@ web2 | SUCCESS => {"changed": true}    # только что изменено
 2. `ansible web -m command -a "which htop"`
 3. Запусти ещё раз — `changed: false`?
 
-### Упражнение 2.2: Модуль vs shell
+### Упражнение 2.2: Идемпотентность модуля apt
 **Задача:**
-1. Установи nginx через shell: `ansible web -m shell -a "apt install -y nginx" -b`
-2. Теперь через модуль: `ansible web -m apt -a "name=nginx state=present" -b`
-3. Второй раз — `changed: false`?
+1. Запусти `ansible web -m apt -a "name=nginx state=present" -b`
+2. Посмотри результат первого запуска — был `changed: true`?
+3. Запусти команду второй раз
+4. Получил `changed: false`?
 
 ---
 

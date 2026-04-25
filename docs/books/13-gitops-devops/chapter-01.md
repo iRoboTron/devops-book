@@ -61,6 +61,32 @@ build:
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
 ```
 
+Пример успешного pipeline:
+
+```
+✅ test        2m 14s
+✅ build       1m 42s
+  → pushed: ghcr.io/user/myapp:abc123def
+```
+
+---
+
+## 📝 Упражнения
+
+### Упражнение 1.1: Первый CI
+1. Создай `.github/workflows/ci.yml` или `.gitlab-ci.yml`
+2. Добавь jobs `test` и `build`
+3. Сделай `git push`
+4. Проверь pipeline в UI
+5. Убедись что образ появился в registry
+
+### Упражнение 1.2: Сломать и починить
+1. Добавь намеренно падающий тест
+2. Сделай `git push`
+3. Убедись что pipeline упал
+4. Исправь тест
+5. Проверь что pipeline снова зелёный
+
 ---
 
 ## 📋 Чеклист

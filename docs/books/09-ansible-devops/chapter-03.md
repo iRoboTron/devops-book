@@ -1,6 +1,9 @@
 # Глава 3: Переменные
 
 > **Запомни:** Переменные = код без хардкода. Правильное место хранения = порядок в проекте.
+>
+> **Проект этой главы:** выносим параметры деплоя в переменные: `domain`, `app_port`, `deploy_user`.
+> К концу книги: Flask-приложение за Nginx, деплой одной командой.
 
 ---
 
@@ -8,7 +11,7 @@
 
 Приоритет (от низкого к высокому):
 
-```
+```text
 role defaults      ← самый низкий
 inventory vars
 group_vars
@@ -19,25 +22,32 @@ task vars
 extra-vars (-e)    ← самый высокий
 ```
 
+Чем выше приоритет, тем легче переменная переопределяет значения снизу.
+
+В нашем проекте это выглядит так:
+
+- `group_vars/web.yml` хранит обычные настройки приложения.
+- `host_vars/web1.yml` хранит исключения только для одного сервера.
+- `-e` удобно использовать в CI/CD и для временных запусков.
+
 ---
 
 ## 3.2 group_vars и host_vars
 
-```
+```text
 inventory/
 ├── hosts.yml
 ├── group_vars/
-│   ├── all.yml     # для всех
-│   ├── web.yml     # только для web
-│   └── db.yml      # только для db
+│   ├── all.yml
+│   └── web.yml
 └── host_vars/
-    └── web1.yml    # только для web1
+    └── web1.yml
 ```
 
 ### group_vars/all.yml
 
 ```yaml
-ansible_user: deploy
+deploy_user: deploy
 timezone: Europe/Moscow
 packages:
   - git
@@ -51,19 +61,27 @@ packages:
 http_port: 80
 app_port: 8000
 domain: myapp.ru
+app_root: /opt/myapp
 ```
 
 ### host_vars/web1.yml
 
 ```yaml
 server_role: primary
+domain: web1.myapp.ru
 ```
+
+Идея простая:
+
+- `group_vars/all.yml` для всего проекта.
+- `group_vars/web.yml` для всех веб-серверов.
+- `host_vars/web1.yml` только для одного конкретного хоста.
 
 ---
 
 ## 3.3 Facts — автоматические переменные
 
-Ansible собирает информацию о каждом хосте:
+Ansible сам собирает информацию о каждом хосте:
 
 ```bash
 ansible web -m setup
@@ -75,16 +93,18 @@ ansible web -m setup
 |------|----------|
 | `ansible_hostname` | Имя хоста |
 | `ansible_default_ipv4.address` | IP адрес |
-| `ansible_os_family` | "Debian" или "RedHat" |
-| `ansible_distribution` | "Ubuntu" |
+| `ansible_os_family` | `Debian` или `RedHat` |
+| `ansible_distribution` | `Ubuntu`, `Debian`, `CentOS` |
 | `ansible_memory_mb.real.total` | RAM в МБ |
 | `ansible_processor_vcpus` | Количество CPU |
 
-### Фильтровать
+### Фильтровать facts
 
 ```bash
 ansible web -m setup -a "filter=ansible_default_ipv4"
 ```
+
+Это удобнее полного вывода, когда нужна одна конкретная часть.
 
 ---
 
@@ -94,13 +114,16 @@ ansible web -m setup -a "filter=ansible_default_ipv4"
 - name: Проверить статус nginx
   command: systemctl is-active nginx
   register: nginx_status
+  changed_when: false
 
 - name: Показать результат
   debug:
     var: nginx_status.stdout
 ```
 
-`nginx_status.stdout` = "active" или "inactive".
+Если сервис работает, `nginx_status.stdout` будет `active`.
+
+`register` нужен, когда следующий шаг зависит от результата предыдущего: статуса сервиса, вывода команды, HTTP-проверки или факта наличия файла.
 
 ---
 
@@ -112,12 +135,14 @@ ansible web -m setup -a "filter=ansible_default_ipv4"
     name: nginx
   when: ansible_os_family == "Debian"
 
-- name: Перезапустить только если nginx запущен
+- name: Перезапустить только если nginx уже запущен
   service:
     name: nginx
     state: restarted
   when: nginx_status.stdout == "active"
 ```
+
+`when` помогает не писать отдельные playbook под каждый случай.
 
 ---
 
@@ -131,6 +156,68 @@ ansible web -m setup -a "filter=ansible_default_ipv4"
     var: nginx_status
 ```
 
+`debug` особенно полезен, когда нужно быстро проверить:
+
+- какая переменная реально подставилась;
+- что вернул `register`;
+- какой факт увидел Ansible на конкретном хосте.
+
+---
+
+## 3.7 Что побеждает при конфликте
+
+Если одна и та же переменная определена в двух местах, выиграет источник с более высоким приоритетом.
+
+Пример:
+
+```yaml
+# group_vars/web.yml
+http_port: 80
+
+# host_vars/web1.yml
+http_port: 8080   # переопределяет для конкретного хоста
+```
+
+Проверим, какое значение увидит Ansible:
+
+```bash
+ansible web -m debug -a "msg={{ http_port }}"
+```
+
+```text
+web1 | SUCCESS => {
+    "msg": "8080"
+}
+web2 | SUCCESS => {
+    "msg": "80"
+}
+```
+
+Итог:
+
+- для `web1` победил `host_vars/web1.yml`;
+- для остальных хостов группы `web` осталось значение из `group_vars/web.yml`.
+
+> **Запомни:** если переменная "не та", сначала ищи дубликаты в `group_vars`, `host_vars` и `-e`.
+
+---
+
+## 3.8 `extra-vars` для разового переопределения
+
+Иногда нужно временно переопределить параметры без правки файлов.
+
+```bash
+ansible-playbook site.yml -e "domain=staging.myapp.ru app_port=9000"
+```
+
+Это удобно для:
+
+- staging и production из одного playbook;
+- временной проверки другого домена;
+- CI/CD, где параметры приходят из pipeline.
+
+Важно: `-e` имеет самый высокий приоритет. Если передал значение через `extra-vars`, оно перекроет `group_vars`, `host_vars` и `defaults` роли.
+
 ---
 
 ## 📝 Упражнения
@@ -138,19 +225,22 @@ ansible web -m setup -a "filter=ansible_default_ipv4"
 ### Упражнение 3.1: group_vars
 **Задача:**
 1. Создай `group_vars/web.yml` с `http_port: 80`
-2. Используй переменную в debug: `debug: var=http_port`
-3. `ansible-playbook` — значение правильное?
+2. Добавь туда `domain` и `app_port`
+3. Используй переменную в `debug: var=http_port`
+4. `ansible-playbook` — значение правильное?
 
 ### Упражнение 3.2: Facts
 **Задача:**
 1. `ansible web -m setup -a "filter=ansible_hostname"`
 2. `ansible web -m setup -a "filter=ansible_memory_mb"`
-3. Выведи через debug в playbook
+3. Выведи через `debug` имя хоста и объём RAM в playbook
 
 ### Упражнение 3.3: when
 **Задача:**
 1. Создай задачу которая работает только на Ubuntu
-2. Запусти на разных серверах — сработала только где нужно?
+2. Создай `host_vars/web1.yml` и переопредели `http_port`
+3. Запусти `ansible web -m debug -a "msg={{ http_port }}"`
+4. Убедись что `host_vars` победил `group_vars`
 
 ---
 

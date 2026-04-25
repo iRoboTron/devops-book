@@ -36,29 +36,81 @@ spec:
 
 ## 5.3 Настройка Telegram в Alertmanager
 
-Через Helm values:
+Полный `alertmanager-values.yaml`:
 
 ```yaml
+# alertmanager-values.yaml
 alertmanager:
   config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by: ['alertname']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+      receiver: telegram
     receivers:
     - name: telegram
       telegram_configs:
       - bot_token: "TOKEN"
         chat_id: CHAT_ID
-    route:
-      receiver: telegram
+        message: |
+          {{ range .Alerts }}
+          🚨 *{{ .Annotations.summary }}*
+          {{ .Annotations.description }}
+          {{ end }}
+        parse_mode: "Markdown"
 ```
 
 ```bash
-helm upgrade monitoring prometheus-community/kube-prometheus-stack -f values.yaml -n monitoring
+helm upgrade monitoring prometheus-community/kube-prometheus-stack \
+  -f alertmanager-values.yaml -n monitoring
 ```
 
 ---
 
 ## 5.4 Проверка
 
-Запусти нагрузку на `/flaky` endpoint → жди алерт в Telegram.
+Принудительно вызвать тестовый алерт:
+
+```bash
+curl -X POST http://localhost:9093/api/v2/alerts \
+  -H "Content-Type: application/json" \
+  -d '[{
+    "labels": {"alertname": "TestAlert", "severity": "warning"},
+    "annotations": {"summary": "Тестовый алерт", "description": "Проверка Telegram"}
+  }]'
+```
+
+Или создать временное правило:
+
+```yaml
+- alert: AlwaysTrue
+  expr: vector(1) == 1
+  annotations:
+    summary: "Тест алерта"
+    description: "Этот алерт всегда срабатывает — удали после проверки"
+```
+
+Если всё настроено правильно, сообщение придёт в Telegram и появится в Alertmanager UI.
+
+---
+
+## 📝 Упражнения
+
+### Упражнение 5.1: Telegram бот
+1. Создай бота через `@BotFather`
+2. Найди `chat_id`
+3. Добавь конфиг в `alertmanager-values.yaml`
+4. Выполни `helm upgrade`
+5. Отправь тестовый алерт
+
+### Упражнение 5.2: Реальный алерт
+1. Создай `PrometheusRule` для `HighMemory`
+2. Подожди пока условие сработает
+3. Проверь Alertmanager UI
+4. Сообщение пришло в Telegram?
 
 ---
 

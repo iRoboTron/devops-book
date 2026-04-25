@@ -2,16 +2,50 @@
 
 | Команда | Назначение |
 |---------|-----------|
-| `ansible all -m ping` | Проверить соединение |
+| `ansible all -m ping` | Проверить подключение |
 | `ansible web -m setup` | Получить факты хоста |
+| `ansible web -m command -a "df -h /"` | Проверить свободное место |
+| `ansible web -m command -a "ss -tulpn"` | Посмотреть открытые порты |
 | `ansible-playbook site.yml` | Запустить playbook |
-| `ansible-playbook site.yml --check` | Dry-run |
-| `ansible-playbook site.yml --diff` | Показать diff |
-| `ansible-playbook site.yml -vvv` | Очень verbose |
+| `ansible-playbook site.yml --check --diff` | Dry-run с diff |
+| `ansible-playbook site.yml --limit web1` | Запустить только для одного хоста |
+| `ansible-playbook site.yml --tags deploy` | Запустить только часть playbook |
+| `ansible-playbook site.yml --ask-vault-pass` | Запустить с vault-паролем |
 | `ansible-vault encrypt file.yml` | Зашифровать файл |
-| `ansible-vault edit file.yml` | Редактировать зашифрованный |
-| `ansible-galaxy init role` | Создать структуру роли |
-| `molecule test` | Тестировать роль |
+| `ansible-vault encrypt_string 'value' --name 'var_name'` | Зашифровать одно значение |
+| `ansible-galaxy install geerlingguy.nginx` | Установить роль из Galaxy |
+| `molecule test` | Протестировать роль |
+
+### Быстрый набор
+
+```bash
+# Проверка подключения
+ansible all -m ping
+
+# Запустить playbook
+ansible-playbook site.yml
+
+# Dry-run с diff
+ansible-playbook site.yml --check --diff
+
+# Только для одного хоста
+ansible-playbook site.yml --limit web1
+
+# С тегом
+ansible-playbook site.yml --tags deploy
+
+# С vault-паролем
+ansible-playbook site.yml --ask-vault-pass
+
+# Зашифровать значение
+ansible-vault encrypt_string 'value' --name 'var_name'
+
+# Посмотреть факты хоста
+ansible web -m setup
+
+# Установить роль из Galaxy
+ansible-galaxy install geerlingguy.nginx
+```
 
 # Приложение B: Готовые конфиги
 
@@ -53,3 +87,5 @@ become_method = sudo
 | Не идемпотентно | Использован shell | Используй модуль (apt, service) |
 | Template ошибка | Синтаксис Jinja2 | Проверь `{{ }}`, имена переменных |
 | Vault ошибка | Неправильный пароль | Проверь `--vault-password-file` |
+| `changed > 0` на втором запуске | Задача неидемпотентна | Ищи `shell`, случайный вывод, права файла |
+| Сервис не стартует после деплоя | Ошибка конфига или приложения | Проверь `systemctl status` и `journalctl` |

@@ -28,6 +28,32 @@ kubectl get services
 
 Другие Pods обращаются: `curl http://myapp-svc:80`
 
+Как проверить что Service реально нашёл нужные Pod:
+
+```bash
+kubectl describe service myapp-svc
+```
+
+```text
+Name:              myapp-svc
+Selector:          app=myapp
+Endpoints:         10.42.0.15:8000,10.42.0.16:8000,10.42.0.17:8000
+                   ↑ три Pod'а нашлись
+```
+
+Если видишь:
+
+```text
+Endpoints:         <none>
+```
+
+значит labels не совпадают. Проверить:
+
+```bash
+kubectl get pods --show-labels
+# myapp-xxx   Running   app=myapp
+```
+
 ---
 
 ## 3.2 NodePort (для тестов)
@@ -59,6 +85,19 @@ Service selector: app=myapp
 
 ---
 
+## 3.4 Тестировать Service изнутри кластера
+
+Самый полезный тест ClusterIP Service:
+
+```bash
+kubectl run test --image=curlimages/curl --rm -it --restart=Never \
+  -- curl http://myapp-svc:80
+```
+
+Если приложение ответило, значит Service работает внутри кластера.
+
+---
+
 ## 📝 Упражнения
 
 ### Упражнение 3.1: ClusterIP
@@ -71,6 +110,13 @@ Service selector: app=myapp
 **Задача:**
 1. Измени тип на NodePort
 2. `curl http://node-ip:30080` — работает?
+
+### Упражнение 3.3: Проверить Endpoints
+**Задача:**
+1. Запусти `kubectl describe service myapp-svc`
+2. В `Endpoints` видны Pod'ы?
+3. Временно сломай label у Pod template
+4. `Endpoints: <none>` появился?
 
 ---
 

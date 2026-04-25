@@ -59,15 +59,49 @@ spec:
 
 ---
 
-## 5.4 CNI
+## 5.4 Как протестировать NetworkPolicy
 
-NetworkPolicy требует CNI который его поддерживает:
-- k3s по умолчанию: Flannel (НЕ поддерживает)
-- Для NetworkPolicy: Calico или Cilium
+Проверка разрешённого Pod:
 
 ```bash
-# k3s с Calico
-curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --flannel-backend=none" sh -
+kubectl run test-allowed --image=curlimages/curl \
+  --labels="app=api" --rm -it --restart=Never -n prod \
+  -- curl http://postgres-svc:5432
+```
+
+Проверка заблокированного Pod:
+
+```bash
+kubectl run test-blocked --image=curlimages/curl \
+  --rm -it --restart=Never -n prod \
+  -- curl --max-time 5 http://postgres-svc:5432
+```
+
+Как интерпретировать результат:
+
+- `connection refused` — пакет дошёл до PostgreSQL, политика пропустила
+- `connection timed out` — пакет отброшен NetworkPolicy
+
+---
+
+## 5.5 Важно: поддержка CNI
+
+NetworkPolicy работает только если CNI-плагин её поддерживает.
+
+- `k3s` по умолчанию использует Flannel
+- Flannel NetworkPolicy не реализует
+- Для политик нужны Calico или Cilium
+
+Проверка:
+
+```bash
+kubectl get pods -n kube-system | grep -E "calico|cilium|flannel"
+```
+
+Пример установки Calico:
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.0/manifests/calico.yaml
 ```
 
 ---

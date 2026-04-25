@@ -65,6 +65,17 @@ kubectl apply -f ingress.yaml
 kubectl get ingress
 ```
 
+```text
+NAME            CLASS     HOSTS        ADDRESS         PORTS
+myapp-ingress   traefik   myapp.local  192.168.1.100   80
+```
+
+Если `ADDRESS` пустой, Ingress Controller не найден или не запустился:
+
+```bash
+kubectl get pods -n kube-system | grep -E "traefik|ingress"
+```
+
 ---
 
 ## 1.4 Локальный тест
@@ -107,7 +118,64 @@ spec:
 
 ---
 
-## 1.6 TLS
+## 1.6 Тестирование без реального домена
+
+Для lab не нужен настоящий DNS. Можно имитировать домен:
+
+```bash
+curl -H "Host: myapp.local" http://192.168.1.100
+```
+
+Или добавить запись в `/etc/hosts` на своей машине:
+
+```bash
+echo "192.168.1.100 myapp.local" | sudo tee -a /etc/hosts
+curl http://myapp.local
+```
+
+---
+
+## 1.7 TLS через cert-manager
+
+Установка cert-manager:
+
+```bash
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
+kubectl get pods -n cert-manager
+```
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: your@email.com
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+    - http01:
+        ingress:
+          class: traefik
+```
+
+В Ingress добавить:
+
+```yaml
+annotations:
+  cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+  - hosts:
+    - myapp.ru
+    secretName: myapp-tls
+```
+
+---
+
+## 1.8 TLS
 
 Для продакшна — cert-manager + Let's Encrypt:
 
@@ -148,6 +216,11 @@ cert-manager автоматически обновляет сертификат.
 1. Создай второй сервис
 2. Добавь path `/api` в Ingress
 3. Проверь оба пути
+
+### 1.3: Тест без DNS
+1. Протестируй Ingress через `curl -H "Host: myapp.local"`
+2. Добавь запись в `/etc/hosts`
+3. `curl http://myapp.local` — работает?
 
 ---
 

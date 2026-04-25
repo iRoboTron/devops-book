@@ -71,6 +71,28 @@ spec:
     pods: "20"
 ```
 
+Проверить текущее потребление:
+
+```bash
+kubectl describe resourcequota -n prod
+```
+
+```text
+Name:     prod-quota
+Resource  Used   Hard
+--------  ----   ----
+cpu       450m   500m
+memory    200Mi  512Mi
+pods      4      10
+```
+
+Если лимит исчерпан, новый Pod не создастся:
+
+```text
+Error: pods "myapp-xxx" is forbidden: exceeded quota: prod-quota,
+       requested: cpu=100m, used: cpu=450m, limited: cpu=500m
+```
+
 ---
 
 ## 3.5 Как выбрать значения

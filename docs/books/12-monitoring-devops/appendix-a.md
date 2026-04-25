@@ -41,13 +41,16 @@ spec:
 ```yaml
 alertmanager:
   config:
+    global:
+      resolve_timeout: 5m
+    route:
+      receiver: telegram
+      group_by: ['alertname']
     receivers:
     - name: telegram
       telegram_configs:
       - bot_token: "TOKEN"
         chat_id: CHAT_ID
-    route:
-      receiver: telegram
 ```
 
 ## C: Диагностика

@@ -28,6 +28,27 @@ helm install loki grafana/loki-stack \
 Configuration → Data Sources → Add → Loki:
 - URL: `http://loki:3100`
 
+Проверить что Loki и promtail реально работают:
+
+```bash
+kubectl get pods -n monitoring | grep loki
+```
+
+Ожидаемо:
+
+```
+loki-0                1/1   Running
+loki-promtail-xxx     1/1   Running
+```
+
+`loki` хранит логи. `promtail` собирает их с Pod и отправляет в Loki.
+
+Проверить последние логи promtail:
+
+```bash
+kubectl logs -l app.kubernetes.io/name=promtail -n monitoring | tail -20
+```
+
 ---
 
 ## 6.4 Explore в Grafana
@@ -39,6 +60,17 @@ Explore → выбери Loki → напиши:
 ```
 
 Покажет все ERROR логи из Pod'ов myapp.
+
+---
+
+## 📝 Упражнения
+
+### Упражнение 6.1: Первые логи
+1. Открой Grafana → `Explore`
+2. Выбери Loki datasource
+3. Выполни `{namespace="default"}`
+4. Добавь фильтр `{namespace="default"} |= "ERROR"`
+5. Видишь логи своих Pod?
 
 ---
 

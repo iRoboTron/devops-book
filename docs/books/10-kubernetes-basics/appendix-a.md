@@ -3,15 +3,24 @@
 | Команда | Назначение |
 |---------|-----------|
 | `kubectl get pods` | Список Pod'ов |
+| `kubectl get pods -o wide` | Pod'ы с IP и нодой |
 | `kubectl describe pod NAME` | Детали + Events |
 | `kubectl logs NAME` | Логи |
 | `kubectl exec -it NAME -- bash` | Войти внутрь |
 | `kubectl apply -f FILE` | Применить манифест |
 | `kubectl delete -f FILE` | Удалить по манифесту |
 | `kubectl get all -n NS` | Всё в namespace |
+| `kubectl describe service NAME` | Проверить selector и endpoints |
+| `kubectl get pvc` | Список PVC |
+| `kubectl describe pvc NAME` | Почему PVC не Bound |
+| `kubectl get storageclass` | Доступные StorageClass |
 | `kubectl port-forward pod/NAME 8080:8000` | Пробросить порт |
+| `kubectl rollout status deploy/NAME` | Статус обновления |
+| `kubectl rollout history deploy/NAME` | История ревизий |
 | `kubectl rollout undo deploy/NAME` | Откат |
 | `kubectl scale deploy NAME --replicas=5` | Масштабировать |
+| `kubectl get namespaces` | Список namespace |
+| `kubectl get events --sort-by='.lastTimestamp'` | Последние события |
 
 # Приложение B: Готовые манифесты
 
@@ -105,6 +114,7 @@ spec:
 | `CrashLoopBackOff` | Контейнер падает | `kubectl logs --previous`, проверить команду |
 | `ImagePullBackOff` | Образ не найден | Проверь имя образа, доступ к registry |
 | `Pending` | Нет ресурсов | `kubectl describe pod`, Events |
+| `PVC Pending` | Нет StorageClass | `kubectl describe pvc`, проверить `storageClassName` |
 | Service не отвечает | Labels не совпадают | Проверь selector labels Pod'ов |
 | `OOMKilled` | Превышен memory limit | Увеличь limits или оптимизируй приложение |
 | `ErrImagePull` | Нет доступа к registry | Проверь imagePullSecrets |

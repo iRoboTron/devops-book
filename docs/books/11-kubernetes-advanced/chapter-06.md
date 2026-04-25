@@ -71,6 +71,28 @@ kubectl auth can-i delete pods --as=system:serviceaccount:prod:myapp-sa
 
 ---
 
+## 6.6 Читатель только для monitoring
+
+Типичный сценарий: дать инженеру доступ только на чтение Pod и логов, без права что-либо менять.
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: monitoring-viewer
+rules:
+- apiGroups: [""]
+  resources: ["pods", "nodes"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["pods/log"]
+  verbs: ["get"]
+```
+
+Такой доступ подходит для мониторинга и первичной диагностики, но не позволяет удалять Pod, менять Deployment или править ConfigMap.
+
+---
+
 ## 📋 Чеклист
 
 - [ ] ServiceAccount создан

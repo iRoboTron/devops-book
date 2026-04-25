@@ -38,10 +38,25 @@ kubectl set image deployment/myapp app=ghcr.io/user/myapp:v2
 kubectl rollout status deployment/myapp
 ```
 
+```text
+Waiting for deployment "myapp" rollout to finish: 1 out of 3 new replicas updated...
+Waiting for deployment "myapp" rollout to finish: 2 out of 3 new replicas updated...
+Waiting for deployment "myapp" rollout to finish: 1 old replicas are pending termination...
+deployment "myapp" successfully rolled out
+```
+
+Kubernetes обновляет Pod'ы по одному: сначала поднимает новый, потом удаляет старый. Это и даёт rolling update без даунтайма.
+
 ## 9.2 История
 
 ```bash
 kubectl rollout history deployment/myapp
+```
+
+```text
+REVISION  CHANGE-CAUSE
+1         kubectl apply --filename=deployment.yaml
+2         kubectl set image deployment/myapp app=ghcr.io/user/myapp:v2
 ```
 
 ## 9.3 Откат
@@ -64,12 +79,14 @@ kubectl rollout undo deployment/myapp --to-revision=2
 ```yaml
 resources:
   requests:
-    memory: "64Mi"    # зарезервировать (для Scheduler)
-    cpu: "50m"
+    cpu: "50m"       # 50 millicores = 1/20 ядра (5% CPU)
+    memory: "64Mi"   # 64 мегабайта
   limits:
-    memory: "128Mi"   # максимум (превышение = OOM kill)
-    cpu: "100m"
+    cpu: "100m"      # максимум 1/10 ядра
+    memory: "128Mi"  # превышение = Pod убит (OOMKilled)
 ```
+
+`requests` нужны scheduler'у: он решает, на какую ноду можно поставить Pod. `limits` ограничивают максимум, который контейнер может съесть.
 
 ## 10.2 OOM kill
 
@@ -82,6 +99,38 @@ kubectl get pods
 
 ---
 
+## 10.3 Liveness и Readiness probes
+
+Без probes Kubernetes начинает слать трафик в Pod сразу после старта контейнера, даже если приложение ещё не поднялось.
+
+```yaml
+containers:
+- name: app
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 10
+    periodSeconds: 30
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: 8000
+    initialDelaySeconds: 5
+    periodSeconds: 10
+```
+
+Разница:
+
+- `livenessProbe` — если приложение зависло или перестало отвечать, Pod перезапустить
+- `readinessProbe` — если приложение ещё не готово, убрать Pod из Service и не слать трафик
+
+Это особенно важно для API и приложений, которые стартуют несколько секунд и зависят от БД или миграций.
+
+---
+
 ## 📋 Чеклист глав 8-10
 
 - [ ] Я знаю основные команды kubectl
@@ -89,5 +138,6 @@ kubectl get pods
 - [ ] Я могу откатить к предыдущей версии
 - [ ] Я ставлю resources requests и limits каждому Pod
 - [ ] Я понимаю что будет при OOM kill
+- [ ] Я понимаю разницу между livenessProbe и readinessProbe
 
 **Всё отметил?** Книга 10 завершена!

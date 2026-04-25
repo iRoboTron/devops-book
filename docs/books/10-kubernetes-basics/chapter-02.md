@@ -76,7 +76,40 @@ kubectl set image deployment/myapp app=python:3.11-slim
 kubectl rollout status deployment/myapp
 ```
 
-K8s обновляет Pod'ы по одному без даунтайма.
+```text
+Waiting for deployment "myapp" rollout to finish: 1 out of 3 new replicas updated...
+Waiting for deployment "myapp" rollout to finish: 2 out of 3 new replicas updated...
+Waiting for deployment "myapp" rollout to finish: 1 old replicas are pending termination...
+deployment "myapp" successfully rolled out
+```
+
+K8s обновляет Pod'ы по одному без даунтайма: сначала поднимает новый Pod, потом удаляет старый.
+
+---
+
+## 2.5 Откат
+
+Если новая версия сломана:
+
+```bash
+kubectl rollout undo deployment/myapp
+```
+
+```text
+deployment.apps/myapp rolled back
+```
+
+История ревизий:
+
+```bash
+kubectl rollout history deployment/myapp
+```
+
+```text
+REVISION  CHANGE-CAUSE
+1         kubectl apply --filename=deployment.yaml
+2         kubectl set image deployment/myapp app=python:3.11-slim
+```
 
 ---
 
@@ -94,6 +127,13 @@ K8s обновляет Pod'ы по одному без даунтайма.
 2. 5 Pod'ов?
 3. `kubectl scale deployment myapp --replicas=2`
 4. 2 Pod'а остались?
+
+### Упражнение 2.3: Rolling update и откат
+**Задача:**
+1. Обнови образ через `kubectl set image`
+2. `kubectl rollout status deployment/myapp` — видишь процесс обновления?
+3. `kubectl rollout history deployment/myapp` — появилась новая ревизия?
+4. Выполни `kubectl rollout undo deployment/myapp`
 
 ---
 

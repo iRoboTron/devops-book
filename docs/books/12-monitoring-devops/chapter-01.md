@@ -33,6 +33,31 @@ helm install monitoring prometheus-community/kube-prometheus-stack \
 
 ## 1.3 Доступ
 
+Проверить что стек реально поднялся:
+
+```bash
+kubectl get pods -n monitoring
+```
+
+```
+NAME                                                  READY   STATUS
+alertmanager-monitoring-kube-prometheus-alertmanager  2/2     Running
+monitoring-grafana-xxx                                3/3     Running
+monitoring-kube-prometheus-operator-xxx               1/1     Running
+monitoring-kube-state-metrics-xxx                     1/1     Running
+monitoring-prometheus-node-exporter-xxx               1/1     Running
+prometheus-monitoring-kube-prometheus-prometheus      2/2     Running
+```
+
+Если какой-то Pod в `Pending`, проверь PVC:
+
+```bash
+kubectl get pvc -n monitoring
+kubectl describe pvc -n monitoring | grep -A5 Events
+```
+
+Частая причина: в кластере нет подходящего `StorageClass`.
+
 ```bash
 # Prometheus
 kubectl port-forward svc/monitoring-kube-prometheus-prometheus 9090:9090 -n monitoring
@@ -42,6 +67,14 @@ kubectl port-forward svc/monitoring-grafana 3000:80 -n monitoring
 # пароль: admin
 kubectl get secret monitoring-grafana -n monitoring -o jsonpath='{.data.admin-password}' | base64 -d
 ```
+
+Для удобства Prometheus можно пробросить и в фоне:
+
+```bash
+kubectl port-forward svc/monitoring-kube-prometheus-prometheus 9090:9090 -n monitoring &
+```
+
+Открыть `http://localhost:9090` → `Status` → `Targets`: все targets должны быть `UP`.
 
 ---
 
@@ -54,6 +87,23 @@ up
 ```
 
 Покажет все таргеты. Все должны быть `1` (живы).
+
+---
+
+## 📝 Упражнения
+
+### Упражнение 1.1: Установка
+1. Установи `kube-prometheus-stack`
+2. `kubectl get pods -n monitoring` — все `Running`?
+3. Сделай `port-forward` на 9090
+4. В Prometheus UI открой `Status -> Targets`
+5. Сколько targets в состоянии `UP`?
+
+### Упражнение 1.2: Первый запрос
+1. В Prometheus UI открой `Graph`
+2. Выполни запрос `up`
+3. Сколько сервисов мониторится?
+4. Есть ли targets со значением `0`?
 
 ---
 

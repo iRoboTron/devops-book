@@ -41,17 +41,16 @@
 - [**Глава 8: kubectl шпаргалка**](chapter-08.md)
   - Справочник команд
 
-- [**Глава 9: Rolling update и откат**](chapter-09.md)
+- [**Глава 9: Rolling update и откат**](chapter-08.md)
   - Обновление без даунтайма
 
-- [**Глава 10: Ресурсы (limits, requests)**](chapter-10.md)
+- [**Глава 10: Ресурсы (limits, requests)**](chapter-08.md)
   - Limits, requests, quotas, OOM
 
 ### Приложения
 
 - [**Приложение A: Шпаргалка kubectl**](appendix-a.md)
-- [**Приложение B: Готовые манифесты**](appendix-b.md)
-- [**Приложение C: Диагностика**](appendix-c.md)
+  - Внутри: шпаргалка, готовые манифесты и диагностика
 
 ---
 

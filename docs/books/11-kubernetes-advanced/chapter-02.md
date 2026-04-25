@@ -84,6 +84,24 @@ watch kubectl get hpa
 kubectl delete pod loadgen
 ```
 
+Во время нагрузки в `watch kubectl get hpa` можно увидеть:
+
+```text
+NAME        REFERENCE         TARGETS   MINPODS   MAXPODS   REPLICAS
+myapp-hpa   Deployment/myapp  78%/70%   2         10        4
+```
+
+CPU выше 70% → HPA увеличил реплики до 4.
+
+После остановки нагрузки через несколько минут:
+
+```text
+NAME        REFERENCE         TARGETS   MINPODS   MAXPODS   REPLICAS
+myapp-hpa   Deployment/myapp  12%/70%   2         10        2
+```
+
+CPU упал → HPA уменьшил количество Pod обратно.
+
 ---
 
 ## 📋 Чеклист
