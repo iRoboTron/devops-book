@@ -44,7 +44,7 @@
 - можешь быстро найти путь одного запроса через систему;
 - понимаешь, чего нельзя логировать даже ради удобства.
 
-```text
+```bash
 sudo journalctl -u nginx -n 50 --no-pager
 sudo journalctl -u myapp -n 50 --no-pager
 sudo journalctl -u ssh -n 50 --no-pager
@@ -76,6 +76,10 @@ sudo tail -n 20 /var/log/nginx/access.log
 
 ```bash
 rg -n "token|password|authorization|secret" /var/log app/ src/ || true
+sudo journalctl -u myapp --no-pager | \
+  grep -iE "token=|password=|secret=|Authorization: Bearer|api_key=" | \
+  head -20
+sudo grep -rE "password|token|secret|bearer" /var/log/nginx/ 2>/dev/null | head -10
 ```
 
 ### Что нужно явно показать

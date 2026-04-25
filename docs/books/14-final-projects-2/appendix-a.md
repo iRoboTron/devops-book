@@ -64,3 +64,20 @@ argocd app rollback myapp 1
 | Broken deploy | < 3 мин | ___ |
 | Потеря PVC | < 10 мин | ___ |
 | Потеря сервера | < 30 мин | ___ |
+
+## D: Целевые RTO и способ достижения
+
+| Сценарий | Ожидаемый RTO | Как достичь |
+|----------|---------------|-------------|
+| Pod упал | < 30 сек | livenessProbe + Deployment c двумя и более репликами |
+| Broken deploy | < 3 мин | `kubectl rollout undo` или rollback через ArgoCD |
+| Потеря PVC | < 10 мин | регулярный `pg_dump` и заранее проверенный restore-скрипт |
+| Потеря сервера | < 30 мин | Terraform + Ansible + GitOps без ручной настройки |
+
+## E: Перед переходом в production-режим
+
+- [ ] `terraform destroy && terraform apply` выполнены хотя бы один раз
+- [ ] `ansible-playbook setup-server.yml` повторно разворачивает стенд без ручных правок
+- [ ] `pg_dump` и `psql` restore проверены на реальных данных
+- [ ] rollback в ArgoCD выполнен хотя бы один раз
+- [ ] Telegram-алерт реально приходил во время теста

@@ -44,7 +44,7 @@
 - умеешь связать алерт с логами и состоянием узла;
 - можешь убрать шум из алертинга.
 
-```text
+```bash
 free -h
 df -h
 ss -s
@@ -59,12 +59,11 @@ ss -s
 - отдельно выдели auth failures, HTTP 5xx и disk usage.
 
 ```bash
-printf 'cpu
-memory
-disk
-http_5xx
-auth_failures
-'
+free -h
+df -h
+ss -s
+curl -s -o /dev/null -w "http_status=%{http_code}\n" https://HOST || true
+sudo grep -c "Failed password\|Invalid user" /var/log/auth.log 2>/dev/null || true
 ```
 
 ### Шаг 2: Проверь текущие алерты
@@ -72,8 +71,8 @@ auth_failures
 - для полезных зафиксируй runbook.
 
 ```bash
-printf 'review existing alerts manually
-'
+grep -RniE "alert:|expr:|threshold|severity" monitoring/ prometheus/ grafana/ 2>/dev/null | head -20
+systemctl list-timers --all | grep -Ei 'alert|monitor|prometheus' || true
 ```
 
 ### Шаг 3: Сымитируй безопасное отклонение

@@ -59,6 +59,19 @@ curl -H 'Origin: https://evil.example' -I https://HOST/api
 - как ведёт себя `SameSite`;
 - не слишком ли длинный срок жизни сессии.
 
+```bash
+curl -sI https://HOST/login -X POST \
+  -d 'username=test&password=test' | grep -i set-cookie
+```
+
+Хороший результат:
+
+```
+set-cookie: session=xyz; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=1800
+```
+
+Для каждой auth-cookie нужно проверить: есть ли `HttpOnly`, `Secure`, адекватный `SameSite` и разумный TTL.
+
 ### Проверка XSS-защиты
 
 Не делай вредных payload chains. Достаточно в своей lab проверить, что недоверенный ввод:
@@ -73,6 +86,16 @@ curl -H 'Origin: https://evil.example' -I https://HOST/api
 - не обращайся к чужим ресурсам;
 - проверяй, как приложение валидирует схему, hostname, MIME type и размер.
 
+```bash
+curl -s -w "\n%{http_code}" -F "file=@/dev/urandom" https://HOST/upload | tail -1
+curl -s -X POST https://HOST/upload \
+  -F "file=@shell.php;type=image/jpeg" | head
+```
+
+Ожидаемо:
+- слишком большой файл получает `413`;
+- поддельный MIME даёт ответ вроде `{"error":"Invalid file type"}`.
+
 ---
 
 ## 8.4 Практика по сценариям
@@ -83,6 +106,22 @@ curl -H 'Origin: https://evil.example' -I https://HOST/api
 - одинаково ли система отвечает на существующего и несуществующего пользователя;
 - нет ли слишком подробных ошибок;
 - что reset token не живёт слишком долго.
+
+```bash
+curl -s -X POST https://HOST/login -H 'Content-Type: application/json' \
+  -d '{"email":"exists@example.com","password":"wrong"}' | jq .error
+curl -s -X POST https://HOST/login -H 'Content-Type: application/json' \
+  -d '{"email":"notexists@example.com","password":"wrong"}' | jq .error
+```
+
+Правильный результат:
+
+```
+"Invalid credentials"
+"Invalid credentials"
+```
+
+Если ответы разные, у тебя снова user enumeration.
 
 ### Сценарий 2: Форма ввода и рендер
 

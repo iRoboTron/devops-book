@@ -17,11 +17,16 @@
 ## 4.2 Как выглядит риск
 
 Типовые слабые места:
-- FROM ...:latest;
-- образ собирается и запускается от root;
-- в runtime-образ попадают компиляторы, package managers и тестовые файлы;
-- нет .dockerignore;
-- обновления базового образа не контролируются.
+- `FROM ...:latest` — следующий build может внезапно получить другой базовый образ.
+  Проверить: `rg -n "FROM .*:latest" Dockerfile*`.
+- образ собирается и запускается от root — успешный побег из контейнера получает root-контекст на хосте быстрее, чем хотелось бы.
+  Проверить: `docker run --rm IMAGE whoami`.
+- в runtime-образ попадают компиляторы, package managers и тестовые файлы — лишний tooling увеличивает поверхность атаки.
+  Проверить: `docker history` и содержимое финального stage.
+- нет `.dockerignore` — в build context уезжают `.git`, `.env`, тестовые данные и артефакты.
+  Проверить: наличие `.dockerignore` и его содержимое.
+- обновления базового образа не контролируются — уязвимости висят в базе неделями, потому что никто не отслеживает `FROM`.
+  Проверить: дату и digest базового образа, результаты `trivy`.
 
 ### Где особенно важно
 - backend сервисы
@@ -44,7 +49,7 @@
 - можешь уменьшить размер и поверхность образа;
 - понимаешь, почему multi-stage build полезен и для безопасности, и для эксплуатации.
 
-```text
+```dockerfile
 FROM python:3.12-slim AS build
 WORKDIR /app
 COPY requirements.txt .
@@ -98,7 +103,35 @@ trivy image myapp:hardened || true
 
 ---
 
-## 4.5 Lab-only проверка
+## 4.5 Запустить контейнер не под root
+
+Проверь от какого пользователя стартует контейнер:
+
+```bash
+docker run --rm myapp:latest whoami
+```
+
+Если ответ `root`, контейнер работает с лишними привилегиями.
+
+Правильный минимум в Dockerfile:
+
+```dockerfile
+FROM python:3.12-slim
+RUN useradd -r -u 1001 appuser
+USER appuser
+```
+
+Проверка:
+
+```bash
+docker run --rm myapp:fixed whoami
+docker run --user 1001:1001 --rm myapp:latest whoami
+docker ps -q | xargs -I{} docker inspect {} --format '{{.Name}} {{.Config.User}}' 2>/dev/null
+```
+
+Пустой `.Config.User` означает, что контейнер по умолчанию всё ещё идёт как root.
+
+## 4.6 Lab-only проверка
 
 Все проверки в этой главе выполняются только на своих VM, контейнерах, тестовых доменах и собственных сервисах.
 
@@ -108,7 +141,7 @@ trivy image myapp:hardened || true
 
 ---
 
-## 4.6 Типовые ошибки
+## 4.7 Типовые ошибки
 
 - использовать latest и не обновлять образ осознанно;
 - тащить build tooling в runtime;
@@ -117,7 +150,7 @@ trivy image myapp:hardened || true
 
 ---
 
-## 4.7 Чеклист главы
+## 4.8 Чеклист главы
 
 - [ ] У Dockerfile есть предсказуемая base image стратегия
 - [ ] Runtime контейнер запускается от не-root пользователя

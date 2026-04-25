@@ -17,11 +17,16 @@ VPN дает контролируемую management surface: отдельная
 ## 4.2 Как выглядит риск
 
 Типовые слабые места:
-- SSH открыт всему интернету;
-- одинаковые ключи и доступы используются на всех серверах;
-- root login и password auth включены;
-- нет журнала, кто и когда получал доступ к management plane;
-- внутренние панели доступны по публичному адресу.
+- SSH открыт всему интернету — bot noise и brute-force идут напрямую в административную дверь.
+  Проверить: `nmap -Pn -p 22 SERVER_IP` с внешней машины.
+- одинаковые ключи и доступы используются на всех серверах — компрометация одного ключа даёт доступ ко всему парку.
+  Проверить: пройтись по `~/.ssh/authorized_keys` и inventory доступа.
+- root login и password auth включены — лишний риск перебора и отсутствие нормальной персональной трассировки.
+  Проверить: `sudo sshd -T | grep -E 'permitrootlogin|passwordauthentication'`.
+- нет журнала, кто и когда получал доступ к management plane — потом нельзя связать сессию и человека.
+  Проверить: `sudo journalctl -u ssh -n 100 --no-pager`.
+- внутренние панели доступны по публичному адресу — VPN вроде есть, а admin UI всё равно торчит наружу.
+  Проверить: `nmap -Pn SERVER_IP` и curl к публичным admin-endpoint.
 
 ### Где особенно важно
 - домашний сервер
@@ -43,12 +48,14 @@ VPN дает контролируемую management surface: отдельная
 - знаешь, какие настройки SSH обязательны в baseline;
 - можешь объяснить, когда нужен bastion, а когда достаточно VPN.
 
-```text
+```ini
 PermitRootLogin no
 PasswordAuthentication no
 PubkeyAuthentication yes
 AllowUsers adminuser
+```
 
+```bash
 sudo ufw allow from 10.10.0.0/24 to any port 22 proto tcp
 ```
 
@@ -73,6 +80,15 @@ sudo systemctl reload ssh
 ```bash
 sudo ufw status numbered
 ```
+
+Проверка после настройки VPN или allowlist:
+
+```bash
+nmap -Pn -p 22 SERVER_IP
+ssh -p 22 user@SERVER_VPN_IP
+```
+
+Снаружи ожидаем `filtered`, а внутри VPN-туннеля SSH должен работать штатно.
 
 ### Шаг 3: Проверь access logs
 - посмотри, какие попытки входа реально прилетают на сервер;

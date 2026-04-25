@@ -45,12 +45,12 @@ File upload несет свой класс рисков: исполняемые 
 - понимаешь разницу между client content-type и реальным типом файла;
 - умеешь обосновать egress policy для приложения.
 
-```text
-ALLOWED_SCHEMES = {'https'}
-ALLOWED_HOSTS = {'cdn.example.com', 'images.example.net'}
+```python
+ALLOWED_SCHEMES = {"https"}
+ALLOWED_HOSTS = {"cdn.example.com", "images.example.net"}
 MAX_UPLOAD_SIZE = 5 * 1024 * 1024
 
-storage_name = f'{uuid4()}.bin'
+storage_name = f"{uuid4()}.bin"
 ```
 
 ---
@@ -81,6 +81,18 @@ find . -maxdepth 3 -type d | rg 'upload|media|storage|tmp'
 sudo nginx -T | rg -n 'client_max_body_size|proxy_request_buffering|location /upload'
 ```
 
+Пример нормального nginx-конфига для upload:
+
+```nginx
+client_max_body_size 5m;
+
+location /upload {
+    client_max_body_size 10m;
+    proxy_pass http://127.0.0.1:8000;
+    proxy_request_buffering on;
+}
+```
+
 ### Что нужно явно показать
 - какие URL разрешены приложению для исходящих запросов;
 - где хранится файл после загрузки;
@@ -96,6 +108,21 @@ sudo nginx -T | rg -n 'client_max_body_size|proxy_request_buffering|location /up
 - используй только контролируемые test URLs на своем стенде и проверь, что backend не уходит в loopback или внутренние адреса;
 - загрузи безопасный тестовый файл разного размера и убедись, что лимиты и MIME validation работают;
 - проверь, что файл нельзя запросить напрямую как исполняемый контент из web-root.
+
+Примеры controlled SSRF-проверок:
+
+```bash
+curl -s "https://HOST/fetch?url=http://127.0.0.1:5432"
+curl -s "https://HOST/fetch?url=http://169.254.169.254/latest/meta-data/"
+```
+
+Правильный ответ выглядит так:
+
+```
+{"error":"URL not allowed"}
+```
+
+Плохой признак: backend подвисает на несколько секунд и потом возвращает таймаут. Это значит, что он реально попытался сходить по внутреннему адресу.
 
 ---
 

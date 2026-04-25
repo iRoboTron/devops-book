@@ -47,6 +47,16 @@ GitLab CI → test → build → push image
 terraform apply → ansible-playbook → ArgoCD → Prometheus → Loki
 ```
 
+```bash
+# Проверить что foundation готов перед продолжением
+kubectl get nodes
+argocd app list
+kubectl get pods -n monitoring | grep -c Running
+curl -i https://myapp.ru/health
+
+echo "Foundation OK — можно начинать Platform Engineering"
+```
+
 ### Фаза 2: Guardrails
 
 ```bash
@@ -126,6 +136,18 @@ kubectl apply -f guardrails/networkpolicy-deny-all.yaml
 kubectl label namespace tenant pod-security.kubernetes.io/enforce=restricted
 ```
 
+```bash
+# Проверка guardrails после применения
+kubectl run test --image=nginx -n tenant --restart=Never
+kubectl describe pod test -n tenant | grep -A5 Limits
+# Ожидаемо: Pod получает дефолтные requests/limits из LimitRange
+
+kubectl run quota-test --image=nginx -n tenant \
+  --requests=cpu=9 --limits=cpu=9 --restart=Never
+# Ожидаемо: сервер вернёт exceeded quota
+kubectl delete pod quota-test -n tenant --ignore-not-found
+```
+
 ### Фаза 3: Developer templates
 
 ```bash
@@ -151,6 +173,23 @@ include:
 4. Создаёт Application в ArgoCD
 
 Итог: новый сервис в production за < 30 минут
+```
+
+```bash
+# Platform Engineering: критерии готовности
+
+# 1. Developer может задеплоить новый сервис без DevOps
+git clone app-template
+# Поменять имя сервиса
+git push
+# Дальше CI pipeline и ArgoCD должны довести сервис до production без ручных шагов DevOps
+
+# 2. Guardrails работают
+kubectl run big-pod --image=nginx --requests=cpu=8 -n tenant
+# Ожидаемо: Error (exceeded quota)
+
+# 3. Мониторинг нового сервиса автоматический
+# ServiceMonitor входит в шаблон, а Grafana автоматически начинает видеть новый сервис
 ```
 
 ---

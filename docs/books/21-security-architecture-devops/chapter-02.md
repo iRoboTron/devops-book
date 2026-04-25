@@ -17,11 +17,16 @@
 ## 2.2 Как выглядит риск
 
 Типовые слабые места:
-- веб, база, админка и backup живут без границ;
-- SSH торчит наружу без отдельного management path;
-- нет reverse proxy и TLS discipline;
-- секреты и данные лежат в непредсказуемых местах;
-- нет плана миграции при росте нагрузки или риска.
+- веб, база, админка и backup живут без границ — компрометация одного слоя сразу затрагивает остальные.
+  Проверить: `ss -tulpn` и где именно слушают БД, Redis и admin endpoints.
+- SSH торчит наружу без отдельного management path — административный доступ смешан с пользовательским трафиком.
+  Проверить: внешний `nmap -Pn -p 22 SERVER_IP`.
+- нет reverse proxy и TLS discipline — приложение само завершает TLS или вообще торчит по HTTP.
+  Проверить: `curl -I http://HOST` и `curl -I https://HOST`.
+- секреты и данные лежат в непредсказуемых местах — восстановление и review превращаются в поиск по диску.
+  Проверить: inventory путей, `.env`, volumes и backup locations.
+- нет плана миграции при росте нагрузки или риска — архитектура упирается в один узел и не знает первой точки разделения.
+  Проверить: есть ли документированный first split point.
 
 ### Где особенно важно
 - личный сайт
@@ -43,7 +48,7 @@
 - можешь показать, что на одном сервере уже разделено логически;
 - понимаешь, когда пора выносить компоненты в отдельные слои.
 
-```text
+```
 Интернет -> 443 -> nginx -> app
 
 localhost only: db, redis, admin sockets
@@ -74,8 +79,32 @@ ss -tulpn | rg '5432|3306|6379|22|80|443'
 - это и будет дорожной картой эволюции.
 
 ```bash
-printf 'document first split point
-'
+cat > /tmp/vps-first-split-point.txt <<'EOF'
+first split point: database
+reason: data durability and restore risk exceed one-node pattern
+trigger: sustained load or need for separate backup/recovery
+EOF
+cat /tmp/vps-first-split-point.txt
+```
+
+Итоговая проверка VPS baseline одним прогоном:
+
+```bash
+echo "=== SSH hardening ==="
+sshd -T | grep -E 'permitrootlogin|passwordauthentication|maxauthtries'
+
+echo "=== Firewall ==="
+sudo ufw status verbose | head -15
+
+echo "=== Open ports ==="
+ss -tulpn | grep LISTEN
+
+echo "=== Last logins ==="
+last -n 10 -a
+
+echo "=== Updates ==="
+apt list --upgradable 2>/dev/null | grep -c upgradable
+echo " пакетов требуют обновления"
 ```
 
 ### Что нужно явно показать

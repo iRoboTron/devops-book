@@ -53,6 +53,13 @@ kubectl exec -it redis-0 -- redis-cli ping     # PONG
 kubectl exec -it postgres-0 -- psql -U postgres -c "SELECT 1"
 ```
 
+```bash
+# Результат фазы 1: PostgreSQL и Redis живые
+kubectl exec -it redis-0 -- redis-cli ping
+kubectl exec -it postgres-0 -- psql -U postgres -c "\l"
+# Ожидаемо: Redis отвечает PONG, PostgreSQL показывает список баз
+```
+
 ### Фаза 2: Сервисы через ArgoCD ApplicationSet
 
 ```yaml
@@ -93,6 +100,13 @@ kubectl apply -f argocd/appset.yaml -n argocd
 argocd app list
 ```
 
+```bash
+# После применения ApplicationSet
+argocd app list
+# Должны появиться: api, worker, frontend
+# Все приложения в статусах Synced и Healthy
+```
+
 ### Фаза 3: e2e тест
 
 ```bash
@@ -111,6 +125,16 @@ kubectl logs worker-0 -f
 # Обновить api → worker и frontend не перезапускаются
 kubectl set image deployment/api api=new-image:tag
 kubectl rollout status deployment/api
+```
+
+```bash
+# Проверить что сервисы реально взаимодействуют
+kubectl logs -l app=api -n prod | grep "task sent"
+kubectl logs -l app=worker -n prod | grep "task done"
+
+# Проверить метрики всех трёх сервисов в Prometheus
+# PromQL: up{job=~"api|worker|frontend"}
+# Ожидаемо: все три значения равны 1
 ```
 
 ---

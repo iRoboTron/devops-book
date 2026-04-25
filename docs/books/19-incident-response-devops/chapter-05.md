@@ -44,7 +44,7 @@ Recovery — это не просто “есть бэкап”. Нужны RPO 
 - знаешь, что нужно для полного восстановления сервиса;
 - можешь доказать, что restore действительно работает.
 
-```text
+```bash
 pg_restore --list backup.dump | head
 sha256sum backup.tar.gz
 ```
@@ -58,13 +58,15 @@ sha256sum backup.tar.gz
 - отметь, что уже бэкапится, а что нет.
 
 ```bash
-printf 'vm
+cat > /tmp/recovery-chain.txt <<'EOF'
+vm
 dns
 proxy
 app
 secrets
 database
-'
+EOF
+cat /tmp/recovery-chain.txt
 ```
 
 ### Шаг 2: Проверь один test restore
@@ -80,8 +82,14 @@ pg_restore --list backup.dump | head
 - время восстановления зафиксируй.
 
 ```bash
-printf 'document restore steps and timings
-'
+cat > /tmp/restore-runbook.md <<'EOF'
+1. restore VM or container
+2. restore secrets and config
+3. restore database dump
+4. switch DNS or reverse proxy
+5. run smoke test
+EOF
+time pg_restore -d myapp_restored backup.dump
 ```
 
 ### Что нужно явно показать

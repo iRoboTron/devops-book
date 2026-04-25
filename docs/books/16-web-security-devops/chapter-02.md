@@ -44,7 +44,7 @@
 - умеешь безопасно реализовать фильтры и сортировку;
 - понимаешь, почему DBA-права приложения опасны даже без явной SQLi.
 
-```text
+```python
 # Плохо
 query = f"SELECT * FROM users WHERE email = '{email}'"
 
@@ -79,6 +79,24 @@ psql "$DATABASE_URL" -c '\du'
 psql "$DATABASE_URL" -c '\dn+'
 ```
 
+Пример `\du`:
+
+```
+                                   List of roles
+ Role name  |                         Attributes
+------------+------------------------------------------------------------
+ postgres   | Superuser, Create role, Create DB, Replication, Bypass RLS
+ app_user   | (none)
+```
+
+Что считать проблемой:
+
+```
+ app_user   | Superuser
+```
+
+Если приложение подключается как `Superuser`, любая ошибка в коде сразу получает слишком широкий blast radius.
+
 ### Шаг 3: Проверь DB-права приложения
 - посмотри, может ли app user менять системные объекты или читать лишние схемы;
 - раздели пользователя миграций и пользователя рантайма.
@@ -87,11 +105,64 @@ psql "$DATABASE_URL" -c '\dn+'
 psql "$DATABASE_URL" -c '\z'
 ```
 
+Пример безопасного результата:
+
+```sql
+Schema | Name  | Type  |   Access privileges
+-------+-------+-------+------------------------
+public | users | table | app_user=r/postgres
+public | orders| table | app_user=arwd/postgres
+```
+
+Здесь `r` означает `SELECT`, а `arwd` значит `INSERT/SELECT/UPDATE/DELETE` только там, где это нужно.
+
+## 2.4а Пример разделения пользователей БД
+
+```sql
+CREATE USER app_runtime WITH PASSWORD 'runtime_pass';
+CREATE USER app_migration WITH PASSWORD 'migration_pass';
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO app_runtime;
+GRANT ALL PRIVILEGES ON DATABASE myapp TO app_migration;
+```
+
+В приложении:
+
+```ini
+DATABASE_URL=postgresql://app_runtime:runtime_pass@localhost:5432/myapp
+```
+
+В CI/CD для миграций:
+
+```ini
+DATABASE_MIGRATION_URL=postgresql://app_migration:migration_pass@localhost:5432/myapp
+```
+
+Так runtime-пользователь не получает права на изменение схемы, а миграции не живут внутри обычного трафика приложения.
+
 ### Что нужно явно показать
 - пример параметризованного запроса;
 - пример allowlist для сортировки;
 - снимок прав DB user;
 - лог SQL-ошибки внутри сервера без утечки в HTTP-ответ.
+
+Сравнение плохого и правильного поведения:
+
+```bash
+# Плохо: ошибка видна клиенту
+curl -s 'https://HOST/search?q='\'' ' | head -20
+# {"error":"ERROR: unterminated quoted string at or near ..."}
+
+# Правильно: клиент видит только общую ошибку
+curl -s 'https://HOST/search?q='\'' ' | head -5
+# {"error":"Search failed. Please try again."}
+```
+
+А саму техническую причину нужно искать внутри сервера:
+
+```bash
+journalctl -u myapp -n 50 --no-pager | grep -i "error\\|exception\\|sql"
+```
 
 ---
 

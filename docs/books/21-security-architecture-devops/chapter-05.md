@@ -17,11 +17,16 @@
 ## 5.2 Как выглядит риск
 
 Типовые слабые места:
-- выбор по моде, а не по задаче;
-- сложное решение без компетенции команды;
-- self-hosted сервис без владельца и процесса поддержки;
-- managed сервис без понимания ограничений;
-- нет критериев успеха и стоимости владения.
+- выбор по моде, а не по задаче — инструмент покупают из-за тренда, а не из-за реального риска.
+  Проверить: можешь ли назвать риск и метрику успеха до внедрения.
+- сложное решение без компетенции команды — продукт становится ещё одним источником инцидентов.
+  Проверить: кто умеет его обновлять, чинить и откатывать.
+- self-hosted сервис без владельца и процесса поддержки — компонент живёт до первого обновления, а потом становится technical debt.
+  Проверить: owner, backup и patch plan.
+- managed сервис без понимания ограничений — часть риска остаётся, но команда считает его "переданным".
+  Проверить: SLA, границы ответственности и export path.
+- нет критериев успеха и стоимости владения — сравнить решения невозможно.
+  Проверить: матрица критериев и TCO хотя бы на базовом уровне.
 
 ### Где особенно важно
 - дом
@@ -44,7 +49,7 @@
 - понимаешь, как операционная сложность влияет на безопасность;
 - можешь сравнить self-hosted и managed варианты без догм.
 
-```text
+```
 - риск, который закрываем
 - операционная нагрузка
 - стоимость
@@ -61,8 +66,13 @@
 - сравни self-hosted и managed варианты по матрице критериев.
 
 ```bash
-printf 'option A vs option B comparison
-'
+cat > /tmp/solution-comparison.md <<'EOF'
+task: VPN access
+option_a: self-hosted WireGuard
+option_b: managed access service
+criteria: cost, ops burden, logging, backup, lock-in
+EOF
+cat /tmp/solution-comparison.md
 ```
 
 ### Шаг 2: Назначь owners и процесс поддержки
@@ -70,16 +80,28 @@ printf 'option A vs option B comparison
 - иначе инструмент превратится в новый риск.
 
 ```bash
-printf 'owner + maintenance plan documented
-'
+cat > /tmp/solution-owner-plan.md <<'EOF'
+owner: ops
+updates: monthly
+backup: config export
+monitoring: service status + logs
+rollback: previous config snapshot
+EOF
+cat /tmp/solution-owner-plan.md
 ```
 
 ### Шаг 3: Проверь интеграцию
 - ответь, как решение пишет логи, как аутентифицируется, как восстанавливается и как будет отключаться при rollback.
 
 ```bash
-printf 'integration checklist reviewed
-'
+cat > /tmp/integration-checklist.md <<'EOF'
+logs integrated
+IAM/auth defined
+backup path defined
+rollback path defined
+alerting defined
+EOF
+cat /tmp/integration-checklist.md
 ```
 
 ### Что нужно явно показать

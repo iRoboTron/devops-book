@@ -17,11 +17,21 @@ Lateral movement в защитной оптике — это вопрос свя
 ## 6.2 Как выглядит риск
 
 Типовые слабые места:
-- flat network;
-- shared credentials между хостами;
-- одни и те же SSH keys и admin users везде;
-- management plane совпадает с пользовательской сетью;
-- от одного узла доступны БД, хранилища и другие серверы без явной причины.
+- flat network — один компрометированный хост видит остальные почти без ограничений.
+  Признак: из любой зоны доступны серверные порты.
+  Проверить: `nc -vz` и маршруты.
+- shared credentials между хостами — один ключ или пароль открывает несколько систем.
+  Признак: одинаковые `authorized_keys` и общие admin users.
+  Проверить: сравнить ключи между серверами.
+- одни и те же SSH keys и admin users везде — отзыв доступа на одном узле ничего не меняет в остальных.
+  Признак: одинаковые fingerprints и одинаковые usernames.
+  Проверить: `ssh-keygen -lf`, `authorized_keys`, `last`.
+- management plane совпадает с пользовательской сетью — рабочая станция и admin path живут в одной trust zone.
+  Признак: обычный client хост может идти к SSH/DB напрямую.
+  Проверить: `ip r`, `nc -vz`.
+- от одного узла доступны БД, хранилища и другие серверы без явной причины — blast radius одной компрометации становится слишком большим.
+  Признак: app-server имеет прямой доступ ко всему.
+  Проверить: карта east-west связности и сетевые проверки.
 
 ### Где особенно важно
 - lab с несколькими VM
@@ -43,7 +53,7 @@ Lateral movement в защитной оптике — это вопрос свя
 - можешь показать, что сокращает blast radius в твоей сети;
 - понимаешь, почему одна компрометация не должна автоматически открывать всю инфраструктуру.
 
-```text
+```bash
 ssh host-b
 nc -vz db.internal 5432
 ip r
@@ -58,8 +68,12 @@ ip r
 - отдельно выдели admin paths.
 
 ```bash
-printf 'host->host/port and credential map
-'
+ss -tulpn
+ip r
+for host in app-server db-server cache-server; do
+  echo "=== $host ==="
+  getent hosts "$host" || true
+done
 ```
 
 ### Шаг 2: Сократи лишнюю связность
@@ -78,6 +92,28 @@ ss -tulpn
 sudo journalctl -u ssh -n 50 --no-pager
 ```
 
+## 6.5 Построить карту SSH-доверия
+
+```bash
+cat ~/.ssh/known_hosts | awk '{print $1}' | sort -u
+cat ~/.ssh/config 2>/dev/null
+for key in ~/.ssh/id_*pub; do
+  [ -f "$key" ] || continue
+  echo "=== $key ==="
+  ssh-keygen -lf "$key"
+done
+```
+
+Проверка на shared keys между серверами:
+
+```bash
+ssh server1 "cat ~/.ssh/authorized_keys" | sort > /tmp/keys-server1.txt
+ssh server2 "cat ~/.ssh/authorized_keys" | sort > /tmp/keys-server2.txt
+diff /tmp/keys-server1.txt /tmp/keys-server2.txt
+```
+
+Если `diff` пустой, у двух серверов одинаковый набор ключей и это одна точка отказа.
+
 ### Что нужно явно показать
 - какие узлы связаны между собой;
 - какие credentials повторно используются;
@@ -86,7 +122,7 @@ sudo journalctl -u ssh -n 50 --no-pager
 
 ---
 
-## 6.5 Lab-only проверка
+## 6.6 Lab-only проверка
 
 Все проверки в этой главе выполняются только на своих VM, контейнерах, тестовых доменах и собственных сервисах.
 
@@ -96,7 +132,7 @@ sudo journalctl -u ssh -n 50 --no-pager
 
 ---
 
-## 6.6 Типовые ошибки
+## 6.7 Типовые ошибки
 
 - держать flat network;
 - использовать shared admin credentials на всех узлах;
@@ -105,7 +141,7 @@ sudo journalctl -u ssh -n 50 --no-pager
 
 ---
 
-## 6.7 Чеклист главы
+## 6.8 Чеклист главы
 
 - [ ] У меня есть карта межхостового доверия
 - [ ] Shared credentials и лишняя связность сокращены

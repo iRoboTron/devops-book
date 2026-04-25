@@ -17,11 +17,21 @@ Persistence в реальной жизни часто выглядит как н
 ## 5.2 Как выглядит риск
 
 Типовые слабые места:
-- неизвестные SSH keys и пользователи;
-- лишние cron jobs и systemd timers;
-- автозапуск скриптов из неожиданных мест;
-- неучтенные unit-файлы и drop-ins;
-- нет регулярного review механизмов автозапуска.
+- неизвестные SSH keys и пользователи — закрепление выглядит как ещё один "нормальный" доступ.
+  Признак: новые записи в `authorized_keys` и неожиданные users.
+  Проверить: `getent passwd`, `find /home -name authorized_keys`.
+- лишние cron jobs и systemd timers — код запускается без ручного действия и легко теряется в шуме.
+  Признак: новые timers и cron files вне baseline.
+  Проверить: `crontab -l`, `systemctl list-timers --all`.
+- автозапуск скриптов из неожиданных мест — shell rc, profile.d и локальные hooks начинают что-то выполнять при логине.
+  Признак: кастомные команды в `.bashrc`, `/etc/profile.d`.
+  Проверить: `grep -R` по startup-файлам.
+- неучтенные unit-файлы и drop-ins — маленький override меняет поведение штатного сервиса.
+  Признак: drop-in директории и override-файлы.
+  Проверить: `systemctl cat SERVICE`.
+- нет регулярного review механизмов автозапуска — закрепление живёт до следующего инцидента.
+  Признак: никто не может показать baseline автозапуска.
+  Проверить: сверить текущие timers и units с документированным списком.
 
 ### Где особенно важно
 - Linux servers
@@ -44,7 +54,7 @@ Persistence в реальной жизни часто выглядит как н
 - можешь быстро провести review механизмов автозапуска;
 - умеешь описать persistence risk без практических offensive действий.
 
-```text
+```bash
 getent passwd | tail
 ls -la ~/.ssh
 crontab -l
@@ -71,6 +81,7 @@ sudo systemctl list-timers --all
 ```bash
 ls -la ~
 ls -la ~/.ssh
+grep -RniE "source |bashrc|profile.d|authorized_keys|cron" ~/.bashrc ~/.profile /etc/profile.d /etc/cron* 2>/dev/null | head -30
 ```
 
 ### Шаг 3: Проверь systemd и таймеры

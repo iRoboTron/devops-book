@@ -17,11 +17,16 @@
 ## 3.2 Как выглядит риск
 
 Типовые слабые места:
-- секреты baked-in в Docker image;
-- CI выводит переменные окружения в лог;
-- bucket или backup содержит .env и дампы БД;
-- секреты лежат в compose или k8s manifest как plain text;
-- нет ротации и инвентаризации владельцев секретов.
+- секреты baked-in в Docker image — токен попадает в слой образа и уезжает в registry вместе с приложением.
+  Проверить: `docker history`, `docker inspect` и поиск строк через `docker save | strings`.
+- CI выводит переменные окружения в лог — любой, кто видит job log, видит и секрет.
+  Проверить: поиск `printenv`, `env`, `echo $...`, `set -x` в pipeline.
+- bucket или backup содержит `.env` и дампы БД — резервная копия превращается в концентрат секретов.
+  Проверить: список объектов, backup retention и контроль доступа к ним.
+- секреты лежат в compose или k8s manifest как plain text — инфраструктурный репозиторий становится точкой утечки.
+  Проверить: `rg -n "SECRET|TOKEN|PASSWORD|DATABASE_URL"`.
+- нет ротации и инвентаризации владельцев секретов — после утечки никто не знает, что именно и кто должен менять.
+  Проверить: есть ли owner, дата ротации и runbook замены.
 
 ### Где особенно важно
 - Docker
@@ -45,11 +50,61 @@
 - можешь отличить config value от секрета;
 - понимаешь, какие слои Docker и CI опасны для утечки.
 
-```text
+```dockerfile
 # Никогда не делай так
 ENV DATABASE_URL=postgres://user:pass@db/app
+```
 
+```bash
 # Лучше передавать секрет только в runtime
+docker run --env-file .env myapp:prod
+```
+
+## 3.3а Как секрет попадает в layer
+
+Плохой Dockerfile:
+
+```dockerfile
+FROM python:3.12-slim
+ENV DATABASE_URL=postgres://user:SuperSecret@db:5432/app
+RUN pip install -r requirements.txt
+COPY . .
+```
+
+Собери и посмотри историю слоёв:
+
+```bash
+docker build -t myapp:bad .
+docker history myapp:bad
+```
+
+Пример результата:
+
+```
+IMAGE     CREATED   CREATED BY                                      SIZE
+abc123    5m ago    COPY . .                                        2.1MB
+def456    5m ago    RUN pip install -r requirements.txt             45MB
+ghi789    5m ago    ENV DATABASE_URL=postgres://user:SuperSecret... 0B
+```
+
+Даже если слой весит `0B`, секрет остаётся в метаданных образа.
+
+Как найти утечку:
+
+```bash
+docker inspect myapp:bad | grep -i "DATABASE_URL\\|SECRET\\|PASSWORD"
+docker save myapp:bad | tar -xO | strings | grep -i "password\\|secret\\|token" | head -20
+```
+
+Правильный подход:
+
+```dockerfile
+FROM python:3.12-slim
+RUN pip install -r requirements.txt
+COPY . .
+```
+
+```bash
 docker run --env-file .env myapp:prod
 ```
 
@@ -63,6 +118,18 @@ docker run --env-file .env myapp:prod
 
 ```bash
 rg -n "SECRET|TOKEN|PASSWORD|DATABASE_URL" Dockerfile* docker-compose*.yml .github/ .env* || true
+trivy image --scanners secret myapp:latest
+```
+
+Пример секрета, найденного сканером:
+
+```
+myapp:latest (debian 12.5)
+Total: 2 (SECRET: 2)
+
+Target         Secret Type      Match
+/app/.env      Generic API Key  API_KEY=sk-proj-abc123...
+/app/config    AWS Access Key   AKIA...
 ```
 
 ### Шаг 2: Проверь runtime env

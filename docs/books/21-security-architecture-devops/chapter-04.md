@@ -17,11 +17,16 @@
 ## 4.2 Как выглядит риск
 
 Типовые слабые места:
-- копировать enterprise-термины без содержания;
-- не понимать различия между общими платформами и локальными решениями команды;
-- строить сложность без владельцев и процессов;
-- терять обзор того, кто чем управляет;
-- не учитывать shared responsibility между платформой и продуктовой командой.
+- копировать enterprise-термины без содержания — WAF, SIEM и SOC появляются в схеме, но не в реальном процессе.
+  Проверить: можешь ли назвать owner, сигнал и runbook для каждого слоя.
+- не понимать различия между общими платформами и локальными решениями команды — зона ответственности платформы и продукта смешивается.
+  Проверить: shared responsibility matrix.
+- строить сложность без владельцев и процессов — компонент есть, но никто не обновляет, не мониторит и не расследует.
+  Проверить: owner и lifecycle для каждого enterprise-слоя.
+- терять обзор того, кто чем управляет — в инциденте неясно, кто отвечает за IAM, edge и backup.
+  Проверить: inventory owners и архитектурная схема с ролями.
+- не учитывать shared responsibility между платформой и продуктовой командой — каждая сторона думает, что контроль делает другая.
+  Проверить: письменное распределение ответственности.
 
 ### Где особенно важно
 - крупная компания
@@ -44,7 +49,7 @@
 - понимаешь, какие базовые идеи масштабируются из small business;
 - умеешь отделять нужную сложность от бюрократического шума.
 
-```text
+```
 Internet -> edge -> WAF/CDN -> public zone -> app zone -> data zone
                  -> admin/VPN -> management zone
                  -> central logging / IAM / backup services
@@ -59,8 +64,14 @@ Internet -> edge -> WAF/CDN -> public zone -> app zone -> data zone
 - не ограничивайся названиями компонентов.
 
 ```bash
-printf 'analyze enterprise diagram by responsibility and trust boundary
-'
+cat > /tmp/enterprise-diagram-review.md <<'EOF'
+edge owner: platform
+WAF/CDN owner: platform
+app zone owner: product team
+data zone owner: platform + DBA
+logging owner: security/platform
+EOF
+cat /tmp/enterprise-diagram-review.md
 ```
 
 ### Шаг 2: Сравни со своей текущей архитектурой
@@ -68,10 +79,12 @@ printf 'analyze enterprise diagram by responsibility and trust boundary
 - зафиксируй 3 идеи, которые полезны даже в маленьком масштабе.
 
 ```bash
-printf 'management zone
-central logs
+cat > /tmp/enterprise-ideas.txt <<'EOF'
+management-zone
+central-logs
 owners
-'
+EOF
+cat /tmp/enterprise-ideas.txt
 ```
 
 ### Шаг 3: Опиши shared responsibility
@@ -79,8 +92,12 @@ owners
 - письменно зафиксируй их для своего контекста.
 
 ```bash
-printf 'shared responsibility matrix drafted
-'
+cat > /tmp/shared-responsibility.md <<'EOF'
+platform: edge, IAM, backup service
+product: app config, app secrets, release process
+security: policy, audit, incident coordination
+EOF
+cat /tmp/shared-responsibility.md
 ```
 
 ### Что нужно явно показать

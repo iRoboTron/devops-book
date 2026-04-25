@@ -17,11 +17,16 @@
 ## 5.2 Как выглядит риск
 
 Типовые слабые места:
-- контейнер запущен с --privileged или широкими capability;
-- докер-сокет примонтирован в приложение;
-- root filesystem writable без причины;
-- контейнер имеет полный исходящий доступ;
-- seccomp/apparmor profiles не используются.
+- контейнер запущен с `--privileged` или широкими capability — приложение получает почти хостовый уровень власти.
+  Проверить: `docker inspect CONTAINER_NAME | rg -n 'Privileged|CapAdd|CapDrop'`.
+- докер-сокет примонтирован в приложение — контейнер может управлять другими контейнерами и самим Docker daemon.
+  Проверить: `docker inspect CONTAINER_NAME | rg -n 'docker.sock'`.
+- root filesystem writable без причины — любой write-примитив живёт в образе контейнера дольше и легче используется для закрепления.
+  Проверить: `docker inspect CONTAINER_NAME | rg -n 'ReadonlyRootfs'`.
+- контейнер имеет полный исходящий доступ — SSRF или компрометация приложения получают свободный egress.
+  Проверить: сетевые правила и маршруты контейнера.
+- seccomp/apparmor profiles не используются — системные вызовы ограничиваются только дефолтами или не ограничиваются вообще.
+  Проверить: `docker inspect CONTAINER_NAME | rg -n 'SecurityOpt|AppArmorProfile'`.
 
 ### Где особенно важно
 - docker compose
@@ -44,7 +49,7 @@
 - можешь объяснить, что именно получает контейнер в runtime;
 - понимаешь, как уменьшить последствия компрометации приложения.
 
-```text
+```yaml
 services:
   app:
     image: myapp:hardened

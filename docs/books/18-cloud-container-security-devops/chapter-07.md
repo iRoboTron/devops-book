@@ -17,11 +17,16 @@ Kubernetes усиливает последствия шаблонных ошиб
 ## 7.2 Как выглядит риск
 
 Типовые слабые места:
-- поды запускаются от root и с broad privileges;
-- используется default service account;
-- RBAC роли слишком широкие;
-- нет network policies;
-- секреты лежат в манифестах или ConfigMap.
+- поды запускаются от root и с broad privileges — ошибка в приложении сразу получает слишком сильный runtime-контекст.
+  Проверить: `kubectl get pods -n prod -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.securityContext.runAsUser}{"\n"}{end}'`.
+- используется default service account — любой под наследует токен с неизвестным blast radius.
+  Проверить: `kubectl get sa -A` и manifest `serviceAccountName`.
+- RBAC роли слишком широкие — приложение получает чтение или изменение чужих ресурсов.
+  Проверить: `kubectl get role,rolebinding,clusterrole,clusterrolebinding -A`.
+- нет network policies — east-west трафик внутри кластера открыт по умолчанию.
+  Проверить: `kubectl get networkpolicy -A`.
+- секреты лежат в манифестах или ConfigMap — любой, кто видит репозиторий или cluster objects, видит и чувствительные данные.
+  Проверить: поиск `Secret`, `ConfigMap`, plain text values в manifests.
 
 ### Где особенно важно
 - локальный k8s lab
@@ -43,11 +48,16 @@ Kubernetes усиливает последствия шаблонных ошиб
 - умеешь читать manifest как набор прав и ограничений;
 - можешь отличить учебный минимальный кластер от production-подхода.
 
-```text
+```yaml
 securityContext:
   runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
   allowPrivilegeEscalation: false
   readOnlyRootFilesystem: true
+  capabilities:
+    drop: [ALL]
 
 automountServiceAccountToken: false
 ```
@@ -79,6 +89,32 @@ kubectl get role,rolebinding,clusterrole,clusterrolebinding -A
 
 ```bash
 kubectl get networkpolicy -A
+```
+
+Проверка, что Pod не идёт от root:
+
+```bash
+kubectl get pods -n prod -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.securityContext.runAsUser}{"\n"}{end}'
+```
+
+Если `runAsUser` пустой, Pod обычно стартует с дефолтным пользователем образа, а это часто root.
+
+Минимальный `securityContext` для Deployment:
+
+```yaml
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    fsGroup: 1001
+  containers:
+    - name: app
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: [ALL]
 ```
 
 ### Что нужно явно показать

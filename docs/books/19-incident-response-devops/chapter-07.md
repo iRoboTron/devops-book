@@ -44,7 +44,7 @@
 - понимаешь, какие артефакты стоит собирать первыми;
 - можешь документировать ход разбора так, чтобы его можно было проверить.
 
-```text
+```bash
 date -Is
 hostnamectl
 sha256sum /var/log/nginx/access.log
@@ -61,8 +61,17 @@ ss -tulpn > /tmp/ss_snapshot.txt
 - не смешивай факты и предположения.
 
 ```bash
-printf 'incident note template prepared
-'
+cat > /tmp/incident-note-template.md <<'EOF'
+# Incident Note
+- time:
+- host:
+- signal source:
+- commands run:
+- artifacts collected:
+- facts:
+- hypotheses:
+EOF
+cat /tmp/incident-note-template.md
 ```
 
 ### Шаг 2: Потренируй сбор артефактов
@@ -80,8 +89,14 @@ sha256sum /var/log/nginx/access.log
 - особенно это важно для уже работающего хоста.
 
 ```bash
-printf 'source reliability notes added
-'
+cat >> /tmp/incident-note-template.md <<'EOF'
+
+## Source Reliability
+- journald: trusted host log, but live system may rotate
+- access.log: good for HTTP timeline, may miss app internals
+- ps/ss snapshots: point-in-time only
+EOF
+tail -10 /tmp/incident-note-template.md
 ```
 
 ### Что нужно явно показать

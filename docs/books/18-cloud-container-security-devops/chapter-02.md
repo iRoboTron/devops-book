@@ -17,11 +17,16 @@
 ## 2.2 Как выглядит риск
 
 Типовые слабые места:
-- одна роль дает доступ ко всем сервисам;
-- CI/CD использует long-lived static keys;
-- runtime сервис может читать больше секретов и ресурсов, чем нужно;
-- нет разделения на чтение, запись и администрирование;
-- нет журнала использования привилегированных ролей.
+- одна роль дает доступ ко всем сервисам — компрометация одного токена открывает весь аккаунт.
+  Проверить: policy/role inventory и наличие broad actions вроде `*` или `FullAccess`.
+- CI/CD использует long-lived static keys — утёкший ключ живёт неделями и не требует интерактивного логина.
+  Проверить: поиск `AWS_ACCESS_KEY_ID`, `SECRET_ACCESS_KEY`, `TOKEN` в CI и `.env`.
+- runtime сервис может читать больше секретов и ресурсов, чем нужно — приложение получает доступ к чужим bucket, БД и VM API.
+  Проверить: effective permissions runtime-роли.
+- нет разделения на чтение, запись и администрирование — обычный сервис может делать destructive-операции.
+  Проверить: есть ли отдельные роли read/write/admin.
+- нет журнала использования привилегированных ролей — нельзя понять, кто реально выдал или использовал доступ.
+  Проверить: CloudTrail/аудит или эквивалентный журнал.
 
 ### Где особенно важно
 - VPS API
@@ -45,7 +50,7 @@
 - понимаешь, почему static access keys — долгосрочный риск;
 - умеешь проектировать роль под конкретный сервис.
 
-```text
+```
 Allow: s3:GetObject on arn:aws:s3:::myapp-assets/*
 Deny:  s3:* on *
 ```
@@ -59,10 +64,8 @@ Deny:  s3:* on *
 - для каждой сущности опиши назначение и срок жизни.
 
 ```bash
-printf 'human-admin
-ci-deploy
-app-runtime
-'
+aws iam list-users --query 'Users[*].UserName' --output table 2>/dev/null || true
+aws iam list-roles --query 'Roles[*].RoleName' --output table 2>/dev/null || true
 ```
 
 ### Шаг 2: Раздели broad roles
@@ -80,6 +83,30 @@ rg -n "admin|owner|fullaccess|\*" infra/ terraform/ .github/ || true
 ```bash
 rg -n "AWS_|SECRET_ACCESS_KEY|TOKEN|KEY=" .github/ . env* || true
 ```
+
+Практическая проверка effective permissions в AWS:
+
+```bash
+aws iam simulate-principal-policy \
+  --policy-source-arn arn:aws:iam::ACCOUNT:role/myapp-role \
+  --action-names s3:DeleteBucket s3:PutObject ec2:TerminateInstances \
+  --query 'EvaluationResults[*].[EvalActionName,EvalDecision]' \
+  --output table
+```
+
+Пример безопасного результата:
+
+```
+-----------------------------------------
+|        SimulatePrincipalPolicy         |
++------------------------+--------------+
+|  s3:DeleteBucket       | implicitDeny |
+|  s3:PutObject          | allowed      |
+|  ec2:TerminateInstances| implicitDeny |
++------------------------+--------------+
+```
+
+Такой вывод показывает, что роль умеет только то, что действительно нужно приложению.
 
 ### Что нужно явно показать
 - список ролей и их назначение;

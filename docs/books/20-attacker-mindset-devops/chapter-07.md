@@ -17,11 +17,21 @@ Exfiltration и impact нельзя рассматривать только ка
 ## 7.2 Как выглядит риск
 
 Типовые слабые места:
-- нет классификации данных;
-- приложения и люди имеют слишком широкий доступ к хранилищам;
-- исходящий трафик почти не контролируется;
-- нет сигналов на массовый export, delete и snapshot access;
-- бэкапы доступны из той же trust zone.
+- нет классификации данных — команда не понимает, что именно защищать в первую очередь.
+  Признак: нет owner и списка критичных данных.
+  Проверить: inventory хранилищ и exports.
+- приложения и люди имеют слишком широкий доступ к хранилищам — обычный сервис может читать и удалять больше, чем нужно.
+  Признак: broad IAM/storage ACL.
+  Проверить: права на bucket, shares и DB exports.
+- исходящий трафик почти не контролируется — аномальный export сложно отличить от нормальной работы.
+  Признак: неизвестные внешние соединения.
+  Проверить: `ss -tpn`, firewall egress rules.
+- нет сигналов на массовый export, delete и snapshot access — impact замечают слишком поздно.
+  Признак: нет метрик и логов на крупные операции.
+  Проверить: audit logs storage и backup systems.
+- бэкапы доступны из той же trust zone — impact легко переходит на recovery-контур.
+  Признак: приложение может читать или удалять backups напрямую.
+  Проверить: права на backup storage.
 
 ### Где особенно важно
 - БД
@@ -45,7 +55,7 @@ Exfiltration и impact нельзя рассматривать только ка
 - можешь показать, где именно инфраструктура теряет или защищает данные;
 - знаешь, какие сигналы указывают на impact или утечку.
 
-```text
+```bash
 ss -tpn
 iptables -S
 ls -lh /backups
@@ -60,11 +70,13 @@ ls -lh /backups
 - для каждого укажи owner, права доступа и журналы.
 
 ```bash
-printf 'asset
+cat > /tmp/critical-data-map.txt <<'EOF'
+asset
 owner
 access path
 logging
-'
+EOF
+cat /tmp/critical-data-map.txt
 ```
 
 ### Шаг 2: Проверь egress и storage access
@@ -80,8 +92,13 @@ ss -tpn
 - привяжи это к логам и recovery.
 
 ```bash
-printf 'impact runbook documented
-'
+cat > /tmp/impact-runbook.md <<'EOF'
+signal: mass export, delete or unusual outbound traffic
+containment: isolate host or revoke storage credentials
+recovery: verify backups and restore path
+owners: security + service owner
+EOF
+cat /tmp/impact-runbook.md
 ```
 
 ### Что нужно явно показать

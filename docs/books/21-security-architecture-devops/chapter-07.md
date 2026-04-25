@@ -17,11 +17,16 @@
 ## 7.2 Как выглядит риск
 
 Типовые слабые места:
-- локальные учетки живут отдельно от общего IAM;
-- хост не виден в inventory и сканировании;
-- патчи ставятся вручную и непредсказуемо;
-- логи не уходят в центральный контур;
-- нет owner и процесса изменений.
+- локальные учетки живут отдельно от общего IAM — увольнение или смена роли не приводят к автоматическому отзыву доступа.
+  Проверить: inventory users и связь с owner.
+- хост не виден в inventory и сканировании — актив существует, но не живёт в общем процессе.
+  Проверить: наличие asset record и owner.
+- патчи ставятся вручную и непредсказуемо — один хост выпадает из цикла обновлений и становится слабым местом.
+  Проверить: patch cadence и список последних обновлений.
+- логи не уходят в центральный контур — расследование останавливается на локальном journald.
+  Проверить: log shipping и retention.
+- нет owner и процесса изменений — Linux-хост превращается в бесхозный актив.
+  Проверить: lifecycle, change owner и backup owner.
 
 ### Где особенно важно
 - enterprise Linux fleet
@@ -44,7 +49,7 @@
 - можешь описать минимальный enterprise-ready baseline без привязки к одному вендору;
 - умеешь видеть организационные, а не только технические разрывы.
 
-```text
+```
 - owner
 - inventory entry
 - patch schedule
@@ -62,12 +67,14 @@
 - для каждой укажи, что уже есть, а что нет.
 
 ```bash
-printf 'owner
+cat > /tmp/enterprise-host-baseline.txt <<'EOF'
+owner
 inventory
 logs
 patching
 backup
-'
+EOF
+cat /tmp/enterprise-host-baseline.txt
 ```
 
 ### Шаг 2: Проверь owner и lifecycle
@@ -75,8 +82,14 @@ backup
 - без этого актив становится бесхозным риском.
 
 ```bash
-printf 'asset lifecycle reviewed
-'
+cat > /tmp/asset-lifecycle.txt <<'EOF'
+owner: platform
+purpose: internal app host
+patch window: monthly
+backup policy: daily
+retirement: decommission checklist required
+EOF
+cat /tmp/asset-lifecycle.txt
 ```
 
 ### Шаг 3: Сравни с текущей lab
@@ -84,9 +97,26 @@ printf 'asset lifecycle reviewed
 - не жди большого масштаба, чтобы начать.
 
 ```bash
-printf 'small-scale enterprise habits identified
-'
+cat > /tmp/small-scale-enterprise-habits.txt <<'EOF'
+inventory
+owner
+patch schedule
+central logs
+backup policy
+EOF
+cat /tmp/small-scale-enterprise-habits.txt
 ```
+
+## 7.5 Как архитектура масштабируется
+
+| Уровень | Периметр | Auth | Секреты | Мониторинг |
+|---------|----------|------|---------|------------|
+| Дом | `ufw` | SSH-ключи | `.env` + `chmod 600` | `journalctl` |
+| VPS | `ufw` + cloud SG | SSH + fail2ban | `.env` + права | Grafana / basic alerts |
+| Small biz | pfSense/OPNsense | VPN + MFA | Vault/SOPS | Central logs / SIEM basic |
+| Enterprise | NGFW + WAF | SSO + MFA + PAM | Vault/KMS | SIEM + SOC |
+
+Принцип не меняется: defence in depth остаётся тем же, просто на каждом уровне меняются инструменты и количество владельцев.
 
 ### Что нужно явно показать
 - какие организационные интеграции нужны Linux-хосту;
@@ -96,7 +126,7 @@ printf 'small-scale enterprise habits identified
 
 ---
 
-## 7.5 Lab-only проверка
+## 7.6 Lab-only проверка
 
 Все проверки в этой главе выполняются только на своих VM, контейнерах, тестовых доменах и собственных сервисах.
 
@@ -106,7 +136,7 @@ printf 'small-scale enterprise habits identified
 
 ---
 
-## 7.6 Типовые ошибки
+## 7.7 Типовые ошибки
 
 - рассматривать Linux-хост как изолированную коробку;
 - не назначать owner и lifecycle;
@@ -115,7 +145,7 @@ printf 'small-scale enterprise habits identified
 
 ---
 
-## 7.7 Чеклист главы
+## 7.8 Чеклист главы
 
 - [ ] Я понимаю, как Linux-хост встраивается в организационный контур
 - [ ] У актива есть owner, lifecycle и patching baseline

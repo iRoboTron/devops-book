@@ -33,28 +33,53 @@ Reverse proxy завершает TLS и формирует доверенную 
 
 ## 6.3 Что строит защитник
 
-- разделение .env.example и реального .env;
-- строгий .gitignore, права 600, owner root/app user;
-- явное доверие только своему reverse proxy;
-- TLS redirect, HSTS и корректная работа X-Forwarded-*;
-- миграция критичных секретов в secret manager при росте проекта.
+Защита здесь строится не из лозунга "секреты важны", а из конкретных границ: что можно хранить в шаблоне, кто читает реальный `.env`, и откуда backend доверяет proxy-заголовкам.
 
-### Практический результат главы
-- ты можешь объяснить, что в .env допустимо, а что уже требует отдельного хранения;
-- понимаешь, как proxy передает схему, хост и IP;
-- умеешь проверить, не торчат ли конфиги и бэкапы наружу.
+Плохой `.env.example`:
 
-```text
-# .env.example
+```ini
 APP_ENV=production
-DATABASE_URL=postgresql://app:change_me@db:5432/app
-SECRET_KEY=change_me
+DATABASE_URL=postgresql://myapp:SuperSecret123@db:5432/myapp
+SECRET_KEY=aBcDeFgHiJkLmNoPqRsTuVwXyZ123456
+STRIPE_SECRET_KEY=sk_live_AbCdEfGhIjKlMnOpQrStUv
+```
 
+Такой шаблон уже содержит реальные ключи. Если файл попадает в Git, резервные копии или support-архив, секрет считается скомпрометированным.
+
+Правильный `.env.example`:
+
+```ini
+APP_ENV=production
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DBNAME
+SECRET_KEY=REPLACE_WITH_RANDOM_64_CHARS
+STRIPE_SECRET_KEY=REPLACE_WITH_STRIPE_KEY
+```
+
+Реальный `.env` должен жить отдельно от шаблона, не попадать в Git и читаться только приложением или его владельцем.
+
+```bash
+git status .env 2>/dev/null || echo "not a git repo or .env not tracked"
+cat .gitignore | grep ".env"
+git log --all --full-history -- '*.env' | head -5
+ls -la .env
+```
+
+Как читать результат:
+- если `git log` что-то показывает, секрет уже был в истории и простой правки файла недостаточно;
+- права должны быть `-rw-------`, а не `-rw-r--r--`;
+- владелец файла должен быть пользователем приложения, а не кем попало.
+
+Исправление прав:
+
+```bash
 chmod 600 .env
 chown app:app .env
-
-add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
 ```
+
+### Практический результат главы
+- ты можешь показать хороший и плохой `.env.example`;
+- понимаешь, как проверить, был ли `.env` в Git раньше;
+- умеешь подтвердить, что reverse proxy действительно завершает TLS и передаёт доверенные заголовки.
 
 ---
 
@@ -69,25 +94,90 @@ nano .env.example
 nano .env
 nano .gitignore
 ls -l .env*
+git status .env 2>/dev/null || echo "not a git repo or .env not tracked"
+git log --all --full-history -- '*.env' | head -5
 ```
+
+Ожидаемая картина:
+
+```
+-rw------- 1 app app 412 Apr 25 10:20 .env
+-rw-r--r-- 1 app app 198 Apr 25 10:18 .env.example
+```
+
+Проблема выглядит так:
+
+```
+-rw-r--r-- 1 app app 412 Apr 25 10:20 .env
+```
+
+Здесь секреты читаются любым локальным пользователем системы.
 
 ### Шаг 2: Проверь reverse proxy boundary
 - сними полный конфиг nginx или caddy и зафиксируй, где заканчивается TLS;
 - проверь redirect на HTTPS, HSTS и передачу forwarded headers.
 
 ```bash
-sudo nginx -T | sed -n '1,240p'
 curl -I http://HOST
-curl -I https://HOST
+curl -sI https://HOST | grep -i strict
+sudo nginx -T | grep -E 'proxy_set_header|X-Forwarded|X-Real|real_ip'
 ```
+
+Ожидаемо:
+
+```
+HTTP/1.1 301 Moved Permanently
+Location: https://HOST/
+```
+
+И отдельно:
+
+```
+strict-transport-security: max-age=31536000; includeSubDomains
+```
+
+Если backend пишет в логах только `127.0.0.1`, а не реальный client IP, значит доверенная граница proxy описана неполно.
 
 ### Шаг 3: Найди утечки секретов в коде и логах
 - поиск по ключевым словам SECRET, TOKEN, PASSWORD, API_KEY;
 - проверь startup logs и debug endpoints.
 
 ```bash
-rg -n "SECRET|TOKEN|PASSWORD|API_KEY|DATABASE_URL" .
-journalctl -u myapp -n 200 --no-pager
+rg -n "SECRET|TOKEN|PASSWORD|API_KEY|DATABASE_URL" . --type py --type js
+journalctl -u myapp -n 50 --no-pager | grep -i "secret\|token\|password\|key"
+git log --all -p | grep -E "SECRET_KEY|API_KEY|PASSWORD" | head -20
+```
+
+Если последняя команда находит строки, секрет уже ушёл в историю коммитов. Тогда нужна не только правка файла, но и ротация ключей.
+
+## 6.4а Проверка backup-файлов
+
+Боты часто спрашивают не только `.env`, но и его резервные копии.
+
+```bash
+for f in .env .env.bak .env.old config.php.bak database.yml.bak; do
+  code=$(curl -s -o /dev/null -w "%{http_code}" "https://HOST/$f")
+  echo "$code $f"
+done
+```
+
+Правильный результат:
+
+```
+404 .env
+404 .env.bak
+404 .env.old
+```
+
+Если любой файл вернул `200`, веб-сервер раздаёт конфигурацию напрямую.
+
+Минимальная защита в nginx:
+
+```nginx
+location ~* \.(env|bak|old|orig|backup)$ {
+    deny all;
+    return 404;
+}
 ```
 
 ### Что нужно явно показать

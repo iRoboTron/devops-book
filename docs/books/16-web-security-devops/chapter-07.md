@@ -45,7 +45,7 @@
 - можешь показать, какой пакет или образ использует сервис и как он обновляется;
 - понимаешь, зачем нужен SBOM даже в небольшом проекте.
 
-```text
+```bash
 pip-audit
 npm audit --production
 trivy image myapp:latest
@@ -72,12 +72,73 @@ pip-audit || true
 npm audit --production || true
 ```
 
+Пример вывода `pip-audit`:
+
+```
+Name          Version  ID                  Fix Versions
+------------- -------- ------------------- ------------
+Pillow        9.0.0    GHSA-4fx9-vc88-q2xc 9.0.1
+cryptography  3.4.7    GHSA-x9w5-v3q2-3rhw 38.0.3
+```
+
+Что делать дальше:
+1. Прочитать advisory и понять, используется ли уязвимая функция.
+2. Обновить пакет в отдельной ветке.
+3. Прогнать тесты и smoke check.
+
+Пример вывода `npm audit --production`:
+
+```
+# npm audit report
+lodash  <4.17.21
+Severity: high
+Prototype Pollution in lodash - https://npmjs.com/advisories/1523
+Dependents: webpack > loader-utils > lodash
+fix available via `npm audit fix`
+```
+
+`npm audit fix` не должен запускаться вслепую в production-ветке: сначала нужно понять, ломает ли обновление API и сборку.
+
 ### Шаг 3: Проверь CI и образы
 - найди latest, непинованные action версии и широкие base images;
 - зафиксируй, где нужна версия, digest или provenance.
 
 ```bash
 rg -n "latest|uses: .*@main|FROM .*:latest" .github/ Dockerfile* docker-compose*.yml
+```
+
+Пример вывода `trivy` по образу:
+
+```
+myapp:latest (ubuntu 22.04)
+Total: 3 (HIGH: 1, MEDIUM: 2)
+
+Library   Vulnerability   Severity   Installed   Fixed
+openssl   CVE-2023-XXXX   HIGH       3.0.2       3.0.7
+```
+
+Плохой Dockerfile:
+
+```dockerfile
+FROM python:latest
+```
+
+Лучше:
+
+```dockerfile
+FROM python:3.12-slim
+```
+
+Ещё лучше:
+
+```dockerfile
+FROM python:3.12-slim@sha256:abc123def456...
+```
+
+Текущий digest образа можно посмотреть так:
+
+```bash
+docker inspect --format='{{index .RepoDigests 0}}' python:3.12-slim
 ```
 
 ### Что нужно явно показать

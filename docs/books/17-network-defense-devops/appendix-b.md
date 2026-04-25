@@ -45,3 +45,26 @@
 - после включения ключевого защитного слоя;
 - перед controlled test;
 - после финального проекта.
+
+---
+
+## Шпаргалка проверочных команд
+
+```bash
+# Внешняя экспозиция
+nmap -Pn -p 22,80,443,5432,3306,6379,8080 SERVER_IP
+
+# DNS: открытая рекурсия
+dig @SERVER_IP any google.com
+
+# DNS: zone transfer
+dig @SERVER_IP AXFR yourdomain.com
+
+# Изоляция между зонами
+nc -vz TARGET_IP PORT
+
+# East-west трафик
+sudo tcpdump -ni eth0 src SOURCE_IP -c 20
+```
+
+Эти команды покрывают внешний perimeter, DNS и фактическую связность между сегментами.

@@ -35,7 +35,7 @@
 
 В lab это можно эмулировать так:
 
-```text
+```
 admin/client
   -> gateway/firewall
   -> server-net

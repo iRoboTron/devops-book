@@ -29,6 +29,30 @@
 - B2B API с токенами
 - админка на отдельном домене
 
+Практический признак user enumeration:
+
+```bash
+# Запрос с существующим пользователем
+curl -s -X POST https://HOST/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"real@example.com","password":"wrong"}'
+# Плохо:
+# {"error":"Invalid password"}
+
+# Запрос с несуществующим пользователем
+curl -s -X POST https://HOST/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"fake@example.com","password":"wrong"}'
+# Плохо:
+# {"error":"User not found"}
+```
+
+Если текст ошибки отличается, приложение помогает атакующему отличать реальные учётные записи от вымышленных. Правильный результат для обоих случаев один и тот же:
+
+```
+{"error":"Invalid credentials"}
+```
+
 ---
 
 ## 1.3 Что строит защитник
@@ -44,16 +68,16 @@
 - знаешь, какие флаги должны быть у cookie;
 - можешь показать, где хранится session state и как она инвалидируется.
 
-```text
-# Пример для FastAPI/Starlette
+```python
+# FastAPI / Starlette
 response.set_cookie(
-    key='session',
+    key="session",
     value=session_id,
-    httponly=True,
-    secure=True,
-    samesite='lax',
-    max_age=1800,
-    path='/'
+    httponly=True,    # JS не читает cookie
+    secure=True,      # браузер шлёт только по HTTPS
+    samesite="lax",   # не уходит в cross-site POST по умолчанию
+    max_age=1800,     # 30 минут
+    path="/",
 )
 ```
 
@@ -71,6 +95,21 @@ curl -I https://HOST/login
 curl -vk https://HOST/logout
 ```
 
+Пример того, что нужно увидеть в ответе:
+
+```
+< HTTP/2 200
+< set-cookie: session=abc123; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=1800
+```
+
+Что считать проблемой:
+
+```
+< set-cookie: session=abc123; Path=/
+```
+
+Здесь нет `HttpOnly`, `Secure` и `SameSite`. Такая cookie легче крадётся через XSS, уходит по HTTP и хуже защищена от CSRF.
+
 ### Шаг 2: Проверь password reset как отдельный протокол
 - создай тестового пользователя и инициируй reset;
 - убедись, что повторное использование ссылки не работает;
@@ -87,6 +126,21 @@ journalctl -u myapp -n 50 --no-pager
 ```bash
 sudo tail -f /var/log/nginx/access.log
 ```
+
+Быстрая агрегация ошибок логина по IP:
+
+```bash
+sudo awk '$9 == 401' /var/log/nginx/access.log | awk '{print $1}' | sort | uniq -c | sort -rn | head
+```
+
+Пример вывода:
+
+```
+     47 185.234.10.11
+      3 192.168.1.10
+```
+
+Если один IP за короткое время собирает десятки `401`, это либо атака перебором, либо баг клиента.
 
 ### Что нужно явно показать
 - где именно выставляются флаги cookie;

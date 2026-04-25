@@ -17,11 +17,21 @@ Credential abuse — это защитная тема про учетные да
 ## 3.2 Как выглядит риск
 
 Типовые слабые места:
-- shared admin accounts;
-- отсутствие MFA там, где оно возможно;
-- длинноживущие API keys без owner и срока жизни;
-- нет сигналов на burst failed logins, новые ключи и необычные login times;
-- SSH keys и tokens не ревьюятся годами.
+- shared admin accounts — в логах все действия выглядят как один и тот же пользователь, а ответственность размывается.
+  Признак: много ключей в `authorized_keys` у `root`, `admin`, `ubuntu`.
+  Проверить: `wc -l ~/.ssh/authorized_keys`.
+- отсутствие MFA там, где оно возможно — один пароль или токен становится единственной защитой.
+  Признак: критичные панели доступны только по паролю.
+  Проверить: inventory auth flows и настройки MFA.
+- длинноживущие API keys без owner и срока жизни — ключ продолжает жить после увольнения или утечки.
+  Признак: старые `.env` и секреты без даты ротации.
+  Проверить: `find ... -name ".env"` и `stat`.
+- нет сигналов на burst failed logins, новые ключи и необычные login times — злоупотребление остаётся просто "одним из входов".
+  Признак: в логах есть события, но никто на них не смотрит.
+  Проверить: `last`, `lastb`, `journalctl -u ssh`.
+- SSH keys и tokens не ревьюятся годами — доступы копятся исторически и не сокращаются.
+  Признак: ключи без owner и устаревшие users.
+  Проверить: ревью `authorized_keys`, sudo и CI tokens.
 
 ### Где особенно важно
 - SSH
@@ -45,7 +55,7 @@ Credential abuse — это защитная тема про учетные да
 - можешь показать жизненный цикл ключа или токена;
 - знаешь, какие аномалии должны поднимать расследование.
 
-```text
+```bash
 ls -la ~/.ssh
 cat ~/.ssh/authorized_keys
 last -a | head
@@ -60,11 +70,19 @@ last -a | head
 - для каждого укажи owner, срок жизни и место хранения.
 
 ```bash
-printf 'credential
-owner
-location
-rotation
-'
+find /home -name "authorized_keys" 2>/dev/null | \
+  xargs -I{} sh -c 'echo "=== {} ==="; cat {}'
+for user in $(cut -d: -f1 /etc/passwd); do
+  home=$(getent passwd "$user" | cut -d: -f6)
+  if [ -f "$home/.ssh/authorized_keys" ]; then
+    count=$(grep -c "ssh-" "$home/.ssh/authorized_keys" 2>/dev/null || echo 0)
+    echo "$user: $count ключей"
+  fi
+done
+getent group sudo | cut -d: -f4
+grep -v "^#" /etc/sudoers | grep -v "^$"
+last -a | head -20
+sudo lastb | head -20
 ```
 
 ### Шаг 2: Проверь жизненный цикл
@@ -73,6 +91,8 @@ rotation
 
 ```bash
 last -a | head
+find /opt /home /var -name ".env" 2>/dev/null
+stat /opt/myapp/.env 2>/dev/null | grep Modify || true
 ```
 
 ### Шаг 3: Привяжи к сигналам

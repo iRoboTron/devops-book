@@ -37,12 +37,29 @@
 - один публичный сервис на VPS;
 - или small business с gateway и несколькими зонами.
 
+Фаза пройдена, если можешь это подтвердить командами:
+
+```bash
+echo "Публичные endpoints:" && curl -s https://SERVER_IP/ -o /dev/null -w "%{http_code}\n"
+echo "Открытые порты снаружи:" && nmap -Pn SERVER_IP 2>/dev/null | grep "open"
+echo "Слушающие сервисы:" && ss -tulpn | grep LISTEN | wc -l
+```
+
 ### Фаза 2: Выбрать controls
 
 Нужно обосновать:
 - что именно ставим;
 - почему этого достаточно;
 - почему не нужно больше или меньше.
+
+Фаза пройдена, если все P1-проверки зелёные:
+
+```bash
+sshd -T | grep "passwordauthentication no"
+sshd -T | grep "permitrootlogin no"
+sudo ufw status | grep "Status: active"
+ls /var/backups/*.sql 2>/dev/null | wc -l
+```
 
 ### Фаза 3: Сравнить альтернативу
 
@@ -56,6 +73,15 @@
 - сейчас;
 - через 90 дней;
 - позже по мере роста.
+
+Финальный критерий проекта:
+
+```bash
+curl https://yourdomain.com/health
+psql -c "SELECT COUNT(*) FROM users"
+```
+
+Если архитектуру можно восстановить с нуля (`terraform apply`, `ansible-playbook`, sync конфигурации), сервис поднимается, а данные на месте за разумное время, значит решение действительно defensible.
 
 ---
 

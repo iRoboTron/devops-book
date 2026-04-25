@@ -60,6 +60,14 @@ kubectl get nodes       # Ready
 argocd app list         # доступно
 ```
 
+```bash
+# Результат фазы: всё запущено
+kubectl get nodes                               # все узлы в Ready
+argocd app list                                 # нет строк Unknown
+kubectl get pods -n monitoring | grep -c Running
+# Ожидаемо: 6 или больше Pod'ов в Running
+```
+
 ### Фаза 2: Мониторинг
 
 ```bash
@@ -75,6 +83,13 @@ kubectl get ingress -n monitoring
 helm upgrade monitoring ... -f values.yaml
 ```
 
+```bash
+# Результат фазы: мониторинг работает
+kubectl get ingress -n monitoring
+kubectl port-forward svc/monitoring-kube-prometheus-prometheus 9090:9090 -n monitoring
+curl -s http://localhost:9090/-/healthy        # OK
+```
+
 ### Фаза 3: Приложение
 
 ```bash
@@ -87,6 +102,13 @@ argocd app sync myapp
 # 3. Проверить
 curl https://myapp.ru/health    # 200
 kubectl get pods -n prod        # Running
+```
+
+```bash
+# Результат фазы: приложение работает
+curl -i https://myapp.ru/health
+kubectl get hpa -n prod
+# Ожидаемо: HTTP/1.1 200 OK и в HPA заполнена колонка TARGETS
 ```
 
 ### Фаза 4: CI/CD
@@ -113,6 +135,22 @@ sleep 300
 time (terraform apply && ansible-playbook setup-server.yml)
 # Всё восстановлено за < 30 минут
 ```
+
+Главный критерий проекта: платформу можно восстановить из кода без ручного шаманства.
+
+```bash
+# Выполни полный цикл восстановления
+terraform destroy -auto-approve
+terraform apply -auto-approve
+ansible-playbook setup-server.yml
+
+# Затем проверь результат
+kubectl get nodes          # все Ready?
+kubectl get pods -n prod   # приложение Running?
+curl -i https://myapp.ru   # отвечает?
+```
+
+Если после этих команд кластер вернулся, Pod'ы приложения поднялись, а `curl` снова даёт рабочий ответ, проект действительно пройден.
 
 ---
 

@@ -44,7 +44,7 @@
 - знаешь, где искать неожиданные процессы и сервисы;
 - понимаешь, как связать host-level признаки с логами и сетью.
 
-```text
+```bash
 ps auxf
 ss -tulpn
 systemctl list-units --type=service --state=running
@@ -83,6 +83,36 @@ sudo lsof -i -P -n | grep LISTEN
 readlink -f /proc/$(pgrep -n sshd)/exe
 ```
 
+## 3.5 Сравнить текущее состояние с baseline
+
+```bash
+ss -tulpn > /tmp/baseline-ports.txt
+ss -tulpn > /tmp/current-ports.txt
+diff /tmp/baseline-ports.txt /tmp/current-ports.txt
+```
+
+Новые строки в `diff` означают, что появились новые listeners или изменились старые.
+
+Для критичных файлов полезен простой integrity baseline:
+
+```bash
+sha256sum /etc/passwd /etc/shadow /etc/sudoers /etc/ssh/sshd_config > /var/log/integrity-baseline.txt
+sha256sum -c /var/log/integrity-baseline.txt
+sudo stat /etc/sudoers
+sudo journalctl --since "2 hours ago" | grep sudoers
+```
+
+Пример результата:
+
+```
+/etc/passwd: OK
+/etc/shadow: OK
+/etc/sudoers: FAILED
+/etc/ssh/sshd_config: OK
+```
+
+`FAILED` означает, что файл менялся после создания baseline и это нужно отдельно объяснить.
+
 ### Что нужно явно показать
 - baseline listening ports и сервисов;
 - журналы sudo, ssh и systemd;
@@ -91,7 +121,7 @@ readlink -f /proc/$(pgrep -n sshd)/exe
 
 ---
 
-## 3.5 Lab-only проверка
+## 3.6 Lab-only проверка
 
 Все проверки в этой главе выполняются только на своих VM, контейнерах, тестовых доменах и собственных сервисах.
 
@@ -101,7 +131,7 @@ readlink -f /proc/$(pgrep -n sshd)/exe
 
 ---
 
-## 3.6 Типовые ошибки
+## 3.7 Типовые ошибки
 
 - не иметь baseline нормального состояния;
 - смотреть только на CPU и память;
@@ -110,7 +140,7 @@ readlink -f /proc/$(pgrep -n sshd)/exe
 
 ---
 
-## 3.7 Чеклист главы
+## 3.8 Чеклист главы
 
 - [ ] У меня есть baseline по процессам, портам и сервисам
 - [ ] Я умею быстро читать host-level журналы

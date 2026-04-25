@@ -17,11 +17,16 @@
 ## 1.2 Как выглядит риск
 
 Типовые слабые места:
-- все устройства в одной сети;
-- сервер, рабочая станция и IoT делят один trust zone;
-- нет snapshots и проверенного восстановления;
-- админ-доступ идет напрямую из интернета;
-- стенд не документирован и держится на памяти.
+- все устройства в одной сети — компрометация одного узла сразу увеличивает blast radius на всю домашнюю lab.
+  Проверить: `ip neigh show` и список подсетей.
+- сервер, рабочая станция и IoT делят один trust zone — слабое домашнее устройство получает путь к серверу и админским сервисам.
+  Проверить: карта зон и доступов между устройствами.
+- нет snapshots и проверенного восстановления — после ошибки или неудачного обновления нечем откатиться.
+  Проверить: `virsh snapshot-list VM_NAME` или `VBoxManage snapshot VM_NAME list`.
+- админ-доступ идет напрямую из интернета — домашний стенд перенимает худшие production-привычки.
+  Проверить: внешний `nmap` и список проброшенных портов.
+- стенд не документирован и держится на памяти — через месяц никто не помнит роли узлов и путь восстановления.
+  Проверить: есть ли inventory и правило именования snapshots.
 
 ### Где особенно важно
 - VirtualBox и libvirt lab
@@ -43,7 +48,7 @@
 - понимаешь, какие привычки потом масштабируются в production;
 - можешь описать домашнюю инфраструктуру как набор trust zones.
 
-```text
+```bash
 virsh list --all 2>/dev/null || true
 ip a
 ip r
@@ -59,11 +64,12 @@ ss -tulpn
 - для каждого узла укажи роль.
 
 ```bash
-printf 'node
-role
-zone
-backup
-'
+ip neigh show
+nmap -sn 192.168.1.0/24 2>/dev/null || true
+virsh list --all 2>/dev/null || true
+virsh snapshot-list VM_NAME 2>/dev/null || true
+VBoxManage list vms 2>/dev/null || true
+VBoxManage snapshot VM_NAME list 2>/dev/null || true
 ```
 
 ### Шаг 2: Выдели trust zones
@@ -79,9 +85,29 @@ ip r
 - для bare metal — конфиг backup и rollback plan.
 
 ```bash
-printf 'snapshot naming convention documented
-'
+virsh snapshot-list VM_NAME 2>/dev/null || true
+VBoxManage snapshot VM_NAME list 2>/dev/null || true
 ```
+
+## 1.5 Проверить восстановление
+
+Самая важная часть домашней lab — реальный test restore:
+
+```bash
+virsh snapshot-revert VM_NAME SNAPSHOT_NAME 2>/dev/null || true
+virsh start VM_NAME 2>/dev/null || true
+ssh user@VM_IP echo "restored OK"
+```
+
+Для VirtualBox:
+
+```bash
+VBoxManage snapshot VM_NAME restore SNAPSHOT_NAME 2>/dev/null || true
+VBoxManage startvm VM_NAME --type headless 2>/dev/null || true
+ssh user@VM_IP echo "restored OK"
+```
+
+Если ты ни разу не делал откат, значит не знаешь, работает ли recovery вообще.
 
 ### Что нужно явно показать
 - карту домашней lab;
@@ -91,7 +117,7 @@ printf 'snapshot naming convention documented
 
 ---
 
-## 1.5 Lab-only проверка
+## 1.6 Lab-only проверка
 
 Все проверки в этой главе выполняются только на своих VM, контейнерах, тестовых доменах и собственных сервисах.
 
@@ -101,7 +127,7 @@ printf 'snapshot naming convention documented
 
 ---
 
-## 1.6 Типовые ошибки
+## 1.7 Типовые ошибки
 
 - считать домашний стенд несерьезным и не документировать его;
 - держать все в одной подсети;
@@ -110,7 +136,7 @@ printf 'snapshot naming convention documented
 
 ---
 
-## 1.7 Чеклист главы
+## 1.8 Чеклист главы
 
 - [ ] Домашняя инфраструктура описана как архитектура, а не как набор случайных устройств
 - [ ] Зоны доверия выделены

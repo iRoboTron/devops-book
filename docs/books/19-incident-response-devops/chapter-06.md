@@ -43,7 +43,7 @@
 - понимаешь, какие элементы защиты реально снижают impact;
 - можешь спланировать containment и recovery сценарий.
 
-```text
+```
 - резкий рост file changes
 - массовые delete/rename
 - burst неуспешных логинов
@@ -59,9 +59,12 @@
 - если да, это слабое место.
 
 ```bash
-printf 'review backup permissions and storage path
-'
+ls -la /var/backups/
+sudo -u appuser rm /var/backups/db-backup-latest.sql 2>&1
+cat /etc/cron.d/backup 2>/dev/null || systemctl list-timers --all | grep -i backup
 ```
+
+Если `appuser` может удалить backup-файл, бэкап не изолирован от компрометации приложения.
 
 ### Шаг 2: Оцени blast radius
 - для одного admin и одного app account опиши, какие системы и хранилища им доступны;
@@ -72,13 +75,35 @@ id
 mount
 ```
 
+Мониторинг аномальных file changes на lab:
+
+```bash
+sudo apt install -y inotify-tools
+inotifywait -m -r /var/www/myapp -e modify,delete,create,move 2>&1 | \
+  awk '{print strftime("[%Y-%m-%d %H:%M:%S]"), $0}' | \
+  tee /var/log/file-changes.log
+```
+
+Для production-подхода полезен `auditd`:
+
+```bash
+sudo auditctl -w /etc/passwd -p wa -k passwd_changes
+sudo auditctl -w /var/www -p wax -k webroot_changes
+sudo ausearch -k passwd_changes --start today
+```
+
 ### Шаг 3: Сделай tabletop exercise
 - смоделируй destructive incident без запуска вредоносного кода;
 - пройди решения: изоляция, отключение доступа, restore, коммуникация.
 
 ```bash
-printf 'tabletop scenario documented
-'
+cat > /tmp/ransomware-tabletop.md <<'EOF'
+signal: mass file rename under /var/www/myapp
+containment: isolate host, disable app credentials
+recovery: verify backups, restore to isolated environment
+communication: notify owners and record timeline
+EOF
+cat /tmp/ransomware-tabletop.md
 ```
 
 ### Что нужно явно показать

@@ -56,6 +56,16 @@ kubectl get pods --watch
 # Результат: Pod поднялся за < 30 сек
 ```
 
+```bash
+# Как измерить время
+START=$(date +%s)
+kubectl delete pod myapp-xxx -n prod
+kubectl wait --for=condition=Ready pod -l app=myapp -n prod --timeout=60s
+END=$(date +%s)
+echo "RTO: $((END - START)) секунд"
+# Критерий успеха: меньше 30 секунд
+```
+
 ### Сценарий 2: Broken deploy
 
 ```bash
@@ -74,11 +84,25 @@ argocd app rollback myapp 1
 curl https://myapp.ru/health
 ```
 
+```bash
+# Как измерить время и что считать успехом
+kubectl set image deployment/myapp app=ghcr.io/user/myapp:nonexistent -n prod
+kubectl rollout status deployment/myapp -n prod --timeout=120s
+# Ожидаемо: rollout зависает и приходит ошибка, Pod'ы уходят в ImagePullBackOff
+
+START=$(date +%s)
+kubectl rollout undo deployment/myapp -n prod
+kubectl rollout status deployment/myapp -n prod
+END=$(date +%s)
+echo "RTO: $((END - START)) секунд"
+# Критерий успеха: rollback занял меньше 3 минут
+```
+
 ### Сценарий 3: Потеря данных PostgreSQL
 
 ```bash
 # 1. Создать тестовые данные
-kubectl exec -it postgres-0 -- psql -U postgres -c "CREATE TABLE test (id INT); INSERT INTO test VALUES (1);"
+kubectl exec -it postgres-0 -- psql -U postgres -c "CREATE TABLE test (value TEXT); INSERT INTO test VALUES ('before-dr-test');"
 
 # 2. Удалить PVC
 kubectl delete pvc pgdata-postgres-0
@@ -91,6 +115,24 @@ kubectl apply -f k8s/postgres/
 
 # 5. Проверить данные
 kubectl exec -it postgres-0 -- psql -U postgres -c "SELECT * FROM test;"
+```
+
+```bash
+# Более строгая проверка RPO/RTO
+kubectl exec -it postgres-0 -n prod -- \
+  psql -U postgres -c "INSERT INTO test VALUES ('before-dr-test')"
+
+kubectl exec -it postgres-0 -n prod -- \
+  pg_dump -U postgres myapp > backup-$(date +%Y%m%d).sql
+
+kubectl delete pod postgres-0 -n prod
+
+START=$(date +%s)
+kubectl exec -it postgres-0 -n prod -- \
+  psql -U postgres -c "SELECT * FROM test WHERE value = 'before-dr-test'"
+END=$(date +%s)
+echo "RPO проверен, RTO: $((END - START)) секунд"
+# Критерий успеха: данные на месте (RPO=0, если PVC не удалялся), время меньше 10 минут
 ```
 
 ### Сценарий 4: Потеря всего сервера
@@ -106,6 +148,24 @@ time (terraform apply && ansible-playbook setup-server.yml)
 kubectl get nodes
 curl https://myapp.ru/health
 kubectl exec -it postgres-0 -- psql -U postgres -c "SELECT 1;"
+```
+
+```bash
+# ВНИМАНИЕ: выполнять только на тестовом стенде с подтверждённым бэкапом
+START=$(date +%s)
+
+terraform destroy -auto-approve
+terraform apply -auto-approve
+ansible-playbook setup-server.yml
+
+kubectl get nodes
+kubectl get pods -n prod
+curl -i https://myapp.ru/health
+
+END=$(date +%s)
+echo "Полное восстановление: $((END - START)) секунд"
+echo "RTO: $(((END - START) / 60)) минут"
+# Критерий успеха: меньше 30 минут
 ```
 
 ---
