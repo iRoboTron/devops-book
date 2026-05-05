@@ -3,625 +3,668 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>DevOps Course Reader</title>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.5.0/github-markdown-light.min.css">
+    <title>DevOps Course Books</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f6f8fa; display: flex; height: 100vh; overflow: hidden; }
 
-        /* Sidebar */
-        #sidebar {
-            width: 280px;
-            min-width: 160px;
-            max-width: 520px;
-            height: 100vh;
-            background: #fff;
-            border-right: 1px solid #d0d7de;
-            overflow-y: auto;
-            padding: 10px 0;
-            flex-shrink: 0;
-            transition: width 0.2s ease, padding 0.2s ease;
-            position: relative;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f6f8fa;
+            color: #1f2328;
+            min-height: 100vh;
         }
-        #sidebar.collapsed {
-            width: 0 !important;
-            min-width: 0;
-            padding: 0;
-            overflow: hidden;
-            border-right: none;
+
+        a { color: inherit; }
+
+        .page {
+            width: min(1280px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 32px 0 56px;
         }
-        .sidebar-header {
+
+        .topbar {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
-            padding: 0 10px 10px;
+            gap: 16px;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
             border-bottom: 1px solid #d0d7de;
-            margin-bottom: 6px;
-        }
-        .sidebar-header h2 { font-size: 14px; color: #1f2328; flex: 1; white-space: nowrap; overflow: hidden; }
-        #courseSelect {
-            width: calc(100% - 20px);
-            margin: 0 10px 6px;
-            padding: 5px 7px;
-            border: 1px solid #d0d7de;
-            border-radius: 5px;
-            font-size: 12px;
-        }
-        #fileCount { font-size: 11px; color: #656d76; padding: 0 10px 5px; }
-        .ch-list { list-style: none; }
-        .ch-list li {
-            padding: 5px 10px;
-            font-size: 13px;
-            cursor: pointer;
-            color: #1f2328;
-            border-left: 3px solid transparent;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .ch-list li:hover { background: #f6f8fa; color: #0969da; }
-        .ch-list li.active { background: #ddf4ff; color: #0969da; border-left-color: #0969da; font-weight: 600; }
-        .ch-group { padding: 6px 10px 2px; font-size: 10px; font-weight: 600; color: #656d76; text-transform: uppercase; }
-
-        /* Resize handle */
-        #resizer {
-            width: 5px;
-            cursor: col-resize;
-            background: transparent;
-            flex-shrink: 0;
-            position: relative;
-            z-index: 10;
-        }
-        #resizer:hover, #resizer.dragging { background: #0969da; }
-        #sidebar.collapsed + #resizer { display: none; }
-
-        /* Toggle button */
-        #toggleBtn {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 200;
-            background: #fff;
-            border: 1px solid #d0d7de;
-            border-radius: 6px;
-            padding: 5px 9px;
-            cursor: pointer;
-            font-size: 16px;
-            line-height: 1;
-            color: #1f2328;
-            box-shadow: 0 1px 3px rgba(0,0,0,.1);
-            transition: left 0.2s ease;
-        }
-        #toggleBtn:hover { background: #f6f8fa; }
-
-        /* Main content */
-        #main {
-            flex: 1;
-            min-width: 0;
-            height: 100vh;
-            overflow-y: auto;
-            padding: 28px 40px 60px;
-        }
-        .markdown-body { font-size: 15px; line-height: 1.7; max-width: 820px; }
-
-        /* Loading / error states */
-        #loadingMsg { padding: 60px 40px; color: #656d76; font-size: 15px; }
-        .error-msg { color: #cf222e; background: #fff5f5; border: 1px solid #ffd7d7; padding: 12px 16px; border-radius: 6px; margin: 20px 0; }
-
-        /* Scrollbars */
-        #sidebar::-webkit-scrollbar { width: 4px; }
-        #sidebar::-webkit-scrollbar-thumb { background: #d0d7de; border-radius: 2px; }
-
-        /* ── Code overrides ─────────────────────────────────────────────── */
-
-        /* Инлайн-код */
-        .markdown-body code:not(pre code) {
-            background: #e8f0fe;
-            color: #1a56a0;
-            border: 1px solid #c5d8f8;
-            border-radius: 4px;
-            padding: 1px 5px;
-            font-size: 0.88em;
         }
 
-        /* Блок кода — тёмный фон (в тему с github-dark highlight) */
-        .markdown-body pre {
-            background: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 8px;
-            padding: 42px 20px 16px;
-            overflow-x: auto;
-            margin: 14px 0;
-            position: relative;
+        .brand {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
-        .markdown-body pre code {
-            background: transparent;
-            color: #e6edf3;
-            border: none;
-            padding: 0;
-            font-size: 13.5px;
-            line-height: 1.6;
+
+        .brand-title {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 0;
         }
-        .code-copy-btn {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            border: 1px solid #30363d;
-            border-radius: 6px;
-            background: #21262d;
-            color: #c9d1d9;
-            width: 32px;
-            height: 32px;
-            padding: 0;
+
+        .brand-subtitle {
+            color: #656d76;
+            font-size: 14px;
+            line-height: 1.45;
+            max-width: 720px;
+        }
+
+        .reader-link {
+            flex: 0 0 auto;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            transition: background .15s ease, color .15s ease, border-color .15s ease;
-        }
-        .code-copy-btn svg {
-            width: 16px;
-            height: 16px;
-            pointer-events: none;
-        }
-        .code-copy-btn:hover {
-            background: #30363d;
-            color: #fff;
-            border-color: #8b949e;
-        }
-        .code-copy-btn.copied {
-            background: #238636;
-            color: #fff;
-            border-color: #2ea043;
-        }
-        .code-copy-btn.failed {
-            background: #da3633;
-            color: #fff;
-            border-color: #f85149;
+            min-height: 36px;
+            padding: 7px 12px;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            background: #fff;
+            color: #0969da;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
         }
 
-        /* Цитата (blockquote) */
-        .markdown-body blockquote {
-            background: #fff8e6;
-            border-left: 4px solid #f0a830;
-            border-radius: 0 6px 6px 0;
-            padding: 10px 16px;
-            color: #4a3800;
-            margin: 14px 0;
+        .reader-link:hover {
+            background: #f6f8fa;
+            border-color: #0969da;
         }
-        .markdown-body blockquote p { margin: 0; }
+
+        .intro {
+            max-width: 860px;
+            margin-bottom: 28px;
+        }
+
+        .intro h1 {
+            margin-bottom: 10px;
+            font-size: 32px;
+            line-height: 1.18;
+            letter-spacing: 0;
+        }
+
+        .intro p {
+            color: #57606a;
+            font-size: 16px;
+            line-height: 1.65;
+        }
+
+        .part {
+            margin-top: 34px;
+        }
+
+        .part-head {
+            display: grid;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .part-head h2 {
+            font-size: 22px;
+            line-height: 1.25;
+            letter-spacing: 0;
+        }
+
+        .part-head p {
+            max-width: 820px;
+            color: #656d76;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .book-card {
+            display: grid;
+            grid-template-rows: auto 1fr;
+            min-width: 0;
+            min-height: 100%;
+            overflow: hidden;
+            border: 1px solid #d0d7de;
+            border-radius: 8px;
+            background: #fff;
+            text-decoration: none;
+            transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+        }
+
+        .book-card:hover {
+            border-color: #0969da;
+            box-shadow: 0 8px 24px rgba(31, 35, 40, .08);
+            transform: translateY(-1px);
+        }
+
+        .cover {
+            position: relative;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 12px;
+            min-height: 210px;
+            padding: 14px;
+            overflow: hidden;
+            color: #1f2328;
+            background:
+                linear-gradient(90deg, rgba(31, 35, 40, .05) 0 8px, transparent 8px),
+                #fff;
+        }
+
+        .cover::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 8px;
+            right: 0;
+            height: 58px;
+            background: var(--cover-color, #0969da);
+            opacity: .92;
+        }
+
+        .cover-top {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .book-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 30px;
+            min-width: 58px;
+            padding: 0 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, .9);
+            color: #1f2328;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .book-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 92px;
+            height: 92px;
+            margin: 34px auto 4px;
+            border-radius: 50%;
+            background: #f6f8fa;
+            color: var(--cover-color, #0969da);
+            border: 1px solid #d0d7de;
+            box-shadow: inset 0 0 0 8px #fff;
+        }
+
+        .book-icon svg {
+            width: 48px;
+            height: 48px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.35;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .cover-title {
+            position: relative;
+            z-index: 1;
+            align-self: end;
+            padding: 10px 0 2px;
+            border-top: 1px solid #d0d7de;
+            color: #1f2328;
+            font-size: 19px;
+            line-height: 1.16;
+            font-weight: 750;
+            letter-spacing: 0;
+        }
+
+        .cover-series {
+            position: relative;
+            z-index: 1;
+            align-self: start;
+            color: #656d76;
+            font-size: 11px;
+            font-weight: 650;
+            line-height: 1.25;
+            text-transform: uppercase;
+        }
+
+        .book-body {
+            display: grid;
+            gap: 10px;
+            padding: 14px 16px 16px;
+        }
+
+        .book-label {
+            color: #656d76;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.3;
+            text-transform: uppercase;
+        }
+
+        .book-body p {
+            color: #57606a;
+            font-size: 14px;
+            line-height: 1.55;
+        }
+
+        .book-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-self: end;
+        }
+
+        .book-tags span {
+            display: inline-flex;
+            align-items: center;
+            max-width: 100%;
+            min-height: 24px;
+            padding: 3px 7px;
+            border: 1px solid #d0d7de;
+            border-radius: 999px;
+            background: #f6f8fa;
+            color: #57606a;
+            font-size: 12px;
+            line-height: 1.2;
+        }
+
+        .loading,
+        .error {
+            margin-top: 18px;
+            padding: 14px 16px;
+            border: 1px solid #d0d7de;
+            border-radius: 8px;
+            background: #fff;
+            color: #656d76;
+            font-size: 14px;
+        }
+
+        .error {
+            color: #cf222e;
+            background: #fff5f5;
+            border-color: #ffd7d7;
+        }
+
+        @media (max-width: 1120px) {
+            .book-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 820px) {
+            .page { width: min(100% - 24px, 1280px); padding-top: 20px; }
+            .topbar { align-items: flex-start; flex-direction: column; }
+            .intro h1 { font-size: 26px; }
+            .book-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 540px) {
+            .book-grid { grid-template-columns: 1fr; }
+            .cover { min-height: 190px; }
+        }
     </style>
 </head>
 <body>
+<main class="page">
+    <header class="topbar">
+        <div class="brand">
+            <div class="brand-title">DevOps Course</div>
+            <div class="brand-subtitle">Книги идут от простых основ к реальным серверным задачам, безопасности инфраструктуры и практической цифровой самостоятельности.</div>
+        </div>
+        <a class="reader-link" href="reader.html?b=1&c=book">Начать с первой книги</a>
+    </header>
 
-<button id="toggleBtn" title="Скрыть/показать меню">☰</button>
+    <section class="intro">
+        <h1>Каталог книг</h1>
+        <p>Этот курс помогает разобраться, как сайты и приложения попадают на сервер, как они работают в интернете, как их защищать и как безопасно обращаться со своими доступами и данными. Начинать лучше с первой части: она объясняет базовые вещи простым языком и постепенно ведёт к практике.</p>
+    </section>
 
-<nav class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-        <h2>📚 DevOps Course</h2>
-    </div>
-    <select id="courseSelect"></select>
-    <div id="fileCount"></div>
-    <ul class="ch-list" id="chList"></ul>
-</nav>
-
-<div id="resizer"></div>
-
-<div id="main">
-    <div id="loadingMsg">Загружаю список файлов…</div>
-    <div id="content" class="markdown-body"></div>
-</div>
+    <div id="loading" class="loading">Загружаю список книг...</div>
+    <div id="error" class="error" hidden></div>
+    <div id="parts" hidden></div>
+</main>
 
 <script>
-marked.setOptions({
-    highlight: (code, lang) => lang && hljs.getLanguage(lang)
-        ? hljs.highlight(code, { language: lang }).value
-        : hljs.highlightAuto(code).value,
-    breaks: true, gfm: true
-});
+const ASSET_VERSION = '20260505-catalog-v3';
 
-const ASSET_VERSION = '20260424-1d2ae69';
+const PARTS = [
+    {
+        id: 'base',
+        title: 'Часть 1. DevOps с нуля',
+        description: 'Сначала разбираемся с Linux, сетью, Docker, автоматическим деплоем и обычной работой сервера. Это база, без которой сложные инструменты будут выглядеть как набор непонятных команд.',
+        from: 1,
+        to: 7
+    },
+    {
+        id: 'advanced',
+        title: 'Часть 2. Продвинутый DevOps',
+        description: 'Здесь появляются инструменты, которые часто используют в больших проектах: Terraform, Ansible, Kubernetes, мониторинг и GitOps. Эти книги показывают, как управлять не одним сервером, а целой инфраструктурой.',
+        from: 8,
+        to: 14
+    },
+    {
+        id: 'security',
+        title: 'Часть 3. Security Engineering',
+        description: 'Эта часть про защиту: как думать о рисках, закрывать слабые места, замечать инциденты и строить систему так, чтобы её было сложнее сломать.',
+        from: 15,
+        to: 21
+    },
+    {
+        id: 'misc',
+        title: 'Часть 4. Прочее',
+        description: 'Практические темы для цифровой самостоятельности: доступы, пароли, данные, привычки и решения, которые нужны не только на сервере, но и в обычной жизни.',
+        from: 22,
+        to: 29
+    }
+];
 
-const COURSE_NAMES = {
-    "01-linux-for-devops": "01: Linux",
-    "02-nginx-https-devops": "02: Сеть / Nginx",
-    "03-docker-devops": "03: Docker",
-    "04-cicd-devops": "04: CI/CD",
-    "05-infrastructure-devops": "05: Инфраструктура",
-    "06-security-monitoring-devops": "06: Безопасность",
-    "07-final-project": "07: Финальный проект",
-    "08-terraform-devops": "08: Terraform",
-    "09-ansible-devops": "09: Ansible",
-    "10-kubernetes-basics": "10: Kubernetes основы",
-    "11-kubernetes-advanced": "11: Kubernetes Advanced",
-    "12-monitoring-devops": "12: Мониторинг",
-    "13-gitops-devops": "13: GitOps",
-    "14-final-projects-2": "14: Финальные проекты",
-    "15-perimeter-security-devops": "15: Периметр и hardening",
-    "16-web-security-devops": "16: Веб-безопасность",
-    "17-network-defense-devops": "17: Сетевая защита",
-    "18-cloud-container-security-devops": "18: Cloud / Docker / K8s Security",
-    "19-incident-response-devops": "19: Incident Response",
-    "20-attacker-mindset-devops": "20: Attacker Mindset",
-    "21-security-architecture-devops": "21: Архитектура безопасности",
+const COURSE_META = {
+    "01-linux-for-devops": {
+        title: "Linux для DevOps",
+        label: "Первый шаг",
+        description: "Учимся пользоваться сервером: файлы, папки, права, процессы, сервисы, логи и команды в терминале.",
+        tags: ["Linux", "терминал", "сервер"],
+        color: "#0969da",
+        icon: "terminal"
+    },
+    "02-nginx-https-devops": {
+        title: "Сеть, Nginx и HTTPS",
+        label: "Как сайт открывается в браузере",
+        description: "Разбираемся, что такое домен, IP, HTTP, HTTPS, Nginx и сертификаты, чтобы сайт был доступен из интернета.",
+        tags: ["DNS", "Nginx", "HTTPS"],
+        color: "#1a7f37",
+        icon: "globe"
+    },
+    "03-docker-devops": {
+        title: "Docker для DevOps",
+        label: "Приложение в контейнере",
+        description: "Учимся упаковывать приложение так, чтобы оно одинаково запускалось на компьютере разработчика и на сервере.",
+        tags: ["Docker", "образы", "Compose"],
+        color: "#0969da",
+        icon: "box"
+    },
+    "04-cicd-devops": {
+        title: "CI/CD",
+        label: "Автоматический деплой",
+        description: "Настраиваем путь от push в Git до обновления приложения на сервере: проверки, сборка и доставка.",
+        tags: ["Git", "pipeline", "deploy"],
+        color: "#8250df",
+        icon: "flow"
+    },
+    "05-infrastructure-devops": {
+        title: "Инфраструктура сервера",
+        label: "База, бэкапы и надежность",
+        description: "Разбираемся, где хранить настройки, как запускать сервисы, подключать базу данных и делать резервные копии.",
+        tags: ["systemd", "БД", "бэкапы"],
+        color: "#9a6700",
+        icon: "server"
+    },
+    "06-security-monitoring-devops": {
+        title: "Безопасность и мониторинг",
+        label: "Следим и защищаем",
+        description: "Учимся закрывать базовые риски, смотреть логи и метрики, а также быстро замечать проблемы на сервере.",
+        tags: ["логи", "метрики", "защита"],
+        color: "#cf222e",
+        icon: "shield"
+    },
+    "07-final-project": {
+        title: "Финальный проект 1.0",
+        label: "Собираем всё вместе",
+        description: "Практический сценарий: поднять сервер, запустить приложение, настроить Nginx, HTTPS, мониторинг и деплой.",
+        tags: ["проект", "Ubuntu", "production"],
+        color: "#57606a",
+        icon: "rocket"
+    },
+    "08-terraform-devops": {
+        title: "Terraform",
+        label: "Инфраструктура как код",
+        description: "Учимся описывать серверы и ресурсы в файлах, чтобы инфраструктуру можно было повторить и проверить.",
+        tags: ["IaC", "state", "modules"],
+        color: "#8250df",
+        icon: "blocks"
+    },
+    "09-ansible-devops": {
+        title: "Ansible",
+        label: "Автонастройка серверов",
+        description: "Пишем инструкции, по которым сервер сам устанавливает пакеты, копирует файлы и запускает нужные сервисы.",
+        tags: ["playbooks", "roles", "автоматизация"],
+        color: "#cf222e",
+        icon: "wand"
+    },
+    "10-kubernetes-basics": {
+        title: "Kubernetes: основы",
+        label: "Приложения в кластере",
+        description: "Разбираемся с Pod, Deployment, Service и другими базовыми объектами Kubernetes на простых примерах.",
+        tags: ["Pod", "Service", "kubectl"],
+        color: "#0969da",
+        icon: "hex"
+    },
+    "11-kubernetes-advanced": {
+        title: "Kubernetes: продвинутый уровень",
+        label: "Ближе к продакшену",
+        description: "Изучаем Ingress, Helm, autoscaling, хранилища и права доступа для более серьёзной работы с кластером.",
+        tags: ["Helm", "Ingress", "HPA"],
+        color: "#0969da",
+        icon: "cubes"
+    },
+    "12-monitoring-devops": {
+        title: "Prometheus, Grafana и Loki",
+        label: "Наблюдение за системой",
+        description: "Учимся собирать метрики и логи, строить дашборды и получать сигналы, когда что-то пошло не так.",
+        tags: ["Prometheus", "Grafana", "Loki"],
+        color: "#9a6700",
+        icon: "chart"
+    },
+    "13-gitops-devops": {
+        title: "GitLab CI и GitOps",
+        label: "Инфраструктура через Git",
+        description: "Разбираемся, как GitLab CI и ArgoCD помогают автоматически обновлять инфраструктуру из репозитория.",
+        tags: ["GitLab", "ArgoCD", "GitOps"],
+        color: "#bf3989",
+        icon: "branch"
+    },
+    "14-final-projects-2": {
+        title: "Финальные проекты 2.0",
+        label: "Большая практика",
+        description: "Несколько проектов, где вместе используются Terraform, Ansible, Kubernetes, мониторинг и CI/CD.",
+        tags: ["проекты", "K8s", "платформа"],
+        color: "#57606a",
+        icon: "mountain"
+    },
+    "15-perimeter-security-devops": {
+        title: "Защита периметра",
+        label: "Входы в систему",
+        description: "Разбираемся, какие двери есть у сервера снаружи и как ограничить доступ только нужным людям и сервисам.",
+        tags: ["SSH", "firewall", "hardening"],
+        color: "#cf222e",
+        icon: "wall"
+    },
+    "16-web-security-devops": {
+        title: "Веб-безопасность",
+        label: "Защита сайта",
+        description: "Простым языком про частые уязвимости сайтов, безопасные заголовки, сессии и настройки веб-сервера.",
+        tags: ["OWASP", "headers", "sessions"],
+        color: "#8250df",
+        icon: "web"
+    },
+    "17-network-defense-devops": {
+        title: "Сетевая защита",
+        label: "Контроль трафика",
+        description: "Учимся смотреть на сеть как на карту дорог: кто куда ходит, что надо закрыть и где поставить контроль.",
+        tags: ["traffic", "segments", "defense"],
+        color: "#0969da",
+        icon: "network"
+    },
+    "18-cloud-container-security-devops": {
+        title: "Cloud и Container Security",
+        label: "Защита контейнеров и облака",
+        description: "Разбираемся, как безопаснее хранить секреты, собирать образы и запускать контейнеры в облачной среде.",
+        tags: ["cloud", "containers", "secrets"],
+        color: "#1a7f37",
+        icon: "cloud"
+    },
+    "19-incident-response-devops": {
+        title: "Incident Response",
+        label: "Что делать при атаке",
+        description: "Учимся спокойно действовать при инциденте: заметить проблему, собрать факты, остановить ущерб и восстановиться.",
+        tags: ["инциденты", "логи", "recovery"],
+        color: "#cf222e",
+        icon: "alert"
+    },
+    "20-attacker-mindset-devops": {
+        title: "Attacker Mindset",
+        label: "Как ищут слабые места",
+        description: "Смотрим на систему глазами проверяющего, чтобы заранее понять, где могут быть ошибки и опасные настройки.",
+        tags: ["риски", "проверки", "мышление"],
+        color: "#57606a",
+        icon: "target"
+    },
+    "21-security-architecture-devops": {
+        title: "Архитектура безопасности",
+        label: "Защита на уровне схемы",
+        description: "Учимся проектировать систему так, чтобы безопасность была встроена в структуру, а не добавлялась в конце.",
+        tags: ["архитектура", "контроль", "доверие"],
+        color: "#1a7f37",
+        icon: "compass"
+    },
+    "22-password-storage": {
+        title: "Хранение паролей",
+        label: "Доступы без хаоса",
+        description: "Разбираемся, где хранить пароли, как выбрать менеджер, включить MFA, сохранить recovery codes и не потерять доступы.",
+        tags: ["пароли", "MFA", "recovery"],
+        color: "#0969da",
+        icon: "key"
+    }
 };
 
-const COURSE_ALIASES = {
-    "linux-for-devops": "01-linux-for-devops",
-    "linux": "01-linux-for-devops",
-    "nginx-https-devops": "02-nginx-https-devops",
-    "net": "02-nginx-https-devops",
-    "network": "02-nginx-https-devops",
-    "nginx": "02-nginx-https-devops",
-    "docker-devops": "03-docker-devops",
-    "docker": "03-docker-devops",
-    "cicd-devops": "04-cicd-devops",
-    "ci": "04-cicd-devops",
-    "cicd": "04-cicd-devops",
-    "infrastructure-devops": "05-infrastructure-devops",
-    "infra": "05-infrastructure-devops",
-    "security-monitoring-devops": "06-security-monitoring-devops",
-    "security": "06-security-monitoring-devops",
-    "final-project": "07-final-project",
-    "final": "07-final-project",
-    "terraform-devops": "08-terraform-devops",
-    "terraform": "08-terraform-devops",
-    "ansible-devops": "09-ansible-devops",
-    "ansible": "09-ansible-devops",
-    "kubernetes-basics": "10-kubernetes-basics",
-    "k8s": "10-kubernetes-basics",
-    "kubernetes-advanced": "11-kubernetes-advanced",
-    "k8s-advanced": "11-kubernetes-advanced",
-    "monitoring-devops": "12-monitoring-devops",
-    "monitoring": "12-monitoring-devops",
-    "gitops-devops": "13-gitops-devops",
-    "gitops": "13-gitops-devops",
-    "final-projects-2": "14-final-projects-2",
-    "projects": "14-final-projects-2",
-    "perimeter-security-devops": "15-perimeter-security-devops",
-    "web-security-devops": "16-web-security-devops",
-    "network-defense-devops": "17-network-defense-devops",
-    "cloud-container-security-devops": "18-cloud-container-security-devops",
-    "incident-response-devops": "19-incident-response-devops",
-    "attacker-mindset-devops": "20-attacker-mindset-devops",
-    "security-architecture-devops": "21-security-architecture-devops"
+const ICONS = {
+    terminal: '<svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="m8 10 3 2-3 2"/><path d="M13 14h3"/></svg>',
+    globe: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18"/><path d="M12 3a14 14 0 0 0 0 18"/></svg>',
+    box: '<svg viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4 7.5 8 4.5 8-4.5"/><path d="M12 12v9"/></svg>',
+    flow: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="6" height="6" rx="1.5"/><rect x="15" y="4" width="6" height="6" rx="1.5"/><rect x="9" y="14" width="6" height="6" rx="1.5"/><path d="M9 7h6"/><path d="M12 10v4"/></svg>',
+    server: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><path d="M8 7h.01"/><path d="M8 17h.01"/><path d="M12 7h4"/><path d="M12 17h4"/></svg>',
+    shield: '<svg viewBox="0 0 24 24"><path d="M12 3 6 5v6c0 4.2 2.5 8 6 10 3.5-2 6-5.8 6-10V5l-6-2Z"/><path d="m9.5 12 1.8 1.8 3.2-3.6"/></svg>',
+    rocket: '<svg viewBox="0 0 24 24"><path d="M14 4c3 0 6 3 6 6-3.5.5-5.5 2.5-6 6-3 0-6-3-6-6 .5-3.5 2.5-5.5 6-6Z"/><path d="m8 16-3 3"/><path d="M9 19H5v-4"/><path d="M14 10h.01"/></svg>',
+    blocks: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="8.5" y="13" width="7" height="7" rx="1.5"/></svg>',
+    wand: '<svg viewBox="0 0 24 24"><path d="m4 20 10-10"/><path d="m14 6 1-3 1 3 3 1-3 1-1 3-1-3-3-1 3-1Z"/></svg>',
+    hex: '<svg viewBox="0 0 24 24"><path d="m12 3 7 4v10l-7 4-7-4V7l7-4Z"/><path d="M12 8v8"/><path d="m8.5 10 3.5-2 3.5 2"/></svg>',
+    cubes: '<svg viewBox="0 0 24 24"><path d="m12 3 6 3.5v7L12 17l-6-3.5v-7L12 3Z"/><path d="m12 10 6-3.5"/><path d="M12 10 6 6.5"/><path d="M12 10v7"/></svg>',
+    chart: '<svg viewBox="0 0 24 24"><path d="M4 19h16"/><path d="M7 16V9"/><path d="M12 16V5"/><path d="M17 16v-4"/></svg>',
+    branch: '<svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.5 6H15.5"/><path d="M18 8.5v7"/><path d="M6 8.5V14a4 4 0 0 0 4 4h5.5"/></svg>',
+    mountain: '<svg viewBox="0 0 24 24"><path d="m3 19 7-10 4 6 2-3 5 7H3Z"/><path d="m10 9 2-4 3 5"/></svg>',
+    wall: '<svg viewBox="0 0 24 24"><path d="M4 7h16v10H4z"/><path d="M8 7v10"/><path d="M16 7v10"/><path d="M4 12h16"/></svg>',
+    web: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18"/><path d="M8 5v14"/><path d="M14 12h4"/></svg>',
+    network: '<svg viewBox="0 0 24 24"><rect x="3" y="10" width="5" height="5" rx="1"/><rect x="16" y="4" width="5" height="5" rx="1"/><rect x="16" y="15" width="5" height="5" rx="1"/><path d="M8 12.5h4"/><path d="M12 12.5v-6h4"/><path d="M12 12.5v6h4"/></svg>',
+    cloud: '<svg viewBox="0 0 24 24"><path d="M8 18H7a4 4 0 1 1 .8-7.9A5.5 5.5 0 0 1 18 9a4 4 0 1 1 0 8H8Z"/></svg>',
+    alert: '<svg viewBox="0 0 24 24"><path d="M12 4 21 19H3L12 4Z"/><path d="M12 9v4.5"/><path d="M12 17h.01"/></svg>',
+    target: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><path d="M12 4V2"/><path d="M20 12h2"/><path d="M12 20v2"/><path d="M4 12H2"/></svg>',
+    compass: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5 5-2Z"/></svg>',
+    key: '<svg viewBox="0 0 24 24"><circle cx="8" cy="12" r="4"/><path d="M12 12h8"/><path d="M17 12v3"/><path d="M20 12v2"/></svg>'
 };
-
-const sidebar    = document.getElementById('sidebar');
-const toggleBtn  = document.getElementById('toggleBtn');
-const resizer    = document.getElementById('resizer');
-const courseSel  = document.getElementById('courseSelect');
-const chListEl   = document.getElementById('chList');
-const contentEl  = document.getElementById('content');
-const fileCountEl= document.getElementById('fileCount');
-const loadingMsg = document.getElementById('loadingMsg');
-
-// ── Collapse / expand ──────────────────────────────────────────────────────
-let collapsed = false;
-toggleBtn.addEventListener('click', () => {
-    collapsed = !collapsed;
-    sidebar.classList.toggle('collapsed', collapsed);
-    toggleBtn.style.left = collapsed ? '10px' : (sidebar.offsetWidth + 14) + 'px';
-});
-function updateTogglePos() {
-    if (!collapsed) toggleBtn.style.left = (sidebar.offsetWidth + 14) + 'px';
-}
-updateTogglePos();
-
-// ── Resize ─────────────────────────────────────────────────────────────────
-let startX, startW;
-resizer.addEventListener('mousedown', e => {
-    startX = e.clientX;
-    startW = sidebar.offsetWidth;
-    resizer.classList.add('dragging');
-    document.addEventListener('mousemove', onDrag);
-    document.addEventListener('mouseup', stopDrag);
-    e.preventDefault();
-});
-function onDrag(e) {
-    const newW = Math.min(520, Math.max(160, startW + e.clientX - startX));
-    sidebar.style.width = newW + 'px';
-    updateTogglePos();
-}
-function stopDrag() {
-    resizer.classList.remove('dragging');
-    document.removeEventListener('mousemove', onDrag);
-    document.removeEventListener('mouseup', stopDrag);
-}
-
-// ── Data ───────────────────────────────────────────────────────────────────
-let courses = {};   // { courseName: [filenames] }
-const cache = {};   // { "course/file": text }
-let currentCourse = null;
-let currentFile = null;
-
-function itemFile(item) { return typeof item === 'string' ? item : item.file; }
-function itemLabel(item) {
-    if (typeof item === 'string') {
-        return item.replace(/\.md$/, '').replace(/[-_]/g, ' ')
-                   .replace(/\b\w/g, c => c.toUpperCase());
-    }
-    return item.title || itemFile(item).replace(/\.md$/, '').replace(/[-_]/g, ' ')
-                                        .replace(/\b\w/g, c => c.toUpperCase());
-}
-
-function groupFiles(items) {
-    const groups = {};
-    for (const item of items) {
-        const fn = itemFile(item);
-        let g;
-        if (fn.startsWith('chapter-')) {
-            const n = parseInt(fn.match(/\d+/)?.[0] || '0');
-            g = n <= 3 ? 'Подготовка' : n <= 6 ? 'Часть 1' : n <= 9 ? 'Часть 2' : 'Часть 3';
-        } else if (fn.startsWith('appendix')) { g = 'Приложения';
-        } else if (fn === 'book.md')           { g = 'Обзор';
-        } else                                  { g = 'Другое'; }
-        if (!groups[g]) groups[g] = [];
-        groups[g].push(item);
-    }
-    return groups;
-}
 
 function courseNumber(key) {
     const match = String(key).match(/^(\d+)-/);
     return match ? parseInt(match[1], 10) : Number.MAX_SAFE_INTEGER;
 }
 
-function sortedCourseKeys() {
-    return Object.keys(courses).sort((a, b) => {
-        const na = courseNumber(a);
-        const nb = courseNumber(b);
-        if (na !== nb) return na - nb;
-        return a.localeCompare(b, 'ru');
-    });
+function itemFile(item) {
+    return typeof item === 'string' ? item : item.file;
 }
 
-function courseParamFor(key) {
-    const idx = sortedCourseKeys().indexOf(key);
-    return idx >= 0 ? String(idx + 1) : key;
+function sortedCourseKeys(courses) {
+    return Object.keys(courses).sort((a, b) => courseNumber(a) - courseNumber(b));
 }
 
-function fileParamFor(filename) {
-    if (filename === 'book.md') return 'book';
-    const chapter = filename.match(/^chapter-(\d+)\.md$/);
-    if (chapter) return String(parseInt(chapter[1], 10));
-    const appendix = filename.match(/^appendix-([a-z])\.md$/i);
-    if (appendix) return appendix[1].toLowerCase();
-    return filename.replace(/\.md$/, '');
+function readerLink(key, items) {
+    const hasBook = (items || []).some(item => itemFile(item) === 'book.md');
+    return `reader.html?b=${courseNumber(key)}&c=${hasBook ? 'book' : '1'}`;
 }
 
-function resolveCourseParam(raw) {
-    const keys = sortedCourseKeys();
-    if (!keys.length) return null;
-    if (!raw) return keys[0];
-
-    const value = String(raw).trim().toLowerCase();
-    if (courses[value]) return value;
-    if (COURSE_ALIASES[value] && courses[COURSE_ALIASES[value]]) return COURSE_ALIASES[value];
-
-    const numeric = Number(value);
-    if (Number.isInteger(numeric) && numeric >= 1 && numeric <= keys.length) {
-        return keys[numeric - 1];
-    }
-
-    return keys[0];
-}
-
-function resolveFileParam(course, raw) {
-    const items = courses[course] || [];
-    const files = items.map(itemFile);
-    if (!files.length) return null;
-    if (!raw) return files[0];
-
-    const value = String(raw).trim().toLowerCase();
-    const exact = files.find(fn => fn.toLowerCase() === value || fn.toLowerCase() === value + '.md');
-    if (exact) return exact;
-    if (value === 'book') return files.includes('book.md') ? 'book.md' : files[0];
-
-    const chapterMatch = value.match(/^c?(?:hapter-)?0*(\d+)$/);
-    if (chapterMatch) {
-        const n = chapterMatch[1].padStart(2, '0');
-        const chapter = files.find(fn => fn === `chapter-${n}.md`);
-        if (chapter) return chapter;
-    }
-
-    const appendixMatch = value.match(/^(?:a|app|appendix-)?([a-z])$/);
-    if (appendixMatch) {
-        const appendix = files.find(fn => fn.toLowerCase() === `appendix-${appendixMatch[1]}.md`);
-        if (appendix) return appendix;
-    }
-
-    const slug = files.find(fn => fn.replace(/\.md$/, '').toLowerCase() === value);
-    return slug || files[0];
-}
-
-function readRoute() {
+function maybeRedirectLegacyLink() {
     const params = new URLSearchParams(window.location.search);
-    const course = resolveCourseParam(params.get('b') || params.get('book'));
-    const file = course ? resolveFileParam(course, params.get('c') || params.get('chapter')) : null;
-    return { course, file };
+    if (params.has('b') || params.has('book') || params.has('c') || params.has('chapter')) {
+        window.location.replace(`reader.html${window.location.search}`);
+        return true;
+    }
+    return false;
 }
 
-function updateUrl(course, filename, replace = false) {
-    if (!course || !filename) return;
-    const next = new URL(window.location.href);
-    next.search = '';
-    next.searchParams.set('b', courseParamFor(course));
-    next.searchParams.set('c', fileParamFor(filename));
-    if (next.href === window.location.href) return;
-    history[replace ? 'replaceState' : 'pushState']({ course, filename }, '', next);
+function createBookCard(key, items) {
+    const meta = COURSE_META[key];
+    if (!meta) return '';
+
+    const number = String(courseNumber(key)).padStart(2, '0');
+    const volume = `Том ${number}`;
+    const tags = meta.tags.map(tag => `<span>${tag}</span>`).join('');
+
+    return `
+        <a class="book-card" href="${readerLink(key, items)}">
+            <div class="cover" style="--cover-color:${meta.color}">
+                <div class="cover-top">
+                    <span class="book-number">${volume}</span>
+                </div>
+                <span class="book-icon">${ICONS[meta.icon] || ''}</span>
+                <div>
+                    <div class="cover-series">Учебная серия</div>
+                    <div class="cover-title">${meta.title}</div>
+                </div>
+            </div>
+            <div class="book-body">
+                <div class="book-label">${meta.label}</div>
+                <p>${meta.description}</p>
+                <div class="book-tags">${tags}</div>
+            </div>
+        </a>
+    `;
 }
 
-// ── Load file list (static JSON generated by generate_filelist.py) ─────────
+function renderCatalog(courses) {
+    const partsEl = document.getElementById('parts');
+    const keys = sortedCourseKeys(courses);
+
+    partsEl.innerHTML = PARTS.map(part => {
+        const cards = keys
+            .filter(key => courseNumber(key) >= part.from && courseNumber(key) <= part.to)
+            .map(key => createBookCard(key, courses[key]))
+            .join('');
+
+        return `
+            <section class="part" id="${part.id}">
+                <div class="part-head">
+                    <h2>${part.title}</h2>
+                    <p>${part.description}</p>
+                </div>
+                <div class="book-grid">${cards}</div>
+            </section>
+        `;
+    }).join('');
+
+    document.getElementById('loading').hidden = true;
+    partsEl.hidden = false;
+}
+
 async function init() {
-    try {
-        const r = await fetch(`files.json?v=${ASSET_VERSION}`);
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        const data = await r.json();
-        courses = data.courses || {};
-        if (Object.keys(courses).length === 0) throw new Error('Нет файлов');
-        buildSidebar(readRoute(), true);
-        loadingMsg.style.display = 'none';
-    } catch(err) {
-        loadingMsg.innerHTML = '<div class="error-msg">Ошибка загрузки: ' + err.message + '</div>';
-    }
-}
-
-// ── Sidebar ────────────────────────────────────────────────────────────────
-function buildSidebar(route = {}, replaceUrl = false) {
-    const sortedKeys = sortedCourseKeys();
-    courseSel.innerHTML = '';
-    for (const key of sortedKeys) {
-        const opt = document.createElement('option');
-        opt.value = key;
-        opt.textContent = COURSE_NAMES[key] || key;
-        courseSel.appendChild(opt);
-    }
-    if (sortedKeys.length) loadCourse(route.course || sortedKeys[0], route.file, { replaceUrl });
-}
-
-function loadCourse(key, preferredFile = null, options = {}) {
-    const fns = courses[key] || [];
-    const groups = groupFiles(fns);
-    courseSel.value = key;
-    chListEl.innerHTML = '';
-    for (const [gname, gfns] of Object.entries(groups)) {
-        if (gfns.length > 1 || gname !== 'Другое') {
-            const d = document.createElement('div');
-            d.className = 'ch-group'; d.textContent = gname;
-            chListEl.appendChild(d);
-        }
-        for (const item of gfns) {
-            const fn = itemFile(item);
-            const li = document.createElement('li');
-            li.textContent = itemLabel(item); li.title = fn;
-            li.onclick = () => loadChapter(key, fn);
-            chListEl.appendChild(li);
-        }
-    }
-    fileCountEl.textContent = fns.length + ' файлов';
-    if (fns.length) {
-        const files = fns.map(itemFile);
-        const filename = preferredFile && files.includes(preferredFile) ? preferredFile : itemFile(fns[0]);
-        loadChapter(key, filename, options);
-    }
-}
-
-// ── Chapter loader ─────────────────────────────────────────────────────────
-async function loadChapter(course, filename, options = {}) {
-    currentCourse = course;
-    currentFile = filename;
-    if (options.updateUrl !== false) updateUrl(course, filename, Boolean(options.replaceUrl));
-
-    chListEl.querySelectorAll('li').forEach(li =>
-        li.classList.toggle('active', li.title === filename));
-
-    const key = course + '/' + filename;
-    if (cache[key]) {
-        renderContent(cache[key]);
-        return;
-    }
-
-    contentEl.innerHTML = '<p style="color:#656d76">Загружаю…</p>';
-    try {
-        cache[key] = await fetchChapterText(course, filename);
-        renderContent(cache[key]);
-    } catch(err) {
-        contentEl.innerHTML = '<div class="error-msg">Ошибка загрузки файла: ' + err.message + '</div>';
-    }
-}
-
-async function fetchChapterText(course, filename) {
-    const paths = [
-        'books/' + course + '/' + filename,
-        course + '/' + filename,
-    ];
-
-    let lastStatus = 'not found';
-    for (const path of paths) {
-        const r = await fetch(`${path}?v=${ASSET_VERSION}`);
-        if (r.ok) return await r.text();
-        lastStatus = 'HTTP ' + r.status + ' for ' + path;
-    }
-
-    throw new Error(lastStatus);
-}
-
-function renderContent(text) {
-    contentEl.innerHTML = marked.parse(text);
-    document.getElementById('main').scrollTo(0, 0);
-    contentEl.querySelectorAll('pre code').forEach(block => hljs.highlightElement(block));
-    enhanceCodeBlocks();
-}
-
-async function copyText(text) {
-    if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(text);
-        return;
-    }
-
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.setAttribute('readonly', '');
-    textarea.style.position = 'fixed';
-    textarea.style.top = '-1000px';
-    textarea.style.left = '-1000px';
-    document.body.appendChild(textarea);
-    textarea.select();
+    if (maybeRedirectLegacyLink()) return;
 
     try {
-        if (!document.execCommand('copy')) throw new Error('copy failed');
-    } finally {
-        textarea.remove();
+        const response = await fetch(`files.json?v=${ASSET_VERSION}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        const courses = data.courses || {};
+        if (!Object.keys(courses).length) throw new Error('Каталог пуст');
+        renderCatalog(courses);
+    } catch (error) {
+        const errorEl = document.getElementById('error');
+        document.getElementById('loading').hidden = true;
+        errorEl.hidden = false;
+        errorEl.textContent = `Ошибка загрузки каталога: ${error.message}`;
     }
 }
-
-const COPY_ICON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="3" width="8" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/><rect x="3" y="1" width="8" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/></svg>';
-const COPY_SUCCESS_ICON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 8.5 6.5 11.5 12.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const COPY_ERROR_ICON = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 4.25v4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="11.75" r=".9" fill="currentColor"/><path d="M8.87 1.88 14.14 11a1 1 0 0 1-.87 1.5H2.73a1 1 0 0 1-.87-1.5l5.27-9.12a1 1 0 0 1 1.74 0Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>';
-
-function enhanceCodeBlocks() {
-    contentEl.querySelectorAll('pre').forEach(pre => {
-        const code = pre.querySelector('code');
-        if (!code || pre.querySelector('.code-copy-btn')) return;
-
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'code-copy-btn';
-        btn.innerHTML = COPY_ICON;
-        btn.setAttribute('aria-label', 'Скопировать код');
-        btn.title = 'Скопировать код';
-
-        btn.addEventListener('click', async () => {
-            try {
-                await copyText(code.textContent);
-                btn.innerHTML = COPY_SUCCESS_ICON;
-                btn.classList.remove('failed');
-                btn.classList.add('copied');
-            } catch (err) {
-                btn.innerHTML = COPY_ERROR_ICON;
-                btn.classList.remove('copied');
-                btn.classList.add('failed');
-            }
-            setTimeout(() => {
-                btn.innerHTML = COPY_ICON;
-                btn.classList.remove('copied', 'failed');
-            }, 1600);
-        });
-
-        pre.appendChild(btn);
-    });
-}
-
-courseSel.onchange = () => loadCourse(courseSel.value);
-
-window.addEventListener('popstate', () => {
-    const route = readRoute();
-    loadCourse(route.course, route.file, { updateUrl: false });
-});
 
 init();
 </script>

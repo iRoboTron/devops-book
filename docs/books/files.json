@@ -1057,6 +1057,88 @@
         "file": "chapter-09.md",
         "title": "Глава 9: Итоговый проект"
       }
+    ],
+    "22-password-storage": [
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шпаргалка выбора"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Чеклисты MFA, recovery и backup"
+      },
+      {
+        "file": "appendix-c.md",
+        "title": "Приложение C: Шаблоны inventory и recovery kit"
+      },
+      {
+        "file": "book.md",
+        "title": "Хранение паролей: менеджеры паролей, MFA, passkeys и восстановление доступа"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Карта проблемы и стартовая диагностика"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Как ломаются пароли без страшилок"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: Хороший пароль и мастер-пароль"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: Менеджеры паролей: mental model"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Браузер, cloud, local и self-hosted"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Bitwarden как практичный старт"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: KeePassXC и local-first подход"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Self-hosted менеджер паролей"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: MFA: SMS, TOTP, push и hardware keys"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Passkeys и будущее без паролей"
+      },
+      {
+        "file": "chapter-10.md",
+        "title": "Глава 10: Recovery: как не потерять доступ"
+      },
+      {
+        "file": "chapter-11.md",
+        "title": "Глава 11: Backup хранилища паролей"
+      },
+      {
+        "file": "chapter-12.md",
+        "title": "Глава 12: Пароли разработчика: GitHub, SSH, токены, `.env`"
+      },
+      {
+        "file": "chapter-13.md",
+        "title": "Глава 13: Семья, команда и shared access"
+      },
+      {
+        "file": "chapter-14.md",
+        "title": "Глава 14: Миграция старых паролей"
+      },
+      {
+        "file": "chapter-15.md",
+        "title": "Глава 15: Итоговый проект"
+      }
     ]
   }
 }
