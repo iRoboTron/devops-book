@@ -1139,6 +1139,280 @@
         "file": "chapter-15.md",
         "title": "Глава 15: Итоговый проект"
       }
+    ],
+    "23-local-llm-devops": [
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шпаргалка команд"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Чеклист безопасности и диагностики"
+      },
+      {
+        "file": "book.md",
+        "title": "Локальные LLM: Ollama, Open-WebUI и API в своём стеке"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: LLM без мистики"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Ollama и первая модель"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: Как выбрать модель"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: Ollama API"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Open-WebUI"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Nginx перед AI-сервисом"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Скрипты на bash и Python"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: CPU, GPU и реальные ресурсы"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Безопасность локального AI"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Локальная модель или облачный API"
+      },
+      {
+        "file": "chapter-10.md",
+        "title": "Глава 10: Итоговый проект"
+      }
+    ],
+    "24-wireguard-vpn": [
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Команды WireGuard"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Чеклист VPN"
+      },
+      {
+        "file": "book.md",
+        "title": "WireGuard: свой VPN-сервер за один день"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Зачем нужен VPN"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Как WireGuard думает о ключах и peers"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: Установка и подготовка сервера"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: Первый туннель"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Firewall и безопасный порядок действий"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Автозапуск через systemd"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Телефон, ноутбук и отзыв доступа"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Диагностика"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Итоговый проект"
+      }
+    ],
+    "25-linux-hardening": [
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Минимальный baseline"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Чеклист отката"
+      },
+      {
+        "file": "book.md",
+        "title": "Linux Hardening: укрепление и аудит своего сервера"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Threat model"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: SSH hardening"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: Пользователи и права"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: Firewall и открытые порты"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Sysctl без поломки сервера"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Обновления"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Логи и fail2ban"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Lynis как контроль"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Docker hardening"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Итоговый проект"
+      }
+    ],
+    "26-security-audit": [
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шаблон отчёта"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Severity и false positives"
+      },
+      {
+        "file": "book.md",
+        "title": "Базовый ИБ-аудит: проверь свой сервер своими руками"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Что такое аудит"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: nmap и периметр"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: SSL/TLS"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: HTTP security headers"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Nikto без паники"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Trivy и Docker-образы"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Lynis в аудите"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Логи как источник фактов"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Отчёт"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Итоговый проект"
+      }
+    ],
+    "27-nextcloud-admin": [
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Команды occ"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Runbook аварий"
+      },
+      {
+        "file": "book.md",
+        "title": "Nextcloud: от «оно работает» до «я понимаю как это устроено»"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Что у тебя стоит"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: occ — командная строка Nextcloud"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: Обновления"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: Приложения"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: PostgreSQL"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Бэкапы и restore drill"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Redis, cron и производительность"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Диагностика"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Безопасность Nextcloud"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Пользователи"
+      },
+      {
+        "file": "chapter-10.md",
+        "title": "Глава 10: Итоговая документация"
+      }
     ]
   }
 }

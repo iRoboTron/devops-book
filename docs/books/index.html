@@ -330,7 +330,7 @@
 </main>
 
 <script>
-const ASSET_VERSION = '20260505-catalog-v3';
+const ASSET_VERSION = '20260506-books-23-27';
 
 const PARTS = [
     {
@@ -539,6 +539,46 @@ const COURSE_META = {
         tags: ["пароли", "MFA", "recovery"],
         color: "#0969da",
         icon: "key"
+    },
+    "23-local-llm-devops": {
+        title: "Локальные LLM",
+        label: "AI как свой сервис",
+        description: "Поднимаем Ollama и Open-WebUI, подключаем модель через API и разбираемся, как безопасно использовать локальный ИИ.",
+        tags: ["Ollama", "API", "AI"],
+        color: "#8250df",
+        icon: "wand"
+    },
+    "24-wireguard-vpn": {
+        title: "WireGuard VPN",
+        label: "Своя частная сеть",
+        description: "Настраиваем VPN-сервер, подключаем телефон и ноутбук, закрываем внутренние сервисы от открытого интернета.",
+        tags: ["VPN", "WireGuard", "сеть"],
+        color: "#1a7f37",
+        icon: "network"
+    },
+    "25-linux-hardening": {
+        title: "Linux Hardening",
+        label: "Укрепление сервера",
+        description: "Пошагово уменьшаем поверхность атаки: SSH, пользователи, firewall, обновления, fail2ban, sysctl и Docker.",
+        tags: ["SSH", "ufw", "hardening"],
+        color: "#cf222e",
+        icon: "shield"
+    },
+    "26-security-audit": {
+        title: "Базовый ИБ-аудит",
+        label: "Проверка своего сервера",
+        description: "Проверяем периметр, TLS, заголовки, Docker-образы и логи, а затем оформляем понятный отчёт с приоритетами.",
+        tags: ["nmap", "trivy", "отчёт"],
+        color: "#9a6700",
+        icon: "target"
+    },
+    "27-nextcloud-admin": {
+        title: "Nextcloud Admin",
+        label: "Понимать и обслуживать",
+        description: "Разбираем существующий Nextcloud AIO: контейнеры, occ, обновления, бэкапы, restore drill, логи и runbook.",
+        tags: ["Nextcloud", "backup", "occ"],
+        color: "#0969da",
+        icon: "cloud"
     }
 };
 
