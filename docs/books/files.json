@@ -1413,6 +1413,200 @@
         "file": "chapter-10.md",
         "title": "Глава 10: Итоговая документация"
       }
+    ],
+    "28-devops-sre-culture": [
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шпаргалка DevOps/SRE"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Ресурсы и дальнейшее чтение"
+      },
+      {
+        "file": "book.md",
+        "title": "DevOps и SRE: культура, надёжность и процессы без корпоративной магии"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Почему \"просто задеплоить\" недостаточно"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Что такое DevOps на самом деле"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: You build it, you run it"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: SRE простыми словами"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: SLA, SLO, SLI без боли"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Error budget"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: DORA-метрики без KPI-театра"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Инциденты и postmortem без поиска виноватых"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8. Инциденты: runbook, playbook, postmortem"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: DevOps/SRE для маленькой команды"
+      },
+      {
+        "file": "chapter-10.md",
+        "title": "Глава 10. Итоговый проект: надёжность небольшого сервиса"
+      }
+    ],
+    "29-operable-architecture": [
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Operability cheatsheet"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Ресурсы и дальнейшее чтение"
+      },
+      {
+        "file": "book.md",
+        "title": "Архитектура для эксплуатации: как проектировать приложения, которые удобно деплоить и чинить"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Почему приложение должно быть удобно эксплуатировать"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Монолит, модульный монолит и микросервисы"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: Stateless и stateful"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: Конфигурация и секреты"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Healthcheck, readiness и liveness"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Graceful shutdown и startup"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6. Данные, миграции и совместимость"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Retry, timeout и circuit breaker"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8. Очереди, фоновые задачи и асинхронность"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Логи, метрики и трассировка как архитектурное решение"
+      },
+      {
+        "file": "chapter-10.md",
+        "title": "Глава 10: Стратегии деплоя и rollback"
+      },
+      {
+        "file": "chapter-11.md",
+        "title": "Глава 11. Итоговый проект: эксплуатационный разбор системы"
+      }
+    ],
+    "30-engineering-communication": [
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шаблоны сообщений"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Дальнейшее чтение"
+      },
+      {
+        "file": "book.md",
+        "title": "Инженерная коммуникация: как объяснять технические мысли понятно"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Почему умная мысль может звучать непонятно"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Базовая формула ясной мысли"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: Факт, гипотеза, мнение и решение"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: Как писать сообщение о проблеме в реальном времени"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Как задавать хорошие технические вопросы"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Как объяснять сложное простым языком"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Как доносить риск"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Как сравнивать варианты и давать рекомендацию"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Документация как разговор с будущим собой"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Runbook и incident report"
+      },
+      {
+        "file": "chapter-10.md",
+        "title": "Глава 10: Как вести технический спор"
+      },
+      {
+        "file": "chapter-11.md",
+        "title": "Глава 11: Коммуникация с заказчиком или нетехническим человеком"
+      },
+      {
+        "file": "chapter-12.md",
+        "title": "Глава 12: Как ставить задачу ИИ-агенту"
+      },
+      {
+        "file": "chapter-13.md",
+        "title": "Глава 13: Личный communication playbook"
+      },
+      {
+        "file": "chapter-14.md",
+        "title": "Глава 14: Итоговый проект"
+      }
     ]
   }
 }

@@ -330,7 +330,7 @@
 </main>
 
 <script>
-const ASSET_VERSION = '20260506-books-23-27';
+const ASSET_VERSION = '20260511-books-28-30';
 
 const PARTS = [
     {
@@ -357,9 +357,9 @@ const PARTS = [
     {
         id: 'misc',
         title: 'Часть 4. Прочее',
-        description: 'Практические темы для цифровой самостоятельности: доступы, пароли, данные, привычки и решения, которые нужны не только на сервере, но и в обычной жизни.',
+        description: 'Практические темы для цифровой самостоятельности: доступы, пароли, данные, инженерное мышление, архитектура, надёжность и ясная коммуникация.',
         from: 22,
-        to: 29
+        to: 30
     }
 ];
 
@@ -579,6 +579,30 @@ const COURSE_META = {
         tags: ["Nextcloud", "backup", "occ"],
         color: "#0969da",
         icon: "cloud"
+    },
+    "28-devops-sre-culture": {
+        title: "DevOps и SRE",
+        label: "Культура надёжности",
+        description: "Разбираемся, зачем нужны DevOps и SRE: SLI/SLO, error budget, DORA, runbook, postmortem и процессы без корпоративной магии.",
+        tags: ["SRE", "SLO", "DORA"],
+        color: "#8250df",
+        icon: "compass"
+    },
+    "29-operable-architecture": {
+        title: "Архитектура для эксплуатации",
+        label: "Чтобы удобно деплоить",
+        description: "Учимся проектировать сервисы, которые можно запускать, обновлять, наблюдать, чинить и откатывать без паники.",
+        tags: ["архитектура", "rollback", "logs"],
+        color: "#1a7f37",
+        icon: "blocks"
+    },
+    "30-engineering-communication": {
+        title: "Инженерная коммуникация",
+        label: "Ясно объяснять мысли",
+        description: "Практика технических сообщений, вопросов, README, runbook, incident report, объяснения рисков и постановки задач ИИ.",
+        tags: ["коммуникация", "README", "ТЗ"],
+        color: "#9a6700",
+        icon: "flow"
     }
 };
 
