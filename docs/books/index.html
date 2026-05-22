@@ -330,26 +330,26 @@
 </main>
 
 <script>
-const ASSET_VERSION = '20260511-books-28-30';
+const ASSET_VERSION = '20260512-no-appendix-button';
 
 const PARTS = [
     {
         id: 'base',
-        title: 'Часть 1. DevOps с нуля',
+        title: 'Часть 1. База DevOps',
         description: 'Сначала разбираемся с Linux, сетью, Docker, автоматическим деплоем и обычной работой сервера. Это база, без которой сложные инструменты будут выглядеть как набор непонятных команд.',
         from: 1,
         to: 7
     },
     {
         id: 'advanced',
-        title: 'Часть 2. Продвинутый DevOps',
+        title: 'Часть 2. Инфраструктура и Kubernetes',
         description: 'Здесь появляются инструменты, которые часто используют в больших проектах: Terraform, Ansible, Kubernetes, мониторинг и GitOps. Эти книги показывают, как управлять не одним сервером, а целой инфраструктурой.',
         from: 8,
         to: 14
     },
     {
         id: 'security',
-        title: 'Часть 3. Security Engineering',
+        title: 'Часть 3. Безопасность',
         description: 'Эта часть про защиту: как думать о рисках, закрывать слабые места, замечать инциденты и строить систему так, чтобы её было сложнее сломать.',
         from: 15,
         to: 21
@@ -359,7 +359,7 @@ const PARTS = [
         title: 'Часть 4. Прочее',
         description: 'Практические темы для цифровой самостоятельности: доступы, пароли, данные, инженерное мышление, архитектура, надёжность и ясная коммуникация.',
         from: 22,
-        to: 30
+        to: 32
     }
 ];
 
@@ -603,6 +603,14 @@ const COURSE_META = {
         tags: ["коммуникация", "README", "ТЗ"],
         color: "#9a6700",
         icon: "flow"
+    },
+    "32-proxmox-ve": {
+        title: "Proxmox VE",
+        label: "Гипервизор с нуля",
+        description: "Устанавливаем Proxmox, запускаем LXC и KVM, настраиваем хранилища, бэкапы, Tailscale и мониторинг. От первого запуска до работающего домашнего сервера.",
+        tags: ["Proxmox", "LXC", "виртуализация", "homelab"],
+        color: "#0969da",
+        icon: "cubes"
     }
 };
 
@@ -710,6 +718,11 @@ function renderCatalog(courses) {
 
     document.getElementById('loading').hidden = true;
     partsEl.hidden = false;
+    requestAnimationFrame(() => {
+        if (!window.location.hash) return;
+        const target = document.querySelector(window.location.hash);
+        if (target) target.scrollIntoView({ block: 'start' });
+    });
 }
 
 async function init() {
