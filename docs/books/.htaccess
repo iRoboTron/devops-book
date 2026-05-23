@@ -1,1 +1,11 @@
 DirectoryIndex index.html
+
+# HTML: всегда проверять актуальность (revalidate с сервером)
+<FilesMatch "\.html$">
+    Header set Cache-Control "no-cache, must-revalidate"
+</FilesMatch>
+
+# JSON и MD: кэш 1 час (версионируются через ?v=...)
+<FilesMatch "\.(json|md)$">
+    Header set Cache-Control "public, max-age=3600"
+</FilesMatch>

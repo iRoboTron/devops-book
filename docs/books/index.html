@@ -330,7 +330,7 @@
 </main>
 
 <script>
-const ASSET_VERSION = '20260523-book-32-fix2';
+const ASSET_VERSION = '20260523-book-32-fix3';
 
 const PARTS = [
     {
@@ -654,9 +654,7 @@ function sortedCourseKeys(courses) {
 
 function readerLink(key, items) {
     const hasBook = (items || []).some(item => itemFile(item) === 'book.md');
-    const idx = sortedCourseKeys(courses).indexOf(key);
-    const b = idx >= 0 ? String(idx + 1) : String(courseNumber(key));
-    return `reader.html?b=${b}&c=${hasBook ? 'book' : '1'}`;
+    return `reader.html?_v=${ASSET_VERSION}&b=${courseNumber(key)}&c=${hasBook ? 'book' : '1'}`;
 }
 
 function maybeRedirectLegacyLink() {
