@@ -511,7 +511,7 @@
 <script>
 marked.setOptions({ breaks: true, gfm: true });
 
-const ASSET_VERSION = '20260523-book-32-proxmox';
+const ASSET_VERSION = '20260523-book-32-fix2';
 
 const COURSE_NAMES = {
     "01-linux-for-devops": "01: Linux",
@@ -576,14 +576,15 @@ const COURSE_ALIASES = {
     "nextcloud-admin": "27-nextcloud-admin", "nextcloud": "27-nextcloud-admin",
     "devops-sre-culture": "28-devops-sre-culture", "devops-sre": "28-devops-sre-culture", "sre": "28-devops-sre-culture", "culture": "28-devops-sre-culture",
     "operable-architecture": "29-operable-architecture", "architecture": "29-operable-architecture", "архитектура": "29-operable-architecture", "operability": "29-operable-architecture",
-    "engineering-communication": "30-engineering-communication", "communication": "30-engineering-communication", "коммуникация": "30-engineering-communication", "soft-skills": "30-engineering-communication"
+    "engineering-communication": "30-engineering-communication", "communication": "30-engineering-communication", "коммуникация": "30-engineering-communication", "soft-skills": "30-engineering-communication",
+    "proxmox-ve": "32-proxmox-ve", "proxmox": "32-proxmox-ve", "проксмос": "32-proxmox-ve"
 };
 
 const COURSE_PARTS = [
     { id: 'base', from: 1, to: 7, title: 'Часть 1. База DevOps' },
     { id: 'advanced', from: 8, to: 14, title: 'Часть 2. Инфраструктура и Kubernetes' },
     { id: 'security', from: 15, to: 21, title: 'Часть 3. Безопасность' },
-    { id: 'misc', from: 22, to: 30, title: 'Часть 4. Прочее' },
+    { id: 'misc', from: 22, to: 99, title: 'Часть 4. Прочее' },
 ];
 
 const contentEl = document.getElementById('content');
