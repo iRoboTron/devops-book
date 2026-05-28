@@ -1709,6 +1709,92 @@
                 "file": "appendix-c.md",
                 "title": "Приложение C: Схемы типовых домашних серверов"
             }
+        ],
+        "33-podman-ecosystem": [
+            {
+                "file": "book.md",
+                "title": "Podman и контейнерная экосистема: OCI, rootless и жизнь после Docker"
+            },
+            {
+                "file": "chapter-00.md",
+                "title": "Глава 0: Жизнь после Docker — зачем нужен ещё один рантайм"
+            },
+            {
+                "file": "chapter-01.md",
+                "title": "Глава 1: OCI изнутри — стандарты которые объединяют экосистему"
+            },
+            {
+                "file": "chapter-02.md",
+                "title": "Глава 2: containerd и CRI-O — что внутри Kubernetes"
+            },
+            {
+                "file": "chapter-03.md",
+                "title": "Глава 3: Установка и первые шаги с Podman"
+            },
+            {
+                "file": "chapter-04.md",
+                "title": "Глава 4: Podman vs Docker — команды и концепции"
+            },
+            {
+                "file": "chapter-05.md",
+                "title": "Глава 5: Rootless-контейнеры — безопасность по умолчанию"
+            },
+            {
+                "file": "chapter-06.md",
+                "title": "Глава 6: Podman Compose — многоконтейнерные приложения"
+            },
+            {
+                "file": "chapter-07.md",
+                "title": "Глава 7: От контейнеров к Kubernetes — podman kube"
+            },
+            {
+                "file": "chapter-08.md",
+                "title": "Глава 8: Реестры образов — за пределами Docker Hub"
+            },
+            {
+                "file": "chapter-09.md",
+                "title": "Глава 9: Systemd и Podman — контейнеры как сервисы"
+            },
+            {
+                "file": "chapter-10.md",
+                "title": "Глава 10: Сборка образов без Docker — buildah"
+            },
+            {
+                "file": "chapter-11.md",
+                "title": "Глава 11: Миграция с Docker на Podman"
+            },
+            {
+                "file": "chapter-12.md",
+                "title": "Глава 12: Podman в CI/CD — практические сценарии"
+            },
+            {
+                "file": "chapter-13.md",
+                "title": "Глава 13: Диагностика и типичные проблемы"
+            },
+            {
+                "file": "chapter-14.md",
+                "title": "Глава 14: Итоговый проект — переводим реальный сервис"
+            },
+            {
+                "file": "appendix-a.md",
+                "title": "Приложение A: Шпаргалка команд"
+            },
+            {
+                "file": "appendix-b.md",
+                "title": "Приложение B: Таблица совместимости Docker → Podman"
+            },
+            {
+                "file": "appendix-c.md",
+                "title": "Приложение C: Карта контейнерной экосистемы"
+            },
+            {
+                "file": "appendix-d.md",
+                "title": "Приложение D: Из Pod в Deployment — адаптация K8s YAML"
+            },
+            {
+                "file": "appendix-e.md",
+                "title": "Приложение E: Podman Machine (Windows и macOS)"
+            }
         ]
     }
 }

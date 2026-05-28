@@ -330,7 +330,7 @@
 </main>
 
 <script>
-const ASSET_VERSION = '20260523-book-32-fix3';
+const ASSET_VERSION = '20260528-book-33';
 
 const PARTS = [
     {
@@ -359,7 +359,7 @@ const PARTS = [
         title: 'Часть 4. Прочее',
         description: 'Практические темы для цифровой самостоятельности: доступы, пароли, данные, инженерное мышление, архитектура, надёжность и ясная коммуникация.',
         from: 22,
-        to: 32
+        to: 33
     }
 ];
 
@@ -611,6 +611,14 @@ const COURSE_META = {
         tags: ["Proxmox", "LXC", "виртуализация", "homelab"],
         color: "#0969da",
         icon: "cubes"
+    },
+    "33-podman-ecosystem": {
+        title: "Podman и контейнерная экосистема",
+        label: "OCI, rootless, жизнь после Docker",
+        description: "Разбираемся как устроена контейнерная экосистема за Docker: OCI-стандарты, runc, containerd, CRI-O. Переходим на Podman — rootless, без демона, совместимый с Docker. Systemd через Quadlet, buildah в CI/CD, миграция и диагностика.",
+        tags: ["Podman", "Docker", "OCI", "rootless", "buildah", "Kubernetes"],
+        color: "#6639ba",
+        icon: "box"
     }
 };
 
