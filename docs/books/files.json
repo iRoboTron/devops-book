@@ -1795,6 +1795,52 @@
                 "file": "appendix-e.md",
                 "title": "Приложение E: Podman Machine (Windows и macOS)"
             }
+        ],
+        "31-devops-landscape": [
+            {
+                "file": "book.md",
+                "title": "Карта DevOps-ландшафта: что брать, что игнорировать"
+            },
+            {
+                "file": "chapter-00.md",
+                "title": "Глава 0: Как читать эту карту"
+            },
+            {
+                "file": "chapter-01.md",
+                "title": "Глава 1: Сеть, VPN и доступ"
+            },
+            {
+                "file": "chapter-02.md",
+                "title": "Глава 2: Reverse proxy и веб"
+            },
+            {
+                "file": "chapter-03.md",
+                "title": "Глава 3: Мониторинг, логи, алерты"
+            },
+            {
+                "file": "chapter-04.md",
+                "title": "Глава 4: Секреты, доступ, аутентификация"
+            },
+            {
+                "file": "chapter-05.md",
+                "title": "Глава 5: Хранилище, бэкап, базы данных"
+            },
+            {
+                "file": "chapter-06.md",
+                "title": "Глава 6: Контейнеры, CI/CD, инфраструктура"
+            },
+            {
+                "file": "chapter-07.md",
+                "title": "Глава 7: AI-помощники в повседневной работе"
+            },
+            {
+                "file": "chapter-08.md",
+                "title": "Глава 8: Стартовые стеки под твой сценарий"
+            },
+            {
+                "file": "appendix-a.md",
+                "title": "Приложение A: Шпаргалка «хочу → инструмент»"
+            }
         ]
     }
 }
