@@ -128,37 +128,51 @@ HTTP/HTTPS/TCP/DNS/Docker-проверки, 90+ каналов уведомле�
 
 **Метрики:**
 
-1. Нужен мониторинг нескольких хостов с историей и дашбордами?
-   - Да → **Prometheus + Grafana**.
-   - Prometheus съедает RAM и хочется проще → **VictoriaMetrics** вместо Prometheus (Grafana остаётся).
-   - Нет, один сервер, хочу просто видеть метрики прямо сейчас → **Netdata** (ноль конфигурации).
-   - Нужен SNMP, сетевые устройства → **Zabbix**.
-
-2. Есть Kubernetes?
-   - Да → kube-prometheus-stack (книга 12).
-   - Нет → не ставь kube-prometheus-stack.
+```mermaid
+flowchart TD
+    A{"Один сервер, быстро\nбез конфигурации?"} -->|Да| B["Netdata"]
+    A -->|Нет| C{"Cloud-native / K8s\nстандарт?"}
+    C -->|Да| D["Prometheus + Grafana"]
+    C -->|Нет| E{"Мало RAM,\nсовместимость с Prometheus?"}
+    E -->|Да| F["VictoriaMetrics"]
+    E -->|Нет| G{"SNMP, сетевые\nустройства, enterprise?"}
+    G -->|Да| H["Zabbix"]
+    G -->|Нет| I["OTel Collector\n(vendor-neutral агент)"]
+```
 
 **Логи:**
 
-3. Нужен централизованный сбор логов?
-   - Да → **Loki + Promtail/Alloy**.
-   - Нужны трансформации данных на лету → **Vector** вместо Promtail.
-   - Нужен full-text поиск внутри строк логов по миллионам событий → **OpenSearch / ELK**.
-   - Нет, справляюсь journalctl и docker logs → ничего ставить не нужно.
+```mermaid
+flowchart TD
+    A{"Мало ресурсов,\nдостаточно поиска\nпо меткам?"} -->|Да| B["Loki"]
+    A -->|Нет| C{"Full-text поиск\nпо миллионам строк?"}
+    C -->|Да| D["OpenSearch"]
+    C -->|Нет| E{"Трансформации\nлогов на лету?"}
+    E -->|Да| F["Vector"]
+    E -->|Нет| G{"Compliance /\naudit trail?"}
+    G -->|Да| H["Graylog"]
+    G -->|Нет| B
+```
 
 **Uptime и алерты:**
 
-4. Нужно знать когда сервис упал?
-   - Да, для homelab или стартапа → **Uptime Kuma** + ntfy/Telegram.
-   - Уже есть Prometheus → добавь **Alertmanager**.
-   - Нужны ротации дежурств и эскалации, но нет бюджета на PagerDuty → **KeepHQ**.
-   - Нужны ротации дежурств и эскалации → **Grafana OnCall** или **PagerDuty**.
+```mermaid
+flowchart TD
+    A{"Homelab / стартап,\nнужен красивый UI?"} -->|Да| B["Uptime Kuma"]
+    A -->|Нет| C{"Уже используешь\nPrometheus?"}
+    C -->|Да| D["Alertmanager"]
+    C -->|Нет| E{"Нужны дежурства\nи эскалации,\nбюджет ограничен?"}
+    E -->|Да| F["KeepHQ"]
+    E -->|Нет| G["PagerDuty /\nGrafana OnCall"]
+```
 
 **Трейсы:**
 
-5. Есть микросервисная архитектура с 10+ сервисами, вызывающими друг друга?
-   - Да → смотри на Jaeger или Grafana Tempo.
-   - Нет → трейсы пока не нужны. Вернись к этому вопросу когда появятся.
+```mermaid
+flowchart TD
+    A{"5+ микросервисов\nвызывают друг друга?"} -->|Да| B["Jaeger / Grafana Tempo"]
+    A -->|Нет| C["Трейсы не нужны пока"]
+```
 
 ---
 

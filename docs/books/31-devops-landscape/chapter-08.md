@@ -251,6 +251,21 @@ Uptime Kuma           Grafana Cloud         Prometheus + Grafana + Loki
 
 ---
 
+## Как выбрать стек за 30 секунд
+
+```mermaid
+flowchart TD
+    A{"Сколько RAM\nна сервере?"} -->|"1–2 ГБ"| B["Стек 0: Minimal\nPodman + Nginx + Netdata"]
+    A -->|"8–16 ГБ"| C{"Это личный\nпроект?"}
+    A -->|"> 16 ГБ"| D{"Есть команда\nи compliance?"}
+    C -->|Да| E["Стек 1: Homelab\nCaddy + Tailscale + Vaultwarden"]
+    C -->|Нет| F["Стек 2: Стартап\nmanaged сервисы"]
+    D -->|Да| G["Стек 3: Enterprise\nK8s + Vault + Keycloak"]
+    D -->|Нет| F
+```
+
+---
+
 ## Ключевые тезисы
 
 - Minimal (1–2 ГБ): Podman+systemd, Nginx, Netdata, WireGuard — минимум RAM, максимум контроля.

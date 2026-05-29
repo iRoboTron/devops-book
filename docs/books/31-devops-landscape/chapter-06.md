@@ -304,62 +304,38 @@ Ansible: инвентарь, плейбуки, роли, Galaxy — **Книга
 
 ### Контейнеры и оркестрация
 
-```
-1. Никогда не работал с контейнерами?
-   - Да → Docker. Учись здесь.
-   - Уже работал → переходи к пункту 2.
-
-2. Production на RHEL/CentOS Stream или нужна rootless-изоляция?
-   - Да → Podman. Совместим с Docker CLI.
-   - Нет → можно оставаться на Docker.
-
-3. Нужна оркестрация (несколько сервисов)?
-   - Один сервер → Docker Compose / Podman Compose + systemd. Стоп.
-   - Хочу учить K8s дома → k3s.
-   - Несколько серверов, масштабирование, команда DevOps → K8s.
-   - batch/ETL без сложности K8s или уже стек HashiCorp → Nomad.
-```
-
-### Git-хостинг
-
-```
-1. Код уже где-то лежит?
-   - GitHub → оставайся.
-   - GitLab → оставайся.
-   - Нигде → GitHub если открытый, Forgejo если нужен self-hosted.
-
-2. Нужен self-hosted?
-   - Да → Forgejo (★, лёгкий) или GitLab CE (★★★, всё в одном).
-   - Нет → GitHub или облачный GitLab.
+```mermaid
+flowchart TD
+    A{"Один сервер,\nне нужна оркестрация?"} -->|Да| B["Docker Compose /\nPodman Compose"]
+    A -->|Нет| C{"Несколько серверов,\nнужен K8s без сложности?"}
+    C -->|Да| D["k3s"]
+    C -->|Нет| E{"Нужен оркестратор\nдля batch/ETL без K8s?"}
+    E -->|Да| F["Nomad"]
+    E -->|Нет| G["kubeadm / managed K8s\n(Production K8s с командой DevOps)"]
 ```
 
 ### CI/CD
 
-```
-1. Где репозиторий?
-   - GitHub → GitHub Actions.
-   - GitLab → GitLab CI.
-   - Forgejo / Gitea self-hosted → Forgejo Actions (проще) или Woodpecker CI (мощнее).
-
-2. Нужен ли CI вообще?
-   - Есть тесты или несколько разработчиков → да.
-   - Один человек, pet-проект без тестов → достаточно webhook + deploy-скрипт.
+```mermaid
+flowchart TD
+    A{"Репозиторий\nна GitHub?"} -->|Да| B["GitHub Actions"]
+    A -->|Нет| C{"Репозиторий\nна GitLab?"}
+    C -->|Да| D["GitLab CI"]
+    C -->|Нет| E{"Репозиторий\nна Forgejo / Gitea?"}
+    E -->|Да| F{"Нужно больше\nгибкости?"}
+    F -->|Нет| G["Forgejo Actions"]
+    F -->|Да| H["Woodpecker CI"]
+    E -->|Нет| I["⚠ Лучше не надо —\nсм. альтернативы\n(не Jenkins)"]
 ```
 
 ### IaC
 
-```
-1. Нужно создавать инфраструктуру в облаке (VM, сети, managed сервисы)?
-   - Да → Terraform или OpenTofu.
-   - Нет → пропускай, не нужно.
-
-2. Нужно настраивать серверы (установить ПО, конфиги, деплой)?
-   - Да, серверов несколько или конфигурация сложная → Ansible.
-   - Один сервер, несложно → bash-скрипт или руками.
-
-3. Одна VPS в homelab?
-   - Terraform — оверкилл. Ansible — может быть полезен.
-   - Начни с Ansible, Terraform добавь когда инфраструктура вырастет.
+```mermaid
+flowchart TD
+    A{"Нужно создать инфраструктуру\n(VM, сети, БД)?"} -->|Да| B["Terraform / OpenTofu"]
+    A -->|Нет| C{"Нужно настроить\nчто установлено\nна серверах?"}
+    C -->|Да| D["Ansible"]
+    C -->|Нет| E["IaC избыточен пока\n(один VPS, всё делаешь руками)"]
 ```
 
 ---

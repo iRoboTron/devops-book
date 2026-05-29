@@ -8,6 +8,7 @@
     <meta http-equiv="Expires" content="0">
     <title>DevOps Course Reader</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.5.0/github-markdown-light.min.css">
@@ -514,7 +515,7 @@
 <script>
 marked.setOptions({ breaks: true, gfm: true });
 
-const ASSET_VERSION = '20260530-book-31-v2';
+const ASSET_VERSION = '20260530-book-31-v3';
 
 const COURSE_NAMES = {
     "01-linux-for-devops": "01: Linux",
@@ -774,6 +775,7 @@ async function loadBook(course, preferredFile, replaceUrl = false) {
     loadingMsg.hidden = true;
     enhanceCodeBlocks();
     highlightCode();
+    renderMermaid();
     currentSections = buildSectionMeta(course, items);
     setupInitialScroll(course, targetFile, replaceUrl);
     updateCurrentSection(true);
@@ -959,7 +961,21 @@ function scrollToId(id) {
     if (el) el.scrollIntoView({ block: 'start' });
 }
 function highlightCode() {
-    contentEl.querySelectorAll('pre code').forEach(block => hljs.highlightElement(block));
+    contentEl.querySelectorAll('pre code').forEach(block => {
+        if (block.classList.contains('language-mermaid')) return;
+        hljs.highlightElement(block);
+    });
+}
+function renderMermaid() {
+    contentEl.querySelectorAll('pre code.language-mermaid').forEach(block => {
+        const pre = block.parentElement;
+        const div = document.createElement('div');
+        div.className = 'mermaid';
+        div.textContent = block.textContent;
+        pre.replaceWith(div);
+    });
+    mermaid.initialize({ startOnLoad: false, theme: 'default', flowchart: { curve: 'basis' } });
+    mermaid.run({ querySelector: '.mermaid' });
 }
 async function copyText(text) {
     if (navigator.clipboard && window.isSecureContext) {
