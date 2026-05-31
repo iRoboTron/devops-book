@@ -65,6 +65,19 @@ docker run -d --name db -e POSTGRES_PASSWORD=secret postgres
 | **Bind mount** | Твой путь на хосте | Код в разработке, конфиги |
 | **tmpfs** | RAM | Временные файлы, секреты |
 
+Ключевое отличие — куда уходят данные при `docker rm` и что переживает перезапуск:
+
+```mermaid
+flowchart TD
+    container["Контейнер"]
+    container -->|"Named Volume\n-v pgdata:/var/lib/postgresql"| named["Docker Volume\n/var/lib/docker/volumes/\nПереживает docker rm"]
+    container -->|"Bind Mount\n-v /home/user/data:/app/data"| bind["Папка на хосте\nПолный контроль, прямой доступ"]
+    container -->|"tmpfs\n--tmpfs /tmp"| tmpfs["RAM\nОчень быстро\nИсчезает при остановке"]
+    container -->|"Без тома"| lost["Container Layer\nУдалится вместе с контейнером"]
+```
+
+Volume и Bind mount переживают `docker rm`. tmpfs и данные без тома — нет.
+
 ---
 
 ## 4.3 Docker Volume — рекомендуется для баз данных
@@ -222,6 +235,23 @@ docker system df -v
 ---
 
 ## 4.7 Бэкап тома
+
+Бэкап делается через временный контейнер: он монтирует том как источник и папку на хосте как место назначения, архивирует данные, и самоудаляется.
+
+```mermaid
+sequenceDiagram
+    participant host as Хост ($(pwd)/backup/)
+    participant tmp as Временный контейнер alpine
+    participant vol as Volume pgdata
+
+    host->>tmp: docker run --rm -v pgdata:/source:ro -v $(pwd):/backup
+    tmp->>vol: читает /source (read-only)
+    vol-->>tmp: данные PostgreSQL
+    tmp->>host: tar czf /backup/pgdata-backup.tar.gz
+    tmp-->>host: контейнер удаляется (--rm)
+```
+
+Том остаётся нетронутым — контейнер работал с ним только на чтение.
 
 ### Сделать бэкап
 

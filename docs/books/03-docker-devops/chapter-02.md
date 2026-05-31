@@ -45,6 +45,31 @@
 - Запись = только в верхний read-write слой
 - Удаление контейнера = read-write слой исчезает
 
+Вот как это выглядит когда два контейнера запущены из одного образа — слои на диске общие:
+
+```mermaid
+flowchart TD
+    subgraph "Образ python:3.12-slim (read-only)"
+        L1["Слой 1: python:3.12-slim base\n~45 МБ"]
+        L2["Слой 2: pip install + stdlib\n~89 МБ"]
+        L3["Слой 3: CMD / ENV\n~0 МБ"]
+        L1 --> L2 --> L3
+    end
+
+    subgraph "Контейнер A"
+        RW_A["Read-Write слой A\n(исчезает при docker rm)"]
+    end
+
+    subgraph "Контейнер B"
+        RW_B["Read-Write слой B\n(исчезает при docker rm)"]
+    end
+
+    L3 --> RW_A
+    L3 --> RW_B
+```
+
+Оба контейнера читают одни и те же слои образа — ничего не дублируется на диске.
+
 > **Запомни:** Слои образа read-only и **делятся** между контейнерами.
 > Два контейнера из одного образа = одни и те же слои на диске.
 > Не дублируются!
@@ -123,6 +148,33 @@ Status: Downloaded newer image for python:3.12-slim
 ```
 
 Каждая строка `Pull complete` — один слой.
+
+На каждый слой Docker проверяет локальный кэш — и скачивает только то, чего ещё нет:
+
+```mermaid
+sequenceDiagram
+    participant CLI as docker pull
+    participant Cache as Локальный кэш
+    participant Hub as Docker Hub
+
+    CLI->>Hub: Запрос манифеста python:3.12-slim
+    Hub-->>CLI: Список слоёв [L1, L2, L3]
+
+    CLI->>Cache: Есть слой L1?
+    Cache-->>CLI: Already exists — пропускаем
+
+    CLI->>Cache: Есть слой L2?
+    Cache-->>CLI: Already exists — пропускаем
+
+    CLI->>Cache: Есть слой L3?
+    Cache-->>CLI: Нет
+
+    CLI->>Hub: Скачать слой L3
+    Hub-->>CLI: Pull complete
+    CLI->>Cache: Сохранить L3
+```
+
+Именно поэтому повторный `docker pull` после обновления образа докачивает только изменённые слои, а не весь образ заново.
 
 ### Скачивается только то чего нет
 

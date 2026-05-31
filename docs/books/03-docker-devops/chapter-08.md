@@ -74,6 +74,17 @@ Docker DNS разрешает `app` → IP контейнера `app`.
 > `app:8000`, `db:5432`, `redis:6379`.
 > Это работает только в custom bridge сети.
 
+Вот как выглядит путь запроса через reverse proxy целиком:
+
+```mermaid
+flowchart LR
+    user["Браузер\nlocalhost:80"] -->|"HTTP запрос"| nginx["nginx\n(reverse proxy)\n:80"]
+    nginx -->|"proxy_pass http://app\n(Docker DNS: app → IP)"| app["app-контейнер\n:8000 (внутренняя)"]
+    app -->|"SQL\ndb:5432"| db["PostgreSQL\n:5432 (внутренняя)"]
+```
+
+Nginx принимает запрос снаружи, Docker DNS разрешает имя `app` в IP контейнера, и запрос уходит внутрь сети. База данных порт 5432 снаружи не открыт.
+
 ---
 
 ## 8.3 Две сети: frontend + backend
@@ -186,6 +197,20 @@ server {
 
 > **Порядок важен:** Certbot нужен порт 80 для challenge.
 > Nginx должен отдавать challenge файлы на порт 80.
+
+Схема показывает как Nginx обрабатывает два типа запросов на порт 80 — challenge для Certbot и обычный трафик — и делает SSL termination на порту 443:
+
+```mermaid
+flowchart TD
+    client["Браузер"] -->|"HTTP :80"| nginx80["nginx\nport 80"]
+    nginx80 -->|"/.well-known/acme-challenge/"| certbot["certbot-www/\n(challenge файлы)"]
+    nginx80 -->|"все остальные\nreturn 301"| nginx443["nginx\nport 443 (HTTPS)"]
+    client -->|"HTTPS :443"| nginx443
+    nginx443 -->|"SSL termination\nproxy_pass http://app"| app["app-контейнер\n:8000"]
+    certbot -.->|"Let's Encrypt проверяет\nчерез интернет"| nginx80
+```
+
+После SSL termination в Nginx трафик между Nginx и app-контейнером идёт по HTTP внутри Docker-сети — это нормально, так как контейнеры общаются внутри одного хоста.
 
 ---
 

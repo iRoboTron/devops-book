@@ -86,6 +86,24 @@ networks:
   backend:
 ```
 
+Этот файл описывает три сервиса, изолированную сеть и том для данных. Вот как они связаны между собой:
+
+```mermaid
+flowchart TD
+    user["Пользователь\n:80"] --> nginx["nginx\n(web, порт 80)"]
+    nginx -->|"proxy_pass"| app["Python/Node app\n(app, порт 8000)\nВнутренняя сеть"]
+    app -->|"порт 5432"| db["PostgreSQL\n(db)\nВнутренняя сеть"]
+    db --> vol["Volume: pgdata\n(данные на диске хоста)"]
+
+    subgraph network["backend (изолированная сеть)"]
+        nginx
+        app
+        db
+    end
+```
+
+Снаружи видны только порты которые явно опубликованы через `ports:`. Внутри сети сервисы обращаются друг к другу по имени (`db`, `app`) — Docker резолвит имена автоматически.
+
 ### Одна команда
 
 ```bash
@@ -232,6 +250,27 @@ healthcheck:
 ```
 
 `pg_isready` — утилита PostgreSQL которая проверяет готовность.
+
+Порядок запуска с `condition: service_healthy` выглядит так:
+
+```mermaid
+sequenceDiagram
+    participant DC as docker compose up
+    participant db as db (PostgreSQL)
+    participant HC as healthcheck
+    participant app as app
+
+    DC->>db: запустить контейнер
+    loop каждые 5s
+        HC->>db: pg_isready -U user
+        db-->>HC: не готова / готова
+    end
+    Note over HC: status = healthy
+    DC->>app: запустить контейнер
+    app->>db: подключение к БД (успешно)
+```
+
+Без `condition: service_healthy` шаг "ждать healthy" пропускается — `app` стартует сразу после запуска контейнера `db`, ещё до того как PostgreSQL принял соединения.
 
 > **Совет:** Всегда добавляй healthcheck для баз данных.
 > Без него app может стартовать раньше чем БД готова.

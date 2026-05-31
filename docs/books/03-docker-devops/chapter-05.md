@@ -110,6 +110,25 @@ docker run -d --network mynet --name db postgres
 > **Запомни:** Всегда создавай custom bridge для multi-container приложений.
 > Default bridge — только для тестов одного контейнера.
 
+Ключевое отличие двух bridge-сетей — в том, как контейнеры находят друг друга:
+
+```mermaid
+flowchart TD
+    subgraph default_bridge["docker0 — bridge по умолчанию"]
+        c1["nginx\n172.17.0.2"]
+        c2["app\n172.17.0.3"]
+        note1["⚠ Связь только по IP\nDNS не работает\nIP меняется при рестарте"]
+    end
+
+    subgraph custom_bridge["mynet — custom bridge (рекомендуется)"]
+        c3["nginx\n172.18.0.2"]
+        c4["app\n172.18.0.3"]
+        note2["✓ Связь по имени контейнера\ncurl http://app:3000\nDNS работает автоматически"]
+    end
+```
+
+В custom-сети Docker запускает встроенный DNS-сервер — он резолвит имя контейнера в его IP. В bridge по умолчанию этот механизм отсутствует.
+
 ---
 
 ## 5.3 Создание и использование custom bridge
@@ -218,6 +237,26 @@ docker network inspect backend
 │ nginx │   │ python   │    │ postgres │
 │       │   │ app      │    │ db       │
 └───────┘   └──────────┘    └──────────┘
+```
+
+Посмотрим на ту же схему с точки зрения изоляции — какой сервис в каких сетях живёт и кто видит кого:
+
+```mermaid
+flowchart LR
+    Internet(["🌐 Интернет"])
+
+    subgraph frontend_net["Сеть: frontend"]
+        nginx["nginx\n(реверс-прокси)"]
+    end
+
+    subgraph backend_net["Сеть: backend"]
+        app["python app"]
+        db["postgres db"]
+    end
+
+    Internet -- "443/tcp\n(-p 443:443)" --> nginx
+    nginx -- "http://app:8000" --> app
+    app -- "db:5432" --> db
 ```
 
 | Сервис | frontend | backend | Вид снаружи |

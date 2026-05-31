@@ -370,6 +370,28 @@ networks:
   backend:
 ```
 
+В конфигурации выше два сервиса (`nginx` и `app`) подключены к обеим сетям, а `db` — только к `backend`. Это значит, что база данных физически недоступна снаружи даже внутри Docker: браузер или хакер не сможет достучаться до PostgreSQL в обход приложения.
+
+```mermaid
+flowchart TD
+    internet["Интернет"] --> nginx["nginx:alpine\n:80\nReverse Proxy"]
+
+    subgraph frontend["Сеть: frontend"]
+        nginx
+    end
+
+    subgraph backend["Сеть: backend"]
+        nginx --> app["app (Dockerfile)\n:8000\nPython HTTP Server"]
+        app --> db["postgres:16\n:5432\nPostgreSQL"]
+    end
+
+    db --> pgdata["Volume: pgdata\n/var/lib/postgresql/data"]
+
+    nginx -. "conf.d (read-only)\n./nginx/conf.d" .-> nginxvol["Bind mount\nnginx/conf.d/app.conf"]
+```
+
+Nginx стоит на границе двух сетей и является единственной точкой входа извне. Приложение `app` живёт только в `backend` — без прямого доступа из интернета. База данных `db` полностью изолирована в `backend` и снаружи недоступна.
+
 ---
 
 ## 9.8 Шаг 7: Makefile
@@ -593,6 +615,27 @@ after-book-3-docker-myapp
 ---
 
 ## 9.12 Что дальше
+
+Сейчас ты запускаешь стек вручную командой `make up` прямо на сервере. В Модуле 4 этот процесс автоматизируется: каждый `git push` в ветку `main` запускает GitHub Actions, который пересобирает образ и деплоит его на сервер без твоего участия.
+
+```mermaid
+flowchart LR
+    dev["Разработчик\ngit push"] --> gh["GitHub\nрепозиторий"]
+    gh --> actions["GitHub Actions\nCI/CD Pipeline"]
+    actions --> build["docker build\n+ docker push"]
+    build --> registry["Docker Hub /\nGHCR\n(реестр образов)"]
+    registry --> deploy["SSH на сервер\ndocker compose pull\n+ docker compose up"]
+    deploy --> server["Сервер /opt/myapp\nDocker Compose Stack"]
+
+    subgraph server["Сервер: /opt/myapp"]
+        nginx2["nginx"]
+        app2["app"]
+        db2["db + pgdata"]
+        nginx2 --> app2 --> db2
+    end
+```
+
+Снапшот, который ты сделал в 9.11, — это стартовая точка для Модуля 4. CI/CD будет настраиваться поверх именно этого Docker-стека.
 
 Ты прошёл Модуль 3. Вот что ты теперь умеешь:
 

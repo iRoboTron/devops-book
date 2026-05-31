@@ -26,6 +26,24 @@ docker run ubuntu echo "Hello from Docker!"
 5. Команда завершилась → контейнер остановился
 ```
 
+`docker run` — это не одна операция, а три последовательных шага под капотом.
+
+```mermaid
+flowchart LR
+    A["docker run ubuntu echo ..."] --> B["docker pull\n(если нет локально)"]
+    B --> C["docker create\n(контейнер создан)"]
+    C --> D["docker start\n(процесс запущен)"]
+    D --> E["Команда завершилась\n→ контейнер остановился"]
+
+    style A fill:#2d2d2d,color:#fff
+    style B fill:#1a5276,color:#fff
+    style C fill:#1e8449,color:#fff
+    style D fill:#1e8449,color:#fff
+    style E fill:#6e2f1a,color:#fff
+```
+
+Понимание этих трёх шагов объясняет, почему `docker run` иногда долго работает (идёт скачивание образа), и почему после остановки контейнер не исчезает — объект `create` остаётся в системе. Флаг `--rm` удаляет этот объект автоматически.
+
 ### Разбор
 
 ```bash
@@ -263,6 +281,33 @@ docker ps -a  # контейнера нет
 > **Запомни:** `docker stop` ≠ `docker rm`.
 > `stop` — остановил (можно запустить снова).
 > `rm` — удалил (нельзя вернуть).
+
+Переходы между состояниями наглядно показывают, что контейнер можно многократно останавливать и запускать — пока он не удалён.
+
+```mermaid
+flowchart LR
+    created["Создан\n(docker create)"]
+    running["Запущен\n(docker start / run)"]
+    paused["На паузе\n(docker pause)"]
+    stopped["Остановлен\n(docker stop)"]
+    removed["Удалён\n(docker rm)"]
+
+    created --> running
+    running --> paused
+    paused --> running
+    running --> stopped
+    stopped --> running
+    stopped --> removed
+    running --> removed
+
+    style created fill:#1a5276,color:#fff
+    style running fill:#1e8449,color:#fff
+    style paused fill:#7d6608,color:#fff
+    style stopped fill:#6e2f1a,color:#fff
+    style removed fill:#4a235a,color:#fff
+```
+
+Обрати внимание: из состояния `Остановлен` можно вернуться в `Запущен` командой `docker start` — данные и конфигурация контейнера сохраняются. Удаление (`docker rm`) необратимо.
 
 ---
 
