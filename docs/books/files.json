@@ -2161,6 +2161,80 @@
         "file": "appendix-e.md",
         "title": "Приложение E: Матрица совместимости инструментов"
       }
+    ],
+    "38-monitoring-devops": [
+      {
+        "file": "book.md",
+        "title": "Мониторинг с нуля: Prometheus, Grafana и Alertmanager без Kubernetes"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Зачем мониторинг и как устроен стек"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Быстрый старт — весь стек за 15 минут"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: Prometheus — концепции, метрики, конфигурация"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: Node Exporter — метрики сервера"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: PromQL — 20 запросов для реальных задач"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Grafana — дашборды, панели, переменные"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: cAdvisor — метрики Docker-контейнеров"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Exporters — PostgreSQL, Nginx, Redis, Blackbox"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Alertmanager — правила, routing, Telegram"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Loki + Promtail — логи в Grafana"
+      },
+      {
+        "file": "chapter-10.md",
+        "title": "Глава 10: Pushgateway — метрики для batch jobs"
+      },
+      {
+        "file": "chapter-11.md",
+        "title": "Глава 11: Масштабирование и long-term storage"
+      },
+      {
+        "file": "chapter-12.md",
+        "title": "Глава 12: Диагностика — что делать когда мониторинг сломан"
+      },
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Полный docker-compose.yml"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Готовые alert rules"
+      },
+      {
+        "file": "appendix-c.md",
+        "title": "Приложение C: Шпаргалка PromQL и LogQL"
+      },
+      {
+        "file": "appendix-d.md",
+        "title": "Приложение D: Установка через systemd (без Docker)"
+      }
     ]
   }
 }
