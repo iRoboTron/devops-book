@@ -2005,6 +2005,162 @@
         "file": "appendix-c.md",
         "title": "Приложение C: Алгоритмы диагностики — флоучарты"
       }
+    ],
+    "36-vault-devops": [
+      {
+        "file": "book.md",
+        "title": "HashiCorp Vault: секреты под контролем"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Зачем нужен Vault — проблема хранения секретов"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Установка и первый запуск"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: Основные концепции — paths, engines, tokens, leases"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: KV Secrets Engine — хранение статических секретов"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Политики — управление доступом"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: Методы аутентификации — Token, AppRole, UserPass, LDAP"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Dynamic Secrets — пароли от баз данных"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: PKI Engine — генерация сертификатов"
+      },
+      {
+        "file": "chapter-07b.md",
+        "title": "Глава 7b: Transit Engine — шифрование как сервис"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Vault Agent — автоматическое получение секретов"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Vault в Docker Compose — production-like setup"
+      },
+      {
+        "file": "chapter-10.md",
+        "title": "Глава 10: Интеграция с Kubernetes"
+      },
+      {
+        "file": "chapter-11.md",
+        "title": "Глава 11: Production — Raft HA, Seal/Unseal, Backup"
+      },
+      {
+        "file": "chapter-12.md",
+        "title": "Глава 12: Аудит, диагностика и типичные сценарии"
+      },
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шпаргалка команд"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Типичные ошибки и диагноз"
+      },
+      {
+        "file": "appendix-c.md",
+        "title": "Приложение C: Шаблоны HCL"
+      }
+    ],
+    "37-postgresql-devops": [
+      {
+        "file": "book.md",
+        "title": "PostgreSQL для DevOps: надёжная эксплуатация без паники"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: PostgreSQL для DevOps — не DBA, но и не игнорировать"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: Запуск, конфигурация, важные файлы"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: Пользователи, роли и права"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: pg_hba.conf, SSL и безопасное подключение"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: Бэкапы — pg_dump и pg_basebackup"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: WAL и PITR — восстановление на любой момент времени"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: Мониторинг — что смотреть и как"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Медленные запросы — pg_stat_statements и EXPLAIN"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: Connection Pooling — PgBouncer"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: Репликация — streaming replication и read replicas"
+      },
+      {
+        "file": "chapter-10.md",
+        "title": "Глава 10: PostgreSQL в Docker и Kubernetes"
+      },
+      {
+        "file": "chapter-11.md",
+        "title": "Глава 11: Миграции без даунтайма — expand/contract"
+      },
+      {
+        "file": "chapter-12.md",
+        "title": "Глава 12: Диагностика — алгоритм разбора инцидентов"
+      },
+      {
+        "file": "chapter-13.md",
+        "title": "Глава 13: Тюнинг производительности — память, vacuum, pgbench"
+      },
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шпаргалка команд"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Важные системные представления (pg_stat_*)"
+      },
+      {
+        "file": "appendix-c.md",
+        "title": "Приложение C: Чеклист production PostgreSQL"
+      },
+      {
+        "file": "appendix-d.md",
+        "title": "Приложение D: Справочник pg_hba.conf"
+      },
+      {
+        "file": "appendix-e.md",
+        "title": "Приложение E: Матрица совместимости инструментов"
+      }
     ]
   }
 }

@@ -330,7 +330,7 @@
 </main>
 
 <script>
-const ASSET_VERSION = '20260604-book-35-fix-range';
+const ASSET_VERSION = '20260604-books-36-37';
 
 const PARTS = [
     {
@@ -642,6 +642,22 @@ const COURSE_META = {
         description: "Как данные идут по сети от браузера до сервиса. IP-адреса, подсети, CIDR. DNS, HTTP, HTTPS и TLS. Диагностика через ping, traceroute, tcpdump. iptables, Docker и Kubernetes networking. Алгоритм разбора сетевых инцидентов.",
         tags: ["TCP/IP", "DNS", "HTTP", "iptables", "tcpdump", "Docker", "Kubernetes"],
         color: "#0550ae",
+        icon: "server"
+    },
+    "36-vault-devops": {
+        title: "HashiCorp Vault",
+        label: "Секреты под контролем",
+        description: "Центральное хранилище секретов: KV engine, dynamic secrets для PostgreSQL, PKI для сертификатов, AppRole для CI/CD, Kubernetes Auth для подов. Vault Agent, Raft HA, audit log. Никаких паролей в .env и Git.",
+        tags: ["Vault", "секреты", "PKI", "AppRole", "Kubernetes", "security"],
+        color: "#bf3989",
+        icon: "shield"
+    },
+    "37-postgresql-devops": {
+        title: "PostgreSQL для DevOps",
+        label: "Надёжная эксплуатация без паники",
+        description: "Бэкапы и PITR, мониторинг через pg_stat_*, медленные запросы и EXPLAIN, PgBouncer connection pooling, streaming replication, миграции без даунтайма по паттерну expand/contract. Диагностика инцидентов за 5 минут.",
+        tags: ["PostgreSQL", "бэкапы", "WAL", "PgBouncer", "репликация", "мониторинг"],
+        color: "#0969da",
         icon: "server"
     }
 };

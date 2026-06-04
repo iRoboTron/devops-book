@@ -53,6 +53,76 @@
 
 ---
 
+## Глава 13: Тюнинг производительности — память, vacuum, pgbench
+
+**Что вы узнаете:**
+- как настроить PostgreSQL под типичное веб-приложение: память, соединения, WAL;
+- что такое vacuum, bloat и как с этим жить;
+- pgbench: измеряем TPS и влияние изменений конфигурации;
+- как не навредить: типичные oversights при тюнинге.
+
+**Цель:** читатель может осмысленно настроить PostgreSQL под свою нагрузку, не копируя blind "рекомендации из интернета". Понимает trade-off каждого параметра.
+
+**Темы:**
+
+Раздел "Память: shared_buffers, work_mem, maintenance_work_mem, effective_cache_size":
+```text
+Параметр               Рекомендация              Комментарий
+───────────────────────────────────────────────────────────────────
+shared_buffers         25% RAM, макс. 8GB        PostgreSQL кэш страниц
+effective_cache_size   75% RAM                   подсказка планировщику
+work_mem               16–64MB                   на сортировку/hash; × max_connections
+maintenance_work_mem   256–1024MB                для VACUUM, CREATE INDEX
+wal_buffers            64MB                      буфер WAL (16MB default)
+```
+Объяснить: `shared_buffers > 8GB` не даёт прироста — лучше отдать память OS page cache. `work_mem × max_connections > RAM` — OOM. `maintenance_work_mem` можно ставить больше (только один VACUUM/INDEX одновременно обычно).
+
+Раздел "Vacuum: устройство и тюнинг autovacuum":
+Уже есть в главе 12 (Vacuum troubleshooting) — дать ссылку, но добавить здесь настройки autovacuum:
+```ini
+# postgresql.conf — autovacuum tuning для высоконагруженной БД
+autovacuum_max_workers = 3       # по умолчанию 3; увеличить до 4-5 на SSD
+autovacuum_vacuum_scale_factor = 0.01   # чаще vacuum (было 0.05)
+autovacuum_vacuum_threshold = 1000      # минимальное число dead tuples
+autovacuum_analyze_scale_factor = 0.01
+autovacuum_vacuum_cost_delay = 2ms      # пауза между операциями I/O
+autovacuum_vacuum_cost_limit = 1000     # лимит I/O в единицу времени
+```
+
+Раздел "pgbench: измеряем производительность":
+Уже есть в главе 6 (после vacuum troubleshooting) — дать ссылку. Здесь описать методологию:
+```text
+Процедура тестирования:
+1. Замерить baseline (текущая конфигурация)
+2. Изменить один параметр
+3. Перезагрузить/перезапустить
+4. Замерить снова
+5. Сравнить TPS и latency
+
+Важно: менять по одному параметру за раз. Разогреть базу (warmup) перед замером.
+```
+
+**Типичные ошибки:**
+- Копировать конфиг "для высоконагруженного PostgreSQL" из интернета — для вашей нагрузки может быть хуже.
+- `shared_buffers > 8GB` — диминишинг ритёрн.
+- Не пересчитывать `work_mem` после изменения `max_connections`.
+- Отключить autovacuum "чтобы не нагружал" — через месяц таблицы раздуты, индексы не работают.
+- Менять несколько параметров одновременно и не знать что именно сработало.
+
+**Чек-лист для самопроверки:**
+- [ ] Умею рассчитать стартовые значения shared_buffers, work_mem, maintenance_work_mem
+- [ ] Понимаю trade-off каждого параметра, не копирую вслепую
+- [ ] Умею настроить autovacuum и диагностировать bloat
+- [ ] Знаю методологию pgbench: baseline → одно изменение → замер → сравнение
+
+**Попробуйте сами:**
+1. Запустите pgbench на стандартной конфигурации PostgreSQL. Запишите TPS. Увеличьте `shared_buffers` в 2 раза. Снова pgbench — изменился TPS? Почему?
+2. Создайте таблицу с 1 млн строк. Сделайте UPDATE всех строк 10 раз. Посмотрите `n_dead_tup` — сколько dead tuples? Запустите VACUUM. Проверьте снова.
+3. Уменьшите `autovacuum_vacuum_scale_factor` до 0.01. Сгенерируйте UPDATE нагрузку через pgbench. Смотрите `last_autovacuum` — автовакуум запускается чаще?
+
+
+---
+
 ## Правило маркировки опасных операций
 
 ```markdown
@@ -207,9 +277,10 @@ flowchart LR
 | 10 | PostgreSQL в Docker и Kubernetes | 8–10 |
 | 11 | Миграции без даунтайма: expand/contract | 8–10 |
 | 12 | Диагностика: алгоритм разбора инцидентов | 7–8 |
-| Приложения A–C | | 10–12 |
+| 13 | Тюнинг производительности: память, vacuum, pgbench | 6–8 |
+| Приложения A–E | | 14–16 |
 
-Общий объём: 140–170 страниц.
+Общий объём: 150–180 страниц.
 
 ---
 
@@ -417,6 +488,7 @@ $PGDATA/
 shared_buffers = 256MB          # 25% RAM сервера (не больше)
 effective_cache_size = 1GB      # 75% RAM — подсказка планировщику
 work_mem = 16MB                 # RAM для каждой сортировки/hash; умножить на max_connections
+maintenance_work_mem = 256MB    # RAM для VACUUM, CREATE INDEX; можно больше чем work_mem
 
 # WAL и производительность записи
 wal_level = replica             # нужно для репликации (по умолчанию)
@@ -808,6 +880,36 @@ pg_basebackup -U replicator -h localhost \
 # Требования: пользователь replicator с правом REPLICATION
 CREATE USER replicator WITH REPLICATION ENCRYPTED PASSWORD 'ReplPass';
 # pg_hba.conf: host replication replicator 127.0.0.1/32 scram-sha-256
+```
+
+Раздел "pgBackRest — промышленный backup-менеджер":
+Объяснить: pgBackRest — стандарт для крупных инсталляций. Поддерживает differential/incremental бэкапы, параллельное сжатие, шифрование, S3/GCS/Azure, проверку целостности.
+```bash
+# Установка
+sudo apt install pgbackrest
+
+# /etc/pgbackrest/pgbackrest.conf
+[mydb]
+pg1-path=/var/lib/postgresql/16/main
+pg1-port=5432
+
+[global]
+repo1-path=/backup/pgbackrest
+repo1-retention-full=7         # хранить 7 полных бэкапов
+compress-type=zst              # zstd сжатие (быстрее gzip)
+compress-level=3
+
+# Полный бэкап
+pgbackrest --stanza=mydb --type=full backup
+
+# Инкрементальный бэкап
+pgbackrest --stanza=mydb --type=incr backup
+
+# Восстановление
+pgbackrest --stanza=mydb --type=time --target="2026-06-04 14:31:00" restore
+
+# Проверка целостности
+pgbackrest --stanza=mydb check
 ```
 
 Раздел "Тест восстановления — обязательно!":
@@ -1238,6 +1340,18 @@ EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) SELECT ...;
 -- Онлайн-анализатор: вставить вывод на explain.dalibo.com или pganalyze.com
 ```
 
+Раздел "Полезные расширения (extensions)":
+Краткий обзор расширений которые стоит знать DevOps-инженеру:
+```text
+pg_stat_statements     — сбор статистики запросов (обязателен, уже в книге)
+pg_partman            — автоматическое партиционирование таблиц
+pg_hint_plan          — подсказки планировщику (для крайних случаев)
+auto_explain          — автологирование медленных запросов с EXPLAIN
+pg_permissions        — аудит прав на таблицы/схемы
+pg_cron               — планировщик задач внутри PostgreSQL
+```
+Установка: `CREATE EXTENSION IF NOT EXISTS extension_name;` или через `shared_preload_libraries` (требует restart). Для каждого расширения — кратко: зачем, когда использовать, риски.
+
 Раздел "Индексы: когда добавлять":
 ```sql
 -- Найти таблицы с Sequential Scan > Index Scan
@@ -1533,6 +1647,19 @@ SELECT pg_is_in_recovery();   -- true = это реплика
 
 Упомянуть Patroni: для автоматического failover используют Patroni (или repmgr). Это серьёзный инструмент требующий отдельного изучения. Для homelab и небольших систем — ручной failover достаточен.
 
+Раздел "Logical replication — выборочная репликация":
+Объяснить: logical replication отличается от streaming (physical) — реплицирует не весь кластер, а выбранные таблицы. Позволяет реплицировать между разными версиями PG, делать zero-downtime upgrade, собирать данные в центральное хранилище.
+```sql
+-- На publisher: создать публикацию
+CREATE PUBLICATION mypub FOR TABLE users, orders;
+
+-- На subscriber: создать подписку
+CREATE SUBSCRIPTION mysub
+CONNECTION 'host=publisher-db port=5432 dbname=myapp user=replicator'
+PUBLICATION mypub;
+```
+Типичные сценарии: апгрейд PG (pg_upgrade с logical replication), фильтрация таблиц для аналитики, multi-primary (с осторожностью: conflict resolution ограничен).
+
 **Типичные ошибки:**
 - Не мониторить replication lag — replica отстала на 10 минут, никто не знает. Алерт на `replay_lag > 60s`.
 - `wal_keep_size` слишком мал — replica отстала и WAL-файлы уже удалены с primary. Replica сломана, нужно клонировать заново.
@@ -1676,6 +1803,73 @@ spec:
   clusterIP: None   # headless service: DNS → pod IP напрямую
 ```
 
+Раздел "PgBouncer sidecar в K8s":
+Объяснить: в Kubernetes PgBouncer часто запускается как sidecar — один PgBouncer на под приложения. Это снижает latency (локальный пул) и упрощает конфигурацию.
+```yaml
+# Пример pod с PgBouncer sidecar
+spec:
+  containers:
+    - name: app
+      image: myapp:latest
+      env:
+        - name: DATABASE_URL
+          value: "postgresql://appuser:password@localhost:6432/myapp"
+    - name: pgbouncer
+      image: edoburu/pgbouncer:latest
+      env:
+        - name: DATABASE_URL
+          value: "postgresql://appuser:password@postgres-service:5432/myapp"
+        - name: POOL_MODE
+          value: "transaction"
+        - name: DEFAULT_POOL_SIZE
+          value: "10"
+        - name: MAX_CLIENT_CONN
+          value: "100"
+      ports:
+        - containerPort: 6432
+```
+Vs централизованный PgBouncer (один на кластер) — сравнить trade-offs.
+
+Раздел "PostgreSQL через Terraform":
+Объяснить: PostgreSQL как IaC — создание БД, пользователей, схем через Terraform. Два подхода: Terraform провайдер PostgreSQL vs SQL-скрипты в init-контейнере.
+```hcl
+# main.tf
+provider "postgresql" {
+  host     = var.pg_host
+  port     = 5432
+  database = "postgres"
+  username = var.pg_admin_user
+  password = var.pg_admin_password
+  sslmode  = "require"
+}
+
+resource "postgresql_database" "myapp" {
+  name  = "myapp"
+  owner = postgresql_role.appuser.name
+}
+
+resource "postgresql_role" "appuser" {
+  name     = "appuser"
+  login    = true
+  password = var.appuser_password
+}
+
+resource "postgresql_schema" "app" {
+  name     = "app"
+  database = postgresql_database.myapp.name
+  owner    = postgresql_role.appuser.name
+}
+
+resource "postgresql_default_privileges" "app_tables" {
+  database  = postgresql_database.myapp.name
+  owner     = postgresql_role.appuser.name
+  schema    = postgresql_schema.app.name
+  role      = postgresql_role.appuser.name
+  object_type = "table"
+  privileges = ["SELECT", "INSERT", "UPDATE", "DELETE"]
+}
+```
+
 Раздел "CloudNativePG — оператор для K8s":
 ```yaml
 # Установка
@@ -1718,6 +1912,7 @@ spec:
 - Запускать PostgreSQL как `Deployment` вместо `StatefulSet` — нет гарантий уникальности пода и стабильного DNS-имени.
 - `shm_size` не указан в Docker — `/dev/shm` только 64MB, PostgreSQL использует shared memory для работы буферов. Нужно минимум 256MB.
 - Использовать `latest` тег образа — обновление произойдёт неожиданно при следующем pull. Всегда фиксировать версию: `postgres:16.3-alpine`.
+- Не настроен cert-manager для SSL-сертификатов в K8s — ручное управление сертификатами не масштабируется. Использовать cert-manager + ClusterIssuer для автоматической ротации.
 
 **Чек-лист для самопроверки:**
 - [ ] Знаю почему PostgreSQL в K8s должен быть StatefulSet, не Deployment
@@ -1946,6 +2141,71 @@ WHERE datname = current_database();
 -- < 90% → увеличить shared_buffers
 ```
 
+Раздел "Vacuum troubleshooting":
+Объяснить: VACUUM — механизм очистки dead tuples. Dead tuples накапливаются из-за UPDATE/DELETE. Без VACUUM — bloat таблиц и индексов, деградация производительности. Autovacuum включён по умолчанию, но может не успевать при высокой нагрузке.
+
+```sql
+-- Диагностика bloat: доля dead tuples
+SELECT relname,
+       n_live_tup, n_dead_tup,
+       round(n_dead_tup * 100.0 / (n_live_tup + n_dead_tup + 1), 1) AS dead_pct
+FROM pg_stat_user_tables
+WHERE n_dead_tup > 10000
+ORDER BY dead_pct DESC;
+
+-- Последний автовакуум по таблицам
+SELECT relname, last_autovacuum, last_autoanalyze,
+       autovacuum_count, autoanalyze_count
+FROM pg_stat_user_tables
+WHERE last_autovacuum IS NULL OR last_autovacuum < now() - interval '1 day';
+
+-- Причины, почему autovacuum не успевает:
+-- 1. long-running транзакции (держат xmin → dead tuples не очищаются)
+SELECT pid, now() - xact_start AS age, state, query
+FROM pg_stat_activity
+WHERE xact_start IS NOT NULL
+ORDER BY age DESC LIMIT 5;
+
+-- 2. Интенсивная запись (> 10% таблицы в день)
+-- Решение: уменьшить autovacuum_vacuum_scale_factor, autovacuum_vacuum_threshold
+
+-- Ручной VACUUM (не блокирует чтение/запись)
+VACUUM users;
+
+-- VACUUM ANALYZE (очистка + обновление статистики)
+VACUUM ANALYZE users;
+
+-- VACUUM FULL (блокирует таблицу! только в окно обслуживания)
+-- VACUUM FULL users;
+```
+
+> ☠️ **Осторожно:** `VACUUM FULL` блокирует таблицу на запись на всё время выполнения. Для production — только в запланированное окно обслуживания. Обычный `VACUUM` не блокирует.
+
+Добавить Mermaid-схему: принятие решения — autovacuum работает → ok; отстаёт → проверить long-running транзакции → проверить интенсивность записи → уменьшить scale_factor или увеличить autovacuum workers.
+
+Раздел "pgbench — нагрузочное тестирование":
+Объяснить: pgbench — встроенный инструмент для бенчмаркинга. Позволяет измерить TPS (транзакции/сек), latency, влияние конфигурации.
+
+```bash
+# Инициализация тестовой БД (масштаб 50 = ~750MB)
+pgbench -U postgres -i -s 50 testbench
+
+# Простой тест: 10 клиентов, 30 секунд
+pgbench -U postgres -c 10 -j 4 -T 30 testbench
+
+# Результат:
+# tps = 1523.45 (including connections establishing)
+# tps = 1541.02 (excluding connections establishing)
+
+# Тест с PgBouncer: сравниваем TPS без пула и через пул
+pgbench -U appuser -h pgbouncer -p 6432 -c 100 -j 8 -T 60 testbench
+
+# Кастомный сценарий (симулирует ваше приложение)
+pgbench -U postgres -f /path/to/custom_script.sql -c 10 -T 30 testbench
+```
+
+Что измерять: TPS (чем выше — тем лучше), latency distribution (latency average, stddev), количество failed connections. Сравнивать ДО и ПОСЛЕ изменения конфигурации.
+
 Раздел "Сценарий 3: Репликация отстала":
 ```sql
 -- На primary
@@ -2023,6 +2283,83 @@ WHERE state = 'active' AND now() - query_start > interval '5 minutes';
 [ ] Тест восстановления проведён и записан результат
 ```
 
+### Приложение D: Справочник pg_hba.conf
+
+Полный справочник форматов записей pg_hba.conf с примерами:
+
+```text
+# Формат строки:
+# TYPE  DATABASE  USER  ADDRESS  METHOD  [OPTIONS]
+
+# --- TYPE ---
+# local      Unix-сокет (без TCP)
+# host       TCP/IP с SSL или без
+# hostssl    Только TCP/IP с SSL
+# hostnossl  Только TCP/IP без SSL
+
+# --- DATABASE ---
+# all         все БД
+# sameuser    БД с именем пользователя
+# samegroup   БД с именем группы
+# replication репликация (только для WAL)
+# конкретное имя БД
+
+# --- USER ---
+# all          все пользователи
+# +group_name  все члены группы
+# конкретное имя
+
+# --- ADDRESS ---
+# 127.0.0.1/8         IPv4
+# ::1/128             IPv6
+# .example.com        домен (обратное DNS)
+# 0.0.0.0/0           все IPv4
+# all                 любые адреса
+
+# --- METHOD ---
+# trust              без пароля (только localhost, тесты)
+# reject             явный запрет
+# password           пароль в открытом виде (не использовать)
+# md5                пароль с MD5-хешем (устарел)
+# scram-sha-256      современный стандарт (PG 10+)
+# peer               OS user = PG user (только local)
+# cert               клиентский SSL-сертификат
+
+# Примеры конфигураций:
+
+# 1. Разработка (локально)
+# host all all 127.0.0.1/32 scram-sha-256
+
+# 2. Production — только приложения и мониторинг
+# host myapp appuser 10.0.1.0/24 scram-sha-256
+# host myapp readonly 10.0.2.0/24 scram-sha-256
+# host replication replicator 10.0.1.0/24 scram-sha-256
+# host all all 0.0.0.0/0 reject
+
+# 3. Production + SSL только
+# hostssl myapp appuser 10.0.1.0/24 scram-sha-256
+# hostnossl all all 0.0.0.0/0 reject
+
+# 4. Аутентификация по сертификату
+# hostssl all all 10.0.0.0/8 cert clientcert=1
+```
+
+### Приложение E: Матрица совместимости инструментов
+
+```text
+Инструмент      PG 14    PG 15    PG 16    PG 17
+──────────────────────────────────────────────────
+pgBackRest      2.45+    2.47+    2.49+    2.51+
+WAL-G           2.0+     2.0+     3.0+     3.0+
+PgBouncer       1.18+    1.20+    1.21+    1.23+
+Patroni         3.0+     3.0+     3.2+     3.3+
+CloudNativePG   1.21+    1.22+    1.23+    1.24+
+pg_stat_statements (встроен, начиная с PG 12)
+postgres_exporter 0.12+   0.13+   0.14+   0.15+
+```
+
+Объяснить: при апгрейде PostgreSQL сначала проверить совместимость инструментов в этой матрице.
+
 ---
 
 ## Что читатель получит к концу книги
@@ -2033,5 +2370,11 @@ WHERE state = 'active' AND now() - query_start > interval '5 minutes';
 - pg_stat_statements включён, медленные запросы логируются
 - PgBouncer перед PostgreSQL в transaction mode
 - Read replica настроена, lag монируется
+- Logical replication: понимает отличие от streaming, умеет настроить
+- PostgreSQL в Kubernetes: StatefulSet, CloudNativePG, PgBouncer sidecar
+- Terraform-провижининг БД, пользователей, схем
+- pgBackRest / WAL-G: промышленные бэкапы с инкрементами и шифрованием
 - Умение делать expand/contract миграции без даунтайма
+- Тюнинг производительности: shared_buffers, work_mem, autovacuum, vacuum troubleshooting
+- pgbench: методология тестирования изменений конфигурации
 - Алгоритм диагностики инцидентов: диагноз за 5-10 минут без паники

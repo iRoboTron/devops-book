@@ -34,7 +34,7 @@
 
 **Версии ПО:** Vault 1.17+ (OpenSource / Community Edition). Все примеры работают на бесплатной версии. Платные Enterprise-фичи упоминать только в одном абзаце в конце соответствующей главы с пометкой `[Enterprise]`.
 
-**Объём:** 130–160 страниц.
+**Объём:** 155–195 страниц.
 
 **Формат файлов:** каждая глава — `chapter-XX.md`, приложения — `appendix-a.md`, `appendix-b.md`, `appendix-c.md`. Оглавление — `book.md`.
 
@@ -75,6 +75,36 @@
 
 **Плохо:** давать конфигурацию HA без объяснения что произойдёт при потере ноды.
 **Хорошо:** объяснить quorum, seal/unseal процедуру при рестарте.
+
+---
+
+## Правило: визуализация — не опционально
+
+**Вставлять схемы, таблицы, Mermaid-диаграммы и графики везде где они поясняют материал лучше текста.**
+
+- **Mermaid `sequenceDiagram` / `flowchart`** — для алгоритмов (AppRole login, K8s auth, seal/unseal), потоков данных, жизненных циклов.
+- **ASCII-схемы** — для архитектуры Vault, топологии HA-кластера, расположения компонентов.
+- **Таблицы** — для сравнения: auth methods, secrets engines, storage backends, политик, флагов команд.
+- **Одна большая диаграмма** эффективнее двух страниц текста.
+- **У каждой схемы — подпись** где разместить (`Разместить: секция "X" в главе Y`).
+
+Схемы из секции «Обязательные схемы» — минимум. Добавлять свои где улучшают понимание.
+
+---
+
+## Обработка ошибок при выполнении команд
+
+Каждая команда в книге должна сопровождаться указанием что делать если:
+- Команда не найдена — `sudo apt install vault` / `brew install vault`
+- Нет прав (Permission denied) — нужен `sudo` или не тот токен
+- Вывод отличается от ожидаемого (другая версия, другая ОС)
+- Команда не работает в dev-режиме (например Raft config без init)
+
+Формат:
+```markdown
+# Если команда не найдена:
+sudo apt install -y vault
+```
 
 ---
 
@@ -494,6 +524,18 @@ KV v2:
 
 По умолчанию в dev-режиме монтируется KV v2. В книге везде использовать KV v2.
 
+Раздел "Cubbyhole — личное хранилище токена":
+Cubbyhole — это secrets engine который смонтирован по умолчанию. Его особенность: каждый токен видит ТОЛЬКО свой cubbyhole. При отзыве токена — cubbyhole уничтожается. Используется для безопасной передачи секретов между звеньями пайплайна (response wrapping, см. главу 5). Показать:
+```bash
+# Записать в свой cubbyhole
+vault write cubbyhole/tmp/build-key value="abc123"
+
+# Прочитать (только этим токеном!)
+vault read cubbyhole/tmp/build-key
+
+# Другой токен cubbyhole не видит — это разные пространства
+```
+
 Раздел "Токены":
 ```bash
 # Посмотреть информацию о текущем токене
@@ -893,6 +935,48 @@ vault write auth/approle/login \
 - `secret_id` — секрет, генерировать непосредственно перед использованием (не хранить)
 - `secret_id_num_uses=1` — одноразовый secret_id не может быть переиспользован при утечке
 
+Раздел "Response Wrapping — безопасная передача секретов":
+Проблема: secret_id нужно передать из Vault в CI/CD. Если передавать plaintext — любой кто читает логи CI/CD видит secret_id. Response wrapping решает это: Vault упаковывает ответ в «коробку» (wrapped token), которая открывается только целевым токеном.
+```bash
+# Запросить wrapped secret_id (Vault не показывает само значение)
+vault write -wrap-ttl=5m -f auth/approle/role/myapp-cicd/secret-id
+# Key                  Value
+# ---                  -----
+# wrapping_token:      hvs.CAESIL...    ← токен-«коробка»
+# wrapping_accessor:   ...
+# wrapping_ttl:        5m
+
+# Целевая система (CI/CD runner) открывает коробку
+VAULT_TOKEN=hvs.CAESIL... vault unwrap
+# Key                   Value
+# ---                   -----
+# secret_id             abcdef12-...    ← появился только при unwrap
+```
+Объяснить: wrapped token может быть перехвачен, но без целевого токена — бесполезен. Использовать для: передачи secret_id в CI/CD, передачи root token администратору, передачи credentials между шагами пайплайна.
+
+Раздел "LDAP — для корпоративных команд":
+```bash
+# Включить LDAP auth
+vault auth enable ldap
+
+# Настроить подключение к AD/OpenLDAP
+vault write auth/ldap/config \
+  url="ldap://ldap.internal.company.com" \
+  userdn="ou=users,dc=company,dc=com" \
+  groupdn="ou=groups,dc=company,dc=com" \
+  binddn="cn=vault-reader,ou=service-accounts,dc=company,dc=com" \
+  bindpass="ServiceAccountPass" \
+  userattr="uid"
+
+# Политика по группе
+vault write auth/ldap/groups/devops-team policies="admin-policy,default"
+vault write auth/ldap/groups/developers policies="myapp-readonly,default"
+
+# Войти
+vault login -method=ldap username=ivan
+```
+Указать: для production LDAP обязателен — токен живёт пока сессия активна, ротация пароля сотрудника автоматически отзывает доступ.
+
 Раздел "UserPass — для людей":
 ```bash
 # Включить
@@ -1181,6 +1265,58 @@ path "pki_int/issue/internal-services" {
 
 ---
 
+### Глава 7b (бонус): Transit Engine — шифрование как сервис
+
+**Что вы узнаете:**
+- как использовать Vault для шифрования данных без их хранения;
+- разница между encryption в покое (Vault хранит) и encryption как сервис (Transit);
+- шифрование/дешифрование через API.
+
+**Цель:** приложение шифрует PII-данные через Vault не имея доступа к ключам.
+
+**Темы:**
+
+Раздел "Transit vs KV — разница":
+```text
+KV v2:         Vault хранит зашифрованные данные → ключ у Vault
+Transit:       приложение шлёт plaintext → Vault возвращает ciphertext
+               приложение хранит ciphertext → Vault расшифровывает по запросу
+               ключ НИКОГДА не покидает Vault
+```
+
+Раздел "Настройка Transit":
+```bash
+# Включить
+vault secrets enable transit
+
+# Создать ключ шифрования (тип: aes256-gcm96 по умолчанию)
+vault write -f transit/keys/myapp-encryption-key
+
+# Зашифровать данные
+vault write transit/encrypt/myapp-encryption-key plaintext=$(echo "s3ns1t1v3-data" | base64)
+# Key           Value
+# ---           -----
+# ciphertext    vault:v1:abc123...
+
+# Расшифровать
+vault write transit/decrypt/myapp-encryption-key ciphertext="vault:v1:abc123..."
+# Key           Value
+# ---           -----
+# plaintext     czNuczF0MXYzLWRhdGE=
+```
+Объяснить: `plaintext` всегда base64. Ключ в Vault, приложение работает с ciphertext. Ротация ключа: `vault write -f transit/keys/myapp-encryption-key/rotate` — старые данные остаются читаемыми, новые шифруются новым ключом (key derivation).
+
+**Типичные ошибки:**
+- Передавать plaintext без base64 — Vault вернёт ошибку.
+- Transit не шифрует данные в покое — он шифрует на лету. Для шифрования в покое используйте KV v2.
+- Ротация ключа не перешифровывает старые данные — нужно читать ciphertext, расшифровывать старым ключом, зашифровывать новым.
+
+**Чек-лист:** 3 пункта.
+
+**Попробуйте сами:** 1. Зашифруйте строку, расшифруйте. 2. Выполните rotate, зашифруйте ещё раз — ключ новый? 3. Интегрируйте Transit в Python-скрипт через hvac.
+
+---
+
 ### Глава 8: Vault Agent — автоматическое получение секретов
 
 **Что вы узнаете:**
@@ -1329,6 +1465,19 @@ volumes:
 **Цель:** читатель запускает Vault который переживает перезапуск и хранит данные на диске.
 
 **Темы:**
+
+Раздел "Сравнение storage backends":
+```text
+Backend    HA      Простота    Когда использовать
+── ───────────────────────────────────────────────────────────
+Raft       Да*    Высокая     1-5 нод, встроенный, не требует внешних зависимостей
+Consul     Да     Средняя     >5 нод, уже есть Consul в инфраструктуре
+File       Нет    Высокая     Только dev/testing, данные на диске одной ноды
+In-memory  Нет    Макс        Dev-режим, данные теряются при рестарте; НИКОГДА для production
+```
+`*` Raft — встроенный consensus. Для HA нужно 3 или 5 нод. Потеря >50% нод = полная недоступность.
+
+В этой книге используется Raft — оптимальный выбор для 80% команд (1-3 ноды, без внешнего Consul).
 
 Раздел "Vault с Raft storage (данные на диске)":
 ```hcl
@@ -1594,6 +1743,59 @@ seal "transit" {
 }
 ```
 
+Раздел "Recovery: generate-root (если потерян root token)":
+Если root token утерян (а это случается), его можно восстановить через `generate-root` с unseal keys:
+```bash
+# Инициировать процесс восстановления
+vault operator generate-root -init -otp
+# One-Time Password (OTP): 3Fv8... ← показывается один раз
+
+# Каждый ключ-холдер по очереди вводит unseal key
+vault operator generate-root -otp=3Fv8... -nonce=abc123...
+# Unseal Key 1 (will be hidden):
+# Encoded Root Token: AbCdEf...
+
+# Когда набран threshold (3 из 5) — собрать части
+vault operator generate-root -otp=3Fv8... -nonce=abc123... -decode=AbCdEf...
+# Root Token: hvs.XXXXXX
+```
+> ☠️ **Осторожно:** `generate-root` — единственный способ восстановить root token. Храни unseal keys в безопасном месте, разнесённом физически.
+
+Раздел "Rekey — смена unseal keys":
+Если unseal key holder уволился или ключи скомпрометированы:
+```bash
+# Начать rekey (5 новых ключей, порог 3)
+vault operator rekey -init -key-shares=5 -key-threshold=3
+
+# Каждый ключ-холдер вводит старый unseal key
+vault operator rekey -nonce=abc123...
+# Unseal Key 1 (will be hidden):
+# Progress: 1/3
+
+# После набора threshold — Vault выдаёт НОВЫЕ unseal keys
+# Старые ключи перестают работать
+```
+Объяснить: rekey не перешифровывает данные — он меняет ключ шифрования master key. Все секреты остаются доступными. Процесс требует `threshold` старых ключей.
+
+Раздел "DR: перенос Vault на другой сервер":
+```bash
+# 1. Сделать snapshot на старом сервере
+vault operator raft snapshot save /tmp/vault-backup.snap
+
+# 2. Скопировать snapshot на новый сервер
+scp /tmp/vault-backup.snap new-server:/tmp/
+
+# 3. На новом сервере: установить Vault, настроить такой же raft storage
+# 4. Запустить Vault (он будет sealed — это нормально)
+# 5. Восстановить из snapshot
+vault operator raft snapshot restore -force /tmp/vault-backup.snap
+
+# 6. Инициализировать (если нужно) и unseal с теми же ключами
+# Если unseal keys утеряны вместе со старым сервером — данные недоступны.
+# Вот почему unseal keys хранятся отдельно от Vault.
+```
+Указать: snapshot включает все секреты, политики, auth methods, leases. После restore нужен unseal с оригинальными ключами.
+
 Раздел "Мониторинг":
 ```bash
 # Встроенные метрики (Prometheus формат)
@@ -1684,6 +1886,13 @@ vault audit disable file/
 ```
 
 Объяснить: request (входящий) и response (ответ, без значений секретов по умолчанию). `auth.display_name` — кто обратился. `request.path` — к чему. `request.operation` — что делал.
+
+По умолчанию Vault хэширует (HMAC) чувствительные поля в audit log — display_name, policies. Для отладки можно отключить:
+```bash
+# Отключить HMAC для конкретного audit device (только для отладки!)
+vault audit enable file file_path=/vault/logs/audit_raw.log hmac_accessor=false
+```
+> ☠️ **Осторожно:** `hmac_accessor=false` пишет display_name и token accessor в plaintext. Включать только на время расследования, отключать после.
 
 ```bash
 # Найти все обращения к конкретному секрету
@@ -1801,3 +2010,37 @@ vault token revoke -accessor abc123xyz
 - Vault Agent: приложение читает файл, не знает о Vault
 - Audit log включён, знает как расследовать инциденты
 - Понимание что делать при потере ключей, sealed vault, 403
+
+---
+
+## Чек-лист самопроверки агента перед сдачей главы
+
+**Команды:**
+- [ ] Каждая команда запущена — вывод реален, не вымышлен
+- [ ] Если команды может не быть — показана установка (`sudo apt install vault` / `docker pull hashicorp/vault`)
+- [ ] Dev-режим vs production явно указан для каждого примера
+- [ ] Опасные операции (init, unseal, revoke, metadata delete) обёрнуты в `☠️ **Осторожно:**`
+
+**Структура:**
+- [ ] Глава начинается с «Что вы узнаете:» (список)
+- [ ] Есть «Цель:» после списка
+- [ ] Есть «Типичные ошибки»
+- [ ] Есть «Чек-лист для самопроверки» (чекбоксы `- [ ]`)
+- [ ] Есть «Попробуйте сами» (минимум 3 задания)
+
+**Визуализация:**
+- [ ] Хотя бы одна Mermaid-диаграмма или ASCII-схема
+- [ ] Хотя бы одна таблица
+- [ ] У схем есть подпись где разместить
+- [ ] Mermaid-синтаксис корректен
+
+**Безопасность:**
+- [ ] Все `☠️ **Осторожно:**` на месте (особенно init, unseal, revoke, metadata delete)
+- [ ] Dev-режим маркирован как «не для продакшна»
+- [ ] Сценарий потери unseal keys описан в соответствующей главе
+
+**Стиль:**
+- [ ] Нет академизма — «покажи на примере», не «расскажи теорию»
+- [ ] Нет Enterprise-фич без пометки `[Enterprise]`
+- [ ] Vault не предлагается как решение для .env в local development (это избыточно)
+- [ ] Каждый блок кода снабжён комментарием на русском
