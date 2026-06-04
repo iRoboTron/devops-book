@@ -1935,6 +1935,76 @@
         "file": "appendix-c.md",
         "title": "Приложение C: Конфиг и алиасы"
       }
+    ],
+    "35-networks-devops": [
+      {
+        "file": "book.md",
+        "title": "Сети для DevOps: TCP/IP, DNS, HTTP и диагностика"
+      },
+      {
+        "file": "chapter-00.md",
+        "title": "Глава 0: Как данные идут по сети — OSI и TCP/IP на практике"
+      },
+      {
+        "file": "chapter-01.md",
+        "title": "Глава 1: IP-адресация, подсети и CIDR"
+      },
+      {
+        "file": "chapter-02.md",
+        "title": "Глава 2: Сетевые интерфейсы Linux — ip addr, ip route, ip link"
+      },
+      {
+        "file": "chapter-03.md",
+        "title": "Глава 3: TCP vs UDP — порты, сокеты, состояния соединений"
+      },
+      {
+        "file": "chapter-04.md",
+        "title": "Глава 4: DNS — от запроса до ответа"
+      },
+      {
+        "file": "chapter-05.md",
+        "title": "Глава 5: HTTP — запросы, заголовки, коды ответов"
+      },
+      {
+        "file": "chapter-06.md",
+        "title": "Глава 6: HTTPS и TLS — сертификаты, openssl, проверка"
+      },
+      {
+        "file": "chapter-07.md",
+        "title": "Глава 7: Диагностика — ping, traceroute, mtr, ss, tcpdump"
+      },
+      {
+        "file": "chapter-08.md",
+        "title": "Глава 8: nmap — сканирование и инвентаризация"
+      },
+      {
+        "file": "chapter-09.md",
+        "title": "Глава 9: iptables — правила, цепочки, NAT"
+      },
+      {
+        "file": "chapter-10.md",
+        "title": "Глава 10: Docker networking — bridge, host, overlay"
+      },
+      {
+        "file": "chapter-11.md",
+        "title": "Глава 11: Kubernetes networking — CNI, Service, Ingress"
+      },
+      {
+        "file": "chapter-12.md",
+        "title": "Глава 12: Алгоритм диагностики сетевого инцидента"
+      },
+      {
+        "file": "appendix-a.md",
+        "title": "Приложение A: Шпаргалка команд + матрица симптомов"
+      },
+      {
+        "file": "appendix-b.md",
+        "title": "Приложение B: Таблица важных портов"
+      },
+      {
+        "file": "appendix-c.md",
+        "title": "Приложение C: Алгоритмы диагностики — флоучарты"
+      }
     ]
   }
 }
