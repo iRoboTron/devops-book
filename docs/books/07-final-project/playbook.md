@@ -21,6 +21,26 @@
 
 Если на сервере уже есть старые Nginx/Caddy/Docker/systemd настройки, переустанови сервер или очисти его осознанно. Иначе проверки ниже будут путаться со старыми сервисами.
 
+Порядок фаз — слева направо, не пропускай и не меняй местами: каждая опирается на предыдущую.
+
+```mermaid
+flowchart LR
+    f0["Ф0-1\nСервер: SSH\nufw, deploy"]
+    f2["Ф2-3\nDocker\nструктура"]
+    f4["Ф4-6\n.env, compose\nCaddy"]
+    f7["Ф7-8\nДеплой\nмиграции"]
+    f9["Ф9-13\nБэкапы, fail2ban\nNetdata, алерты"]
+    f14["Ф14\nCI/CD\nGitHub Actions"]
+
+    f0 --> f2 --> f4 --> f7 --> f9 --> f14
+
+    style f0 fill:#2d2d2d,color:#fff
+    style f4 fill:#1a5276,color:#fff
+    style f7 fill:#1a5276,color:#fff
+    style f9 fill:#7d6608,color:#fff
+    style f14 fill:#1e8449,color:#fff
+```
+
 ---
 
 ## ФАЗА 0: Подготовка (локально)
@@ -98,6 +118,27 @@ ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no deploy@IP_С
 ufw status
 # 22, 80, 443 ALLOW
 ```
+
+Критичный порядок этой фазы — нарушишь и потеряешь доступ к серверу: сначала ключи и правила, потом включение защиты.
+
+```mermaid
+flowchart TD
+    keys["SSH-ключи скопированы\nдля deploy"]
+    allow["ufw allow 22, 80, 443\nправила добавлены"]
+    enable["ufw --force enable\nфаервол включён"]
+    hard["SSH hardening\nPermitRootLogin no\nPasswordAuthentication no"]
+    reload["sshd -t && reload sshd\nпроверка → перезагрузка"]
+    lock["Доступ только\nпо ключу под deploy"]
+
+    keys --> allow --> enable --> hard --> reload --> lock
+
+    style keys fill:#2d2d2d,color:#fff
+    style enable fill:#7d6608,color:#fff
+    style reload fill:#7d6608,color:#fff
+    style lock fill:#1e8449,color:#fff
+```
+
+> Если перепутать порядок (`ufw enable` до `allow 22` или reload sshd без рабочего ключа) — соединение оборвётся, а новое не установится.
 
 ---
 
@@ -374,6 +415,29 @@ find "$BACKUP_DIR" -maxdepth 1 -type d -mtime +7 -exec rm -rf {} +
 echo "[$(date)] Backup OK: ${DEST}"
 ```
 
+Поток бэкапа: cron запускает скрипт, тот снимает дамп БД, проверяет его, копирует конфиги и отправляет в облако, в конце чистит старое:
+
+```mermaid
+flowchart LR
+    cron["cron 03:00\nbackup.sh"]
+    dump["pg_dump → gzip\ndb.sql.gz"]
+    check["Проверка размера\nфайл не пустой?"]
+    cfg["+ docker-compose.yml\n+ Caddyfile"]
+    cloud["rclone copy\nremote:myapp-backup"]
+    clean["Удалить локальные\n>7 дней"]
+    fail["exit 1\nERROR: Empty backup"]
+
+    cron --> dump --> check
+    check -->|"ok"| cfg --> cloud --> clean
+    check -->|"пусто"| fail
+
+    style cron fill:#2d2d2d,color:#fff
+    style check fill:#7d6608,color:#fff
+    style cloud fill:#1a5276,color:#fff
+    style clean fill:#1e8449,color:#fff
+    style fail fill:#6e2f1a,color:#fff
+```
+
 Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
 
 ```bash
@@ -425,10 +489,9 @@ ignoreip = 127.0.0.1/8 ::1
 
 [sshd]
 enabled = true
-
-[nginx-http-auth]
-enabled = true
 ```
+
+> В стеке Caddy, а не Nginx, поэтому jail `nginx-http-auth` не включаем — для него нет лог-файла, и fail2ban ругнётся при старте.
 
 Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
 
@@ -440,7 +503,7 @@ sudo systemctl enable --now fail2ban
 
 ```bash
 sudo fail2ban-client status
-# → Jail list: sshd, nginx-http-auth
+# → Jail list: sshd
 
 sudo fail2ban-client status sshd
 # → Currently banned: N
@@ -607,6 +670,35 @@ sudo nano /etc/cron.d/myapp-monitor
 
 Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
 
+Логика `health-monitor.sh`: каждые 5 минут собирает 4 проверки и шлёт в Telegram только если есть проблемы — тишина значит «всё хорошо»:
+
+```mermaid
+flowchart TD
+    cron["cron */5 мин\nhealth-monitor.sh"]
+    checks["Сбор проверок\nдиск, RAM, health, контейнеры"]
+    disk["Диск > 80%?"]
+    ram["RAM < 10%?"]
+    app["health != 200?"]
+    cont["Есть exited?"]
+    decide["ALERTS не пуст?"]
+    tg["Telegram\nsendMessage"]
+    quiet["Молчим\nвсё в норме"]
+
+    cron --> checks
+    checks --> disk & ram & app & cont
+    disk --> decide
+    ram --> decide
+    app --> decide
+    cont --> decide
+    decide -->|"да"| tg
+    decide -->|"нет"| quiet
+
+    style cron fill:#2d2d2d,color:#fff
+    style decide fill:#7d6608,color:#fff
+    style tg fill:#6e2f1a,color:#fff
+    style quiet fill:#1e8449,color:#fff
+```
+
 ### Проверка фазы 13
 
 ```bash
@@ -715,6 +807,27 @@ jobs:
 ```
 
 Сохрани файл: `Ctrl+O`, `Enter`, затем выйди: `Ctrl+X`.
+
+Что происходит при каждом `git push` в main — три job'а по цепочке `needs`, и только зелёный тест ведёт к деплою:
+
+```mermaid
+sequenceDiagram
+    participant dev as Разработчик
+    participant gh as GitHub Actions
+    participant ghcr as ghcr.io (Registry)
+    participant srv as Сервер (deploy)
+
+    dev->>gh: git push → main
+    gh->>gh: job test — pytest
+    Note over gh: тест упал → build и deploy не запускаются
+    gh->>ghcr: job build — docker build → push :SHA
+    gh->>srv: job deploy — SSH
+    srv->>srv: sed IMAGE_TAG=SHA в .env
+    srv->>ghcr: docker compose pull app
+    ghcr-->>srv: образ :SHA
+    srv->>srv: up -d --no-deps app + alembic upgrade
+    srv-->>dev: новая версия в проде
+```
 
 ```bash
 git add .github/workflows/deploy.yml

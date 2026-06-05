@@ -396,6 +396,10 @@
             {
                 "file": "playbook.md",
                 "title": "Playbook: Production-сервер с нуля"
+            },
+            {
+                "file": "glossary.md",
+                "title": "Глоссарий терминов"
             }
         ],
         "08-terraform-devops": [

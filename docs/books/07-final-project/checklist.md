@@ -2,6 +2,25 @@
 
 > Только проверки. Не прошло — иди к нужной фазе в `playbook.md` или к соответствующему модулю.
 
+30 пунктов делятся на 6 секций — порог приёмки и распределение проверок:
+
+```mermaid
+flowchart LR
+    total["30 проверок"]
+    total --> app["Приложение\n5"]
+    total --> ci["CI/CD\n4"]
+    total --> sec["Безопасность\n6"]
+    total --> bak["Бэкапы\n4"]
+    total --> mon["Мониторинг\n5"]
+    total --> stab["Стабильность\n6"]
+
+    app & ci & sec & bak & mon & stab --> score["28-30 → production-ready"]
+
+    style total fill:#2d2d2d,color:#fff
+    style sec fill:#7d6608,color:#fff
+    style score fill:#1e8449,color:#fff
+```
+
 ---
 
 ## Приложение (5 пунктов)
