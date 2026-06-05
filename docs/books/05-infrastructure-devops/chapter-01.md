@@ -149,6 +149,24 @@ debug = os.environ.get("DEBUG", "false")
 > **Запомни:** Один `.env` — все инструменты его читают.
 > Не дублируй секреты в десяти местах.
 
+Один файл — четыре способа подхватить: каждый инструмент читает тот же `.env`, но своим механизмом.
+
+```mermaid
+flowchart LR
+    env["/opt/myapp/.env\nединый источник секретов"]
+
+    env -->|"автоматически"| compose["Docker Compose\n${VAR}"]
+    env -->|"EnvironmentFile"| systemd["systemd unit"]
+    env -->|"source"| shell["Shell-скрипты\nbackup.sh"]
+    env -->|"load_dotenv()"| python["Python\nos.environ"]
+
+    style env fill:#2d2d2d,color:#fff
+    style compose fill:#1a5276,color:#fff
+    style systemd fill:#1a5276,color:#fff
+    style shell fill:#1a5276,color:#fff
+    style python fill:#1a5276,color:#fff
+```
+
 ---
 
 ## 1.4 Три уровня конфигов

@@ -184,6 +184,22 @@ deploy:
 
 `docker compose run --rm app` — запускает контейнер, выполняет команду, удаляет.
 
+Порядок шагов деплоя во времени — миграция всегда раньше кода:
+
+```mermaid
+sequenceDiagram
+    participant CI as GitHub Actions
+    participant DB as PostgreSQL
+    participant App as Контейнер app
+
+    CI->>DB: alembic upgrade head
+    DB-->>CI: схема обновлена
+    CI->>App: docker compose pull + up -d
+    App-->>CI: новый код запущен
+    CI->>App: curl /health
+    App-->>CI: 200 OK
+```
+
 ---
 
 ## 4.6 Опасные миграции

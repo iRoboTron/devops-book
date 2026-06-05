@@ -107,6 +107,32 @@ find "$BACKUP_DIR" -maxdepth 1 -type d -mtime +"${BACKUP_RETENTION_DAYS:-7}" \
 echo "[$(date)] Backup completed successfully"
 ```
 
+### Поток выполнения
+
+Скрипт идёт сверху вниз: дамп БД с проверкой на пустоту, затем файлы и конфиги, выгрузка в облако и ротация.
+
+```mermaid
+flowchart TD
+    start["backup.sh\nset -euo pipefail"]
+    src["source .env"]
+    dump["pg_dump | gzip\n→ db.sql.gz"]
+    check{"db.sql.gz\nне пустой?"}
+    files["tar uploads\n+ cp конфигов"]
+    cloud["rclone copy\n→ облако"]
+    rotate["find -mtime +7\n→ rm старые"]
+    fail["exit 1\nбэкап провален"]
+
+    start --> src --> dump --> check
+    check -->|"да"| files --> cloud --> rotate --> done["Бэкап готов"]
+    check -->|"нет"| fail
+
+    style start fill:#2d2d2d,color:#fff
+    style cloud fill:#1a5276,color:#fff
+    style done fill:#1e8449,color:#fff
+    style fail fill:#6e2f1a,color:#fff
+    style check fill:#7d6608,color:#fff
+```
+
 ### Разбор каждой строки
 
 ```bash

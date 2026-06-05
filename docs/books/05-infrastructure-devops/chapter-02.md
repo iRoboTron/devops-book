@@ -171,6 +171,26 @@ IP 1.2.3.4:
 > **Совет:** Rate limiting — не панацея от DDoS.
 > Но защищает от брутфорса паролей и простых атак.
 
+Как Nginx решает судьбу каждого запроса по зоне лимита:
+
+```mermaid
+flowchart TD
+    req["Запрос от IP\nlimit_req zone=api"]
+    rate{"В пределах\nrate (10r/s)?"}
+    burst{"Помещается\nв burst (20)?"}
+
+    req --> rate
+    rate -->|"да"| pass["proxy_pass\nhttp://app:8000"]
+    rate -->|"нет"| burst
+    burst -->|"да, nodelay"| pass
+    burst -->|"нет"| reject["503 Service\nUnavailable"]
+
+    style req fill:#2d2d2d,color:#fff
+    style pass fill:#1e8449,color:#fff
+    style burst fill:#7d6608,color:#fff
+    style reject fill:#6e2f1a,color:#fff
+```
+
 ### Для логина — строже
 
 ```nginx
@@ -337,6 +357,28 @@ add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" alway
 
 > **Совет:** Сниппеты переиспользуются между сайтами.
 > Один файл поменял — все сайты обновились.
+
+Полный путь запроса через слои Nginx до backend-приложения:
+
+```mermaid
+flowchart LR
+    client["Клиент\nHTTPS"]
+    tls["TLS-терминация\nssl.conf"]
+    headers["Security headers\n+ gzip"]
+    limit["Rate limiting\nlimit_req"]
+    route{"location?"}
+    app["app:8000\nbackend"]
+
+    client --> tls --> headers --> limit --> route
+    route -->|"/api/"| app
+    route -->|"/upload"| app
+    route -->|"/"| app
+
+    style client fill:#2d2d2d,color:#fff
+    style tls fill:#4a235a,color:#fff
+    style limit fill:#7d6608,color:#fff
+    style app fill:#1e8449,color:#fff
+```
 
 ---
 

@@ -102,6 +102,26 @@ ls /opt/myapp/uploads/
 
 ## 7.4 Полный сценарий: "сервер умер, поднимаем с нуля"
 
+Что откуда берётся при восстановлении с нуля: код из git, образы из registry, данные и секреты — из бэкапов.
+
+```mermaid
+flowchart TD
+    new["Новый сервер\n+ Docker"]
+    git["git clone\nкод приложения"]
+    env["env.backup\n→ .env (chmod 600)"]
+    up["docker compose up -d"]
+    db["gunzip db.sql.gz\n| psql"]
+    uploads["tar -xzf\nuploads.tar.gz"]
+    verify["curl /health\nданные на месте?"]
+
+    new --> git --> env --> up --> db --> uploads --> verify
+
+    style new fill:#2d2d2d,color:#fff
+    style env fill:#7d6608,color:#fff
+    style db fill:#1a5276,color:#fff
+    style verify fill:#1e8449,color:#fff
+```
+
 ### Шаг 1: Новый сервер
 
 ```bash

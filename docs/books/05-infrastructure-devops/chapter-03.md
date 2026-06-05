@@ -96,6 +96,25 @@ CREATE USER hacker WITH PASSWORD 'hack';
 > **Запомни:** Принцип минимальных привилегий.
 > Приложение получает только то что ему нужно.
 
+Разница в радиусе поражения при SQL-инъекции: суперпользователь открывает всё, ограниченный — только свою базу.
+
+```mermaid
+flowchart TD
+    inj["SQL-инъекция\nв приложении"]
+
+    inj --> super["Подключение как\npostgres (superuser)"]
+    inj --> scoped["Подключение как\nmyapp (scoped)"]
+
+    super --> all["DROP любой базы\nCREATE USER\nчтение всех баз"]
+    scoped --> only["Только чтение/запись\nв myapp_prod"]
+
+    style inj fill:#6e2f1a,color:#fff
+    style super fill:#6e2f1a,color:#fff
+    style all fill:#6e2f1a,color:#fff
+    style scoped fill:#1a5276,color:#fff
+    style only fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 3.3 Основные команды `psql`
@@ -168,6 +187,26 @@ local   all         all                 peer
 
 PostgreSQL в Docker слушает только внутри Docker-сети.
 Наружу порт не проброшен → никто снаружи не подключится.
+
+Сетевая изоляция: app достаёт БД по внутренней сети, а интернет упирается в закрытый порт.
+
+```mermaid
+flowchart LR
+    net["Интернет"]
+    subgraph host["Сервер"]
+        subgraph backend["Docker network: backend"]
+            app["app:8000"]
+            db["db:5432\nне проброшен"]
+        end
+    end
+
+    net -.->|"порт 5432\nзакрыт"| db
+    app -->|"внутренняя сеть"| db
+
+    style net fill:#6e2f1a,color:#fff
+    style app fill:#1a5276,color:#fff
+    style db fill:#1e8449,color:#fff
+```
 
 ```yaml
 services:

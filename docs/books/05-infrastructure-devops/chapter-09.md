@@ -32,6 +32,34 @@
 /var/backups/myapp/             ← локальные бэкапы (7 дней)
 ```
 
+Как все компоненты production-ready сервера складываются в единую архитектуру:
+
+```mermaid
+flowchart TD
+    net["Интернет\nHTTPS"]
+    subgraph stack["/opt/myapp — Docker Compose"]
+        nginx["nginx\nheaders + rate limit"]
+        app["app\nлимиты + healthcheck deps"]
+        db["postgres:16\nhealthcheck + лимиты"]
+    end
+    subgraph cron["cron"]
+        backup["myapp-backup 3:00\nbackup.sh"]
+        prune["docker-prune\nеженедельно"]
+        health["health-check 15м"]
+    end
+    cloud["Backblaze B2 / S3\noffsite"]
+
+    net --> nginx --> app --> db
+    db --> backup --> cloud
+    backup --> local["/var/backups/myapp"]
+
+    style net fill:#2d2d2d,color:#fff
+    style nginx fill:#4a235a,color:#fff
+    style db fill:#1a5276,color:#fff
+    style backup fill:#7d6608,color:#fff
+    style cloud fill:#1e8449,color:#fff
+```
+
 ---
 
 ## Стартовая точка

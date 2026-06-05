@@ -126,6 +126,22 @@ Local Volumes   4         2         500MB     200MB (40%)
 > **Запомни:** Это не теория. Каждая строка — реальный инцидент.
 > Книга поможет настроить всё до того как случится.
 
+Три уровня надёжности, к которым ведёт книга, складываются в простую иерархию: если рушится нижний уровень, верхние не спасут.
+
+```mermaid
+flowchart TD
+    data["Данные не теряются\nбэкапы + проверенный restore"]
+    service["Сервис восстанавливается\nrestart policy + healthcheck"]
+    visibility["Ты знаешь что происходит\nконфиги + логи + переменные"]
+
+    data --> service --> visibility --> ready["Production-ready сервер"]
+
+    style data fill:#1a5276,color:#fff
+    style service fill:#7d6608,color:#fff
+    style visibility fill:#4a235a,color:#fff
+    style ready fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 0.4 План книги

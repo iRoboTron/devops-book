@@ -243,6 +243,32 @@ services:
       start_period: 30s
 ```
 
+### Как restart policy и healthcheck держат сервис живым
+
+Healthcheck помечает контейнер unhealthy, а `restart: unless-stopped` поднимает его обратно — кроме случая, когда ты остановил его сам.
+
+```mermaid
+flowchart TD
+    run["Контейнер Up\n(healthy)"]
+    hc{"healthcheck\npg_isready?"}
+    crash["Падение / unhealthy"]
+    policy{"restart policy?"}
+    manual["Ручная остановка\ndocker stop"]
+
+    run --> hc
+    hc -->|"ok"| run
+    hc -->|"fail"| crash
+    crash --> policy
+    policy -->|"unless-stopped"| run
+    policy -->|"остановлен вручную"| stay["Остаётся\nвыключенным"]
+    manual --> stay
+
+    style run fill:#1e8449,color:#fff
+    style crash fill:#6e2f1a,color:#fff
+    style policy fill:#7d6608,color:#fff
+    style stay fill:#2d2d2d,color:#fff
+```
+
 ### Restart loop — что делать
 
 Контейнер постоянно перезапускается:

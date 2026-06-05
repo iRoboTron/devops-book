@@ -316,6 +316,10 @@
             {
                 "file": "chapter-09.md",
                 "title": "Глава 9: Итоговый проект"
+            },
+            {
+                "file": "glossary.md",
+                "title": "Глоссарий терминов"
             }
         ],
         "06-security-monitoring-devops": [

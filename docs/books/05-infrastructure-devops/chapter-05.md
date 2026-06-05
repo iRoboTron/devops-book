@@ -29,6 +29,26 @@
 > **Запомни:** Если бэкап только на сервере — сервер умер = бэкап умер.
 > Offsite копия — обязательно.
 
+Топология 3-2-1: три копии на двух носителях, одна из них — вне площадки.
+
+```mermaid
+flowchart LR
+    subgraph server["Сервер (носитель 1: диск)"]
+        prod["Копия 1\nпродакшн-данные"]
+        local["Копия 2\n/var/backups/myapp"]
+    end
+    subgraph cloud["Облако (носитель 2, offsite)"]
+        remote["Копия 3\nBackblaze B2 / S3"]
+    end
+
+    prod -->|"backup.sh"| local
+    local -->|"rclone"| remote
+
+    style prod fill:#1a5276,color:#fff
+    style local fill:#7d6608,color:#fff
+    style remote fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 5.2 Что бэкапить
