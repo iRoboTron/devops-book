@@ -35,6 +35,21 @@ chart/
 
 Один chart — разные окружения через разные values.
 
+```mermaid
+flowchart LR
+    CH["chart/\ntemplates + values.yaml"] --> H["helm install"]
+    VD["values.dev.yaml\nreplicas: 1"] --> H
+    VP["values.prod.yaml\nreplicas: 5"] --> H
+    H --> RD["Release: myapp-dev\n(namespace dev)"]
+    H --> RP["Release: myapp-prod\n(namespace prod)"]
+
+    style CH fill:#1a5276,color:#fff
+    style VD fill:#7d6608,color:#fff
+    style VP fill:#7d6608,color:#fff
+    style RD fill:#1e8449,color:#fff
+    style RP fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 7.3 Установка

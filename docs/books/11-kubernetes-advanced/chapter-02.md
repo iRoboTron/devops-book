@@ -93,6 +93,26 @@ myapp-hpa   Deployment/myapp  78%/70%   2         10        4
 
 CPU выше 70% → HPA увеличил реплики до 4.
 
+Цикл управления HPA (control loop, каждые ~15 секунд):
+
+```mermaid
+flowchart TD
+    MS["metrics-server\nсобирает CPU/RAM"] --> HPA["HPA контроллер\nчитает метрики"]
+    HPA --> CMP{"avg CPU\nvs target 70%"}
+    CMP -->|"> 70%"| UP["Увеличить replicas\n(до maxReplicas)"]
+    CMP -->|"< target\n+ stabilization"| DOWN["Уменьшить replicas\n(до minReplicas)"]
+    CMP -->|"≈ 70%"| HOLD["Без изменений"]
+    UP --> DEP["Deployment\nобновляет реплики"]
+    DOWN --> DEP
+
+    style MS fill:#2d2d2d,color:#fff
+    style HPA fill:#1a5276,color:#fff
+    style CMP fill:#7d6608,color:#fff
+    style UP fill:#1e8449,color:#fff
+    style DOWN fill:#6e2f1a,color:#fff
+    style DEP fill:#4a235a,color:#fff
+```
+
 После остановки нагрузки через несколько минут:
 
 ```text

@@ -21,6 +21,22 @@ resources:
 | **CPU** | Scheduler резервирует | Throttled (замедление) |
 | **Memory** | Scheduler резервирует | OOMKilled (убийство) |
 
+Что происходит, когда Pod упирается в limit:
+
+```mermaid
+flowchart TD
+    P["Pod потребляет ресурс"] --> Q{"Превышен limit?"}
+    Q -->|"нет"| OK["Работает штатно"]
+    Q -->|"CPU > limit"| T["Throttling\nпроцесс замедлен,\nне убит"]
+    Q -->|"Memory > limit"| O["OOMKilled\nконтейнер убит\nи перезапущен"]
+
+    style P fill:#2d2d2d,color:#fff
+    style Q fill:#7d6608,color:#fff
+    style OK fill:#1e8449,color:#fff
+    style T fill:#1a5276,color:#fff
+    style O fill:#6e2f1a,color:#fff
+```
+
 ---
 
 ## 3.2 CPU: milliCPU

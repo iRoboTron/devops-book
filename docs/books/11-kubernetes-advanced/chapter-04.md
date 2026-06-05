@@ -86,6 +86,27 @@ spec:
 
 DNS: `postgres-0.postgres.default.svc.cluster.local`
 
+Как StatefulSet связывает стабильные имена, отдельные PVC и headless Service:
+
+```mermaid
+flowchart TD
+    SS["StatefulSet: postgres\nvolumeClaimTemplates"] --> P0["Pod: postgres-0"]
+    SS --> P1["Pod: postgres-1"]
+    P0 --> V0["PVC: pgdata-postgres-0"]
+    P1 --> V1["PVC: pgdata-postgres-1"]
+    HS["Headless Service\nclusterIP: None"] -.->|"DNS"| P0
+    HS -.->|"DNS"| P1
+    P0 --- D0["postgres-0.postgres...\nстабильное имя"]
+    P1 --- D1["postgres-1.postgres...\nстабильное имя"]
+
+    style SS fill:#1a5276,color:#fff
+    style HS fill:#4a235a,color:#fff
+    style V0 fill:#1e8449,color:#fff
+    style V1 fill:#1e8449,color:#fff
+    style D0 fill:#7d6608,color:#fff
+    style D1 fill:#7d6608,color:#fff
+```
+
 ---
 
 ## 4.4 Проверка

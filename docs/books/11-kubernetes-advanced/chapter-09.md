@@ -42,6 +42,24 @@ dependencies:
 helm dependency update
 ```
 
+Как chart с зависимостью разворачивает и своё приложение, и subchart:
+
+```mermaid
+flowchart TD
+    P["Parent chart\nmyapp"] --> DEP["dependencies:\npostgresql"]
+    DEP --> DU["helm dependency update\n→ charts/postgresql.tgz"]
+    P --> INST["helm install"]
+    DU --> INST
+    INST --> A["Release: myapp\nDeployment + Service"]
+    INST --> PG["Subchart: postgresql\nStatefulSet + PVC"]
+
+    style P fill:#1a5276,color:#fff
+    style DEP fill:#7d6608,color:#fff
+    style INST fill:#4a235a,color:#fff
+    style A fill:#1e8449,color:#fff
+    style PG fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 9.4 Rollback

@@ -116,6 +116,22 @@ spec:
 
 `/` → frontend, `/api` → api. Один домен, много сервисов.
 
+```mermaid
+flowchart LR
+    C["Client\nmyapp.local:443"] --> IC["Ingress Controller\n(Traefik)"]
+    IC --> R{"Routing\nпо host + path"}
+    R -->|"path: /"| FS["Service: frontend-svc\n:80"]
+    R -->|"path: /api"| AS["Service: api-svc\n:8080"]
+    FS --> FP["Pod: frontend"]
+    AS --> AP["Pod: api"]
+
+    style C fill:#2d2d2d,color:#fff
+    style IC fill:#1a5276,color:#fff
+    style R fill:#7d6608,color:#fff
+    style FP fill:#1e8449,color:#fff
+    style AP fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 1.6 Тестирование без реального домена
@@ -171,6 +187,25 @@ spec:
   - hosts:
     - myapp.ru
     secretName: myapp-tls
+```
+
+Как cert-manager выпускает сертификат по аннотации в Ingress:
+
+```mermaid
+sequenceDiagram
+    participant Ing as Ingress (annotation)
+    participant CM as cert-manager
+    participant LE as Let's Encrypt (ACME)
+    participant Sec as Secret myapp-tls
+
+    Ing->>CM: обнаружена tls + cluster-issuer
+    CM->>LE: запрос сертификата для myapp.ru
+    LE->>CM: HTTP-01 challenge
+    CM->>Ing: временный path /.well-known
+    LE->>Ing: проверка домена
+    LE->>CM: выдан сертификат
+    CM->>Sec: сохранить cert + key
+    Sec->>Ing: Ingress Controller грузит TLS
 ```
 
 ---

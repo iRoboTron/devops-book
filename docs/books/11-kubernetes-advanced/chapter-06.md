@@ -57,6 +57,25 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 ```
 
+Как связаны субъект, привязка и набор прав:
+
+```mermaid
+flowchart TD
+    SA["ServiceAccount\nmyapp-sa\n(кто)"] --> RB["RoleBinding\nread-pods\n(связка)"]
+    RB --> R["Role\npod-reader\n(что можно)"]
+    R --> V["verbs: get, list, watch\nresources: pods"]
+    SA -.->|"kubectl auth can-i\nget pods"| ALLOW["allow"]
+    SA -.->|"kubectl auth can-i\ndelete pods"| DENY["deny\n(нет в Role)"]
+
+    style SA fill:#2d2d2d,color:#fff
+    style RB fill:#4a235a,color:#fff
+    style R fill:#1a5276,color:#fff
+    style ALLOW fill:#1e8449,color:#fff
+    style DENY fill:#6e2f1a,color:#fff
+```
+
+Role и RoleBinding действуют в пределах namespace. Для прав на весь кластер используют ClusterRole и ClusterRoleBinding (см. 6.6).
+
 ---
 
 ## 6.5 Проверка

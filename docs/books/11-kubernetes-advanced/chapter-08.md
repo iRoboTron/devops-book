@@ -78,6 +78,23 @@ helm template myapp ./myapp -f values.yaml
 
 Покажет финальный YAML без применения к кластеру.
 
+Что делает Helm 3 при install (без Tiller, напрямую к API):
+
+```mermaid
+sequenceDiagram
+    participant U as helm install
+    participant T as templates + values
+    participant API as Kubernetes API
+    participant K as Cluster
+
+    U->>T: рендер шаблонов с .Values
+    T->>U: финальные манифесты
+    U->>API: apply манифестов
+    API->>K: создать Deployment / Service / ...
+    U->>U: сохранить Release (revision 1)
+    K->>U: ресурсы запущены
+```
+
 ---
 
 ## 8.5 Применить

@@ -612,6 +612,10 @@
             {
                 "file": "chapter-09.md",
                 "title": "Глава 9: Helm практика"
+            },
+            {
+                "file": "glossary.md",
+                "title": "Глоссарий терминов"
             }
         ],
         "12-monitoring-devops": [

@@ -57,6 +57,22 @@ spec:
 
 Только Pod с label `app=api` может обратиться к PostgreSQL на порт 5432.
 
+Как политика фильтрует входящий трафик к PostgreSQL:
+
+```mermaid
+flowchart LR
+    API["Pod: app=api"] -->|":5432"| NP{"NetworkPolicy\nallow-api-to-postgres"}
+    WEB["Pod: app=web"] -->|":5432"| NP
+    EXT["Pod из другого ns"] -->|":5432"| NP
+    NP -->|"from podSelector\napp=api"| PG["PostgreSQL\nallow"]
+    NP -.->|"не совпал label"| DROP["deny\n(пакет отброшен)"]
+
+    style API fill:#2d2d2d,color:#fff
+    style NP fill:#7d6608,color:#fff
+    style PG fill:#1e8449,color:#fff
+    style DROP fill:#6e2f1a,color:#fff
+```
+
 ---
 
 ## 5.4 Как протестировать NetworkPolicy
@@ -88,9 +104,10 @@ kubectl run test-blocked --image=curlimages/curl \
 
 NetworkPolicy работает только если CNI-плагин её поддерживает.
 
-- `k3s` по умолчанию использует Flannel
-- Flannel NetworkPolicy не реализует
-- Для политик нужны Calico или Cilium
+- `k3s` по умолчанию использует Flannel, а enforcement NetworkPolicy
+  обеспечивает встроенный контроллер (kube-router) — то есть в k3s политики работают из коробки
+- Чистый Flannel (вне k3s) сам NetworkPolicy не реализует
+- Для полного контроля и расширенных возможностей берут Calico или Cilium
 
 Проверка:
 
