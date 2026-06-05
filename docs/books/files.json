@@ -508,6 +508,10 @@
             {
                 "file": "chapter-09.md",
                 "title": "Глава 9: Тестирование и отладка"
+            },
+            {
+                "file": "glossary.md",
+                "title": "Глоссарий терминов"
             }
         ],
         "10-kubernetes-basics": [

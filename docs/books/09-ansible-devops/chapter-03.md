@@ -24,6 +24,24 @@ extra-vars (-e)    ← самый высокий
 
 Чем выше приоритет, тем легче переменная переопределяет значения снизу.
 
+Эту лестницу удобно держать перед глазами: верхний источник всегда побеждает нижний при конфликте имён.
+
+```mermaid
+flowchart TD
+    A["extra-vars (-e)\nсамый высокий"] --> B["task vars"]
+    B --> C["role vars"]
+    C --> D["playbook vars"]
+    D --> E["host_vars"]
+    E --> F["group_vars"]
+    F --> G["inventory vars"]
+    G --> H["role defaults\nсамый низкий"]
+
+    style A fill:#4a235a,color:#fff
+    style E fill:#1a5276,color:#fff
+    style F fill:#1a5276,color:#fff
+    style H fill:#2d2d2d,color:#fff
+```
+
 В нашем проекте это выглядит так:
 
 - `group_vars/web.yml` хранит обычные настройки приложения.

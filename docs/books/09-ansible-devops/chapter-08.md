@@ -85,6 +85,25 @@
 - `rescue` — что делать при ошибке;
 - `always` — что выполнить в любом случае.
 
+Поток выполнения зависит от того, упала ли задача внутри `block`: `rescue` запускается только при ошибке, а `always` — всегда.
+
+```mermaid
+flowchart TD
+    A["block\n(основной сценарий)"] --> B{"ошибка\nв block?"}
+    B -->|"нет"| C["always"]
+    B -->|"да"| R["rescue\n(откат)"]
+    R --> C
+    C --> D["конец"]
+
+    style A fill:#1a5276,color:#fff
+    style B fill:#7d6608,color:#fff
+    style R fill:#6e2f1a,color:#fff
+    style C fill:#4a235a,color:#fff
+    style D fill:#1e8449,color:#fff
+```
+
+Если `rescue` сам отработал без ошибки, play продолжается дальше как обычно: Ansible считает, что сбой обработан.
+
 ---
 
 ## 8.5 `until` — ждать пока условие выполнится
@@ -103,6 +122,23 @@
 ```
 
 `retries: 10` и `delay: 5` означают максимум 50 секунд ожидания.
+
+Механика `until` — это цикл с проверкой: задача повторяется, пока условие не станет истинным или не закончатся попытки.
+
+```mermaid
+flowchart TD
+    A["запрос\nGET /health"] --> B{"status == 200?"}
+    B -->|"да"| C["идём дальше"]
+    B -->|"нет"| D{"попытки\nостались?"}
+    D -->|"да"| E["ждать delay\n5 сек"]
+    E --> A
+    D -->|"нет"| F["задача failed"]
+
+    style A fill:#1a5276,color:#fff
+    style B fill:#7d6608,color:#fff
+    style C fill:#1e8449,color:#fff
+    style F fill:#6e2f1a,color:#fff
+```
 
 Это типичная задача после запуска Flask/Gunicorn/systemd-сервиса: не переходить дальше, пока приложение реально не поднялось.
 

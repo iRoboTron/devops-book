@@ -51,6 +51,24 @@ web:
 > **Запомни:** `web1` в inventory и `1.2.3.4` в `ansible_host` — не одно и то же.
 > `web1` удобно использовать в playbook и логах, IP можно менять без переписывания задач.
 
+Структуру inventory удобно представлять как дерево: на вершине группа `all`, под ней — группы серверов, а в листьях — конкретные хосты с их параметрами.
+
+```mermaid
+flowchart TD
+    A["all\n(все хосты)"] --> B["web\n(группа)"]
+    B --> C["web1\nansible_host: 1.2.3.4"]
+    B --> D["web2\nansible_host: 5.6.7.8"]
+    A --> V["vars\nansible_user: deploy\nssh key"]
+
+    style A fill:#2d2d2d,color:#fff
+    style B fill:#1a5276,color:#fff
+    style C fill:#1e8449,color:#fff
+    style D fill:#1e8449,color:#fff
+    style V fill:#7d6608,color:#fff
+```
+
+Переменные из `vars` под группой применяются ко всем хостам внутри неё. Поэтому `ansible_user` и SSH-ключ достаточно описать один раз.
+
 ---
 
 ## 1.2 ansible.cfg
@@ -111,6 +129,24 @@ web1 | SUCCESS => {
 ```
 
 `"ping": "pong"` не означает ICMP ping. Это значит: Ansible смог зайти по SSH, запустить Python на сервере и получить нормальный ответ от модуля `ping`.
+
+За этим коротким `pong` стоит целая цепочка: чтобы он появился, должны отработать все звенья подключения.
+
+```mermaid
+flowchart LR
+    A["ansible all\n-m ping"] --> B["читает inventory\n+ ansible.cfg"]
+    B --> C["SSH к web1"]
+    C --> D["запуск Python\nна сервере"]
+    D --> E["pong\nSUCCESS"]
+
+    style A fill:#2d2d2d,color:#fff
+    style B fill:#1a5276,color:#fff
+    style C fill:#1a5276,color:#fff
+    style D fill:#1a5276,color:#fff
+    style E fill:#1e8449,color:#fff
+```
+
+Если ответа `pong` нет, проблема всегда в одном из этих звеньев: неверный inventory, недоступный SSH или отсутствие Python на сервере.
 
 ### Если ping не прошёл
 

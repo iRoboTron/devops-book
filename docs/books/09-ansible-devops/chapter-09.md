@@ -30,6 +30,23 @@ web1 : ok=8  changed=0  unreachable=0  failed=0
 
 Вот это и есть правильно написанный playbook: он не делает лишней работы, если сервер уже находится в нужном состоянии.
 
+Сама проверка идемпотентности — это всего два запуска и сравнение второго результата с нулём изменений.
+
+```mermaid
+flowchart LR
+    A["1-й запуск\nsite.yml"] --> B["changed > 0\nожидаемо"]
+    B --> C["2-й запуск\nsite.yml"]
+    C --> D{"changed == 0?"}
+    D -->|"да"| E["идемпотентно\nOK"]
+    D -->|"нет"| F["искать\nнеидемпотентную\nзадачу"]
+
+    style A fill:#2d2d2d,color:#fff
+    style C fill:#1a5276,color:#fff
+    style D fill:#7d6608,color:#fff
+    style E fill:#1e8449,color:#fff
+    style F fill:#6e2f1a,color:#fff
+```
+
 Если на втором запуске `changed > 0`, ищи неидемпотентную задачу:
 
 ```bash
@@ -75,6 +92,24 @@ molecule/
 - `molecule.yml` описывает тестовое окружение;
 - `converge.yml` применяет роль;
 - `verify.yml` проверяет результат.
+
+`molecule test` прогоняет роль по полному циклу: поднимает чистый контейнер, применяет роль, проверяет результат и в конце всё удаляет.
+
+```mermaid
+flowchart LR
+    A["create\nчистый контейнер"] --> B["converge\nприменить роль"]
+    B --> C["verify\nпроверки verify.yml"]
+    C --> D["destroy\nудалить контейнер"]
+
+    style A fill:#2d2d2d,color:#fff
+    style B fill:#1a5276,color:#fff
+    style C fill:#7d6608,color:#fff
+    style D fill:#1e8449,color:#fff
+```
+
+Запуск всегда стартует с нуля, поэтому тест проверяет роль в честных условиях, а не на уже настроенном сервере.
+
+
 
 Пример `verify.yml`:
 

@@ -86,6 +86,23 @@ ansible-playbook site.yml --vault-password-file .vault_pass
 > **Опасно:** `.vault_pass` ВСЕГДА в `.gitignore`.
 > Зашифрованные файлы — МОЖНО коммитить. Файл с паролем — НИКОГДА.
 
+Чтобы не запутаться, держи в голове простую границу: в git едет только то, что бесполезно без пароля.
+
+```mermaid
+flowchart TD
+    A["файл проекта"] --> B{"что внутри?"}
+    B -->|"зашифрован vault\n(secrets.yml)"| C["в git\nбезопасно"]
+    B -->|"обычный playbook,\ninventory"| C
+    B -->|".vault_pass\nпароль открытым\nтекстом"| D[".gitignore\nНИКОГДА в git"]
+
+    style A fill:#2d2d2d,color:#fff
+    style B fill:#1a5276,color:#fff
+    style C fill:#1e8449,color:#fff
+    style D fill:#6e2f1a,color:#fff
+```
+
+Зашифрованный `secrets.yml` без пароля — просто набор символов, поэтому его коммит безопасен. Сам пароль не должен попадать в репозиторий ни при каких условиях.
+
 ---
 
 ## 7.4 В CI

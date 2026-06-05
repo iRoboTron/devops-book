@@ -62,6 +62,21 @@ setup.yml                   вернуть результат
 - Только SSH + Python
 - Push-модель: ты отправляешь задачи на серверы
 
+Push-модель означает, что инициатива всегда у control node (твоего ноутбука или CI). Он сам подключается к серверам по SSH, копирует туда нужный код модуля, запускает его через Python и забирает результат.
+
+```mermaid
+sequenceDiagram
+    participant C as "Control node\n(ноутбук / CI)"
+    participant H1 as "web1"
+    participant H2 as "web2"
+    C->>H1: SSH + код модуля (Python)
+    C->>H2: SSH + код модуля (Python)
+    H1-->>C: результат (ok / changed / failed)
+    H2-->>C: результат (ok / changed / failed)
+```
+
+На управляемых серверах не работает ни один постоянный процесс Ansible: после выполнения задачи соединение закрывается. Это и есть смысл слова *agentless*.
+
 ---
 
 ## 0.3 Ansible vs Terraform

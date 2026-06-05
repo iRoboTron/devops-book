@@ -73,6 +73,24 @@ server {
 
 Здесь уже не нужно хардкодить `domain` и `app_port` прямо в задаче. Ansible возьмёт значения из `group_vars` и `host_vars`.
 
+Один и тот же `.j2`-шаблон превращается в разные файлы на разных серверах — всё решают подставленные переменные и facts конкретного хоста.
+
+```mermaid
+flowchart LR
+    V["group_vars / host_vars\ndomain, app_port"] --> T["myapp.conf.j2\n(шаблон Jinja2)"]
+    F["facts хоста\nansible_hostname, ip"] --> T
+    T --> R["рендеринг\nна control node"]
+    R --> O["/etc/nginx/...\nmyapp.conf на сервере"]
+
+    style V fill:#7d6608,color:#fff
+    style F fill:#7d6608,color:#fff
+    style T fill:#1a5276,color:#fff
+    style R fill:#1a5276,color:#fff
+    style O fill:#1e8449,color:#fff
+```
+
+Рендеринг происходит на control node, а на сервер уже копируется готовый текстовый файл — без переменных и условий.
+
 ---
 
 ## 5.4 Facts в шаблонах

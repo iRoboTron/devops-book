@@ -34,6 +34,27 @@ roles/
 
 Идея простая: всё, что относится к Nginx, живёт внутри роли `nginx`. Всё, что относится к приложению, живёт внутри `myapp`.
 
+У каждой папки роли своя роль: Ansible автоматически подхватывает `main.yml` из каждой директории и знает, что где искать.
+
+```mermaid
+flowchart TD
+    R["roles/nginx"] --> T["tasks/\nmain.yml — задачи"]
+    R --> H["handlers/\nmain.yml — handlers"]
+    R --> TM["templates/\n*.j2"]
+    R --> F["files/\nстатика"]
+    R --> D["defaults/\nнизкий приоритет"]
+    R --> V["vars/\nвысокий приоритет"]
+    R --> M["meta/\nзависимости"]
+
+    style R fill:#2d2d2d,color:#fff
+    style T fill:#1a5276,color:#fff
+    style H fill:#4a235a,color:#fff
+    style D fill:#7d6608,color:#fff
+    style V fill:#7d6608,color:#fff
+```
+
+Не обязательно создавать все папки сразу: пустые директории можно опускать, Ansible просто их не будет использовать.
+
 ---
 
 ## 6.2 Содержимое роли
@@ -170,6 +191,24 @@ dependencies:
 При вызове `nginx` Ansible сначала запустит `common`.
 
 Это полезно, если роль зависит от базовых пакетов, пользователя, директории или общей системной подготовки.
+
+Порядок применения ролей при запуске `site.yml` получается таким: сначала зависимости из `meta`, затем сами роли в том порядке, в каком они перечислены в playbook.
+
+```mermaid
+flowchart LR
+    P["site.yml\nhosts: web"] --> C["common\n(зависимость nginx)"]
+    C --> N["nginx"]
+    N --> A["myapp"]
+    A --> R["сервер настроен"]
+
+    style P fill:#2d2d2d,color:#fff
+    style C fill:#1a5276,color:#fff
+    style N fill:#1a5276,color:#fff
+    style A fill:#1a5276,color:#fff
+    style R fill:#1e8449,color:#fff
+```
+
+Зависимость `common` через `meta/main.yml` гарантирует базовую подготовку до того, как роль `nginx` начнёт ставить пакеты.
 
 ---
 

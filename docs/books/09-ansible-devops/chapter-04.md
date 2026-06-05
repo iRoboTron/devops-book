@@ -82,6 +82,30 @@
 - готовим директорию для Flask-приложения;
 - подготавливаем перезагрузку Nginx через handler.
 
+Play выполняется сверху вниз: задачи идут по порядку, а handlers ждут в стороне и запускаются один раз в самом конце — только если их кто-то вызвал через `notify`.
+
+```mermaid
+flowchart TD
+    A["play: hosts: web\nbecome: true"] --> B["task: установить nginx"]
+    B --> C["task: создать deploy"]
+    C --> D["task: скопировать конфиг"]
+    D -->|"changed?\nnotify"| N["очередь handlers"]
+    D --> E["task: запустить nginx"]
+    E --> F{"были\nnotify?"}
+    F -->|"да"| H["handler:\nreload nginx"]
+    F -->|"нет"| G["конец play"]
+    N -.-> H
+    H --> G
+
+    style A fill:#2d2d2d,color:#fff
+    style D fill:#1a5276,color:#fff
+    style N fill:#7d6608,color:#fff
+    style H fill:#4a235a,color:#fff
+    style G fill:#1e8449,color:#fff
+```
+
+Ключевой момент: если конфиг не изменился, задача отдаёт `ok`, `notify` не срабатывает и handler `reload nginx` не запускается. Лишнего перезапуска сервиса не будет.
+
 ---
 
 ## 4.2 Запустить
