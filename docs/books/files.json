@@ -454,6 +454,10 @@
             {
                 "file": "chapter-09.md",
                 "title": "Глава 9: Опасные операции"
+            },
+            {
+                "file": "glossary.md",
+                "title": "Глоссарий терминов"
             }
         ],
         "09-ansible-devops": [

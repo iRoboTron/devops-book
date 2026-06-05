@@ -145,6 +145,37 @@ terraform plan
 
 ---
 
+## 9.5 Какую операцию выбрать
+
+```mermaid
+flowchart TD
+    start{"Что нужно сделать\nс ресурсом?"}
+    del["Удалить совсем"]
+    recreate["Пересоздать\n(тот же конфиг)"]
+    adopt["Взять под управление\nсозданный вручную"]
+    protect["Защитить от\nслучайного удаления"]
+
+    destroy["terraform destroy\n(или -target)"]
+    taint["terraform taint\n→ apply (-/+)"]
+    imp["terraform import\n+ добавить код"]
+    prevent["lifecycle {\nprevent_destroy = true\n}"]
+
+    start --> del --> destroy
+    start --> recreate --> taint
+    start --> adopt --> imp
+    start --> protect --> prevent
+
+    style start fill:#2d2d2d,color:#fff
+    style destroy fill:#6e2f1a,color:#fff
+    style taint fill:#7d6608,color:#fff
+    style imp fill:#1a5276,color:#fff
+    style prevent fill:#1e8449,color:#fff
+```
+
+Каждая опасная операция решает свою задачу. Перед любой из них — всегда читай `terraform plan`.
+
+---
+
 ## 📝 Упражнения
 
 ### Упражнение 9.1: prevent_destroy

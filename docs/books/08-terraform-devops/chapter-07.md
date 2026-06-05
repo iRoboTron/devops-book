@@ -93,6 +93,27 @@ terraform.tfstate.d/
 
 `terraform apply` в dev НЕ трогает prod.
 
+```mermaid
+flowchart TD
+    code["main.tf\n(один код)"]
+    sel{"terraform.workspace"}
+    devstate["state: dev/terraform.tfstate"]
+    prodstate["state: prod/terraform.tfstate"]
+    devsrv[("dev-myapp\ncx11")]
+    prodsrv[("prod-myapp\ncx31")]
+
+    code --> sel
+    sel -- workspace dev --> devstate --> devsrv
+    sel -- workspace prod --> prodstate --> prodsrv
+
+    style code fill:#2d2d2d,color:#fff
+    style sel fill:#7d6608,color:#fff
+    style devsrv fill:#1e8449,color:#fff
+    style prodsrv fill:#1e8449,color:#fff
+```
+
+Активный workspace выбирает, какой state читать и менять. Один код обслуживает оба окружения, не пересекаясь.
+
 ---
 
 ## 7.5 Когда workspace НЕ нужен

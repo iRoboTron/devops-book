@@ -150,6 +150,24 @@ ${var.server.size}    # "cx11"
 5. TF_VAR_name переменная окружения
 ```
 
+```mermaid
+flowchart TD
+    def["default\n(в блоке variable)"]
+    tfvars["terraform.tfvars"]
+    auto["*.auto.tfvars"]
+    cli["-var=\"key=value\"\n(командная строка)"]
+    env["TF_VAR_name\n(переменная окружения)"]
+    win["Итоговое значение\nпеременной"]
+
+    def --> tfvars --> auto --> cli --> env --> win
+
+    style def fill:#2d2d2d,color:#fff
+    style env fill:#7d6608,color:#fff
+    style win fill:#1e8449,color:#fff
+```
+
+Чем ниже в списке — тем выше приоритет. Если значение задано в нескольких местах, побеждает последнее.
+
 ### terraform.tfvars
 
 ```hcl

@@ -14,6 +14,26 @@ PR открыт:                    PR merged в main:
 "+ hcloud_server.main"
 ```
 
+```mermaid
+flowchart LR
+    pr["Открыт Pull Request"]
+    plan["terraform plan\n(в CI)"]
+    review["Ревью diff\nв PR"]
+    merge["Merge в main"]
+    apply["terraform apply\n-auto-approve"]
+    cloud[("Облако\nобновлено")]
+
+    pr --> plan --> review --> merge --> apply --> cloud
+
+    style pr fill:#2d2d2d,color:#fff
+    style plan fill:#1a5276,color:#fff
+    style review fill:#7d6608,color:#fff
+    style apply fill:#1e8449,color:#fff
+    style cloud fill:#4a235a,color:#fff
+```
+
+Apply запускается только после merge в `main`. Человек никогда не применяет изменения вручную — за него это делает CI.
+
 ---
 
 ## 8.2 GitHub Actions: plan на PR

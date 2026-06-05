@@ -121,6 +121,29 @@ resource "firewall"    fw_id: 67890                       DNS-запись
 2. `terraform apply` — выполняет план, обновляет state
 3. `terraform plan` снова — `No changes` (идемпотентность)
 
+```mermaid
+flowchart LR
+    code["main.tf\n(желаемое)"]
+    state["terraform.tfstate\n(что создано)"]
+    plan["terraform plan\n(diff: желаемое - реальное)"]
+    apply["terraform apply\n(вызов API)"]
+    cloud[("Облако\n(реальные ресурсы)")]
+
+    code --> plan
+    state --> plan
+    cloud -. refresh .-> plan
+    plan --> apply
+    apply --> cloud
+    apply -- обновляет --> state
+
+    style code fill:#2d2d2d,color:#fff
+    style plan fill:#1a5276,color:#fff
+    style apply fill:#1e8449,color:#fff
+    style cloud fill:#4a235a,color:#fff
+```
+
+Terraform всегда сравнивает три источника: код, state и реальное облако. План — это их разница.
+
 ---
 
 ## 0.5 Установка

@@ -170,6 +170,28 @@ output "prod_ip" {
 
 Один модуль — разные параметры.
 
+```mermaid
+flowchart TD
+    mod["modules/web-server\n(server + firewall + outputs)"]
+    dev["dev/main.tf\nserver_type = cx11"]
+    prod["prod/main.tf\nserver_type = cx31"]
+    devsrv[("dev-myapp\n(cx11)")]
+    prodsrv[("prod-myapp\n(cx31)")]
+
+    dev -- source --> mod
+    prod -- source --> mod
+    dev --> devsrv
+    prod --> prodsrv
+
+    style mod fill:#4a235a,color:#fff
+    style dev fill:#1a5276,color:#fff
+    style prod fill:#1a5276,color:#fff
+    style devsrv fill:#1e8449,color:#fff
+    style prodsrv fill:#1e8449,color:#fff
+```
+
+Код модуля написан один раз. Каждый вызов передаёт свои переменные и получает свой набор ресурсов.
+
 ---
 
 ## 6.4 `terraform init` после добавления модуля

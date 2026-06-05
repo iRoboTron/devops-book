@@ -186,7 +186,28 @@ hcloud_ssh_key.main    hcloud_firewall.main
 hcloud_firewall_attachment.main
 ```
 
-Terraform создаёт ресурсы в правильном порядке автоматически.
+```mermaid
+flowchart TD
+    img["data.hcloud_image.ubuntu\n(образ ОС)"]
+    ssh["hcloud_ssh_key.main"]
+    fw["hcloud_firewall.main"]
+    server["hcloud_server.main\n(сервер)"]
+    attach["hcloud_firewall_attachment.main"]
+    inv["local_file.ansible_inventory"]
+
+    img --> server
+    ssh --> server
+    fw --> attach
+    server --> attach
+    server --> inv
+
+    style img fill:#2d2d2d,color:#fff
+    style server fill:#1e8449,color:#fff
+    style attach fill:#1a5276,color:#fff
+    style inv fill:#4a235a,color:#fff
+```
+
+Terraform строит граф зависимостей по ссылкам (`hcloud_server.main.id` и т.п.) и создаёт ресурсы в правильном порядке автоматически. Независимые ресурсы (SSH-ключ, firewall) создаются параллельно.
 
 ---
 

@@ -318,6 +318,31 @@ cat: hello.txt: No such file or directory
 > **Запомни:** `terraform destroy` удаляет ВСЁ что управляется Terraform.
 > Всегда проверяй план перед подтверждением.
 
+### Полный цикл команд
+
+```mermaid
+flowchart LR
+    init["terraform init\n(скачать провайдеры)"]
+    plan["terraform plan\n(показать diff)"]
+    apply["terraform apply\n(применить)"]
+    nochange["terraform plan\nNo changes\n(идемпотентность)"]
+    destroy["terraform destroy\n(удалить всё)"]
+
+    init --> plan
+    plan --> apply
+    apply --> nochange
+    nochange -. изменил код .-> plan
+    apply --> destroy
+
+    style init fill:#2d2d2d,color:#fff
+    style plan fill:#1a5276,color:#fff
+    style apply fill:#1e8449,color:#fff
+    style nochange fill:#7d6608,color:#fff
+    style destroy fill:#6e2f1a,color:#fff
+```
+
+Меняешь код — снова `plan` → `apply`. Цикл повторяется бесконечно: код всегда единственная истина.
+
 ---
 
 ## 1.10 `null_resource` — ресурс который "ничего не делает"

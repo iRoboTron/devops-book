@@ -35,6 +35,25 @@ hcloud_server.main           server_id: 12345678          Hetzner Server #123456
 
 Если state удалить — Terraform "забудет" про существующие ресурсы.
 
+```mermaid
+sequenceDiagram
+    participant U as Пользователь
+    participant T as Terraform
+    participant S as terraform.tfstate
+    participant A as API облака
+
+    U->>T: terraform apply
+    T->>S: читает state (что создано)
+    T->>A: refresh (реальное состояние)
+    T->>T: сравнивает код / state / облако
+    T->>A: создать / изменить / удалить
+    A-->>T: новые ID и атрибуты
+    T->>S: обновляет state
+    T-->>U: Apply complete!
+```
+
+State — это посредник между кодом и облаком. Без него Terraform не знает, какой ресурс в облаке соответствует какому блоку в коде.
+
 ---
 
 ## 5.3 Посмотреть state
@@ -147,6 +166,23 @@ Person B: terraform apply → wait... → acquire lock → apply → release loc
 
 Без locking — одновременные apply ломают инфраструктуру.
 
+```mermaid
+sequenceDiagram
+    participant A as Person A
+    participant B as Person B
+    participant L as Lock (backend)
+
+    A->>L: terraform apply → захватить lock
+    L-->>A: lock получен
+    B->>L: terraform apply → захватить lock
+    L-->>B: занято, ожидание...
+    A->>L: apply завершён → release lock
+    L-->>B: lock получен
+    Note over B: теперь применяет свои изменения
+```
+
+Блокировка гарантирует, что в каждый момент state меняет только один процесс.
+
 ### Альтернативы S3
 
 | Backend | Locking | Когда |
@@ -170,7 +206,7 @@ terraform refresh
 Обновит state чтобы соответствовал реальному состоянию.
 
 > **Совет:** `refresh` встроен в `plan`. Обычно не нужно запускать отдельно.
-> `terraform plan` автоматически.refresh'ит state.
+> `terraform plan` автоматически refresh'ит state.
 
 ---
 
