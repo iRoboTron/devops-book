@@ -65,11 +65,49 @@ Control Plane               Worker Nodes
 | Scheduler | Решает где запустить Pod |
 | Controller Manager | Следит за желаемым состоянием |
 
+Как компоненты связаны между собой:
+
+```mermaid
+flowchart TD
+    kubectl["kubectl\n(команды)"]
+
+    subgraph cp["Control Plane"]
+        api["API Server\n(единая точка входа)"]
+        etcd["etcd\n(состояние кластера)"]
+        sched["Scheduler\n(выбор ноды)"]
+        ctrl["Controller Manager\n(желаемое состояние)"]
+    end
+
+    subgraph nodes["Worker Nodes"]
+        kubelet1["kubelet\nNode 1"]
+        kubelet2["kubelet\nNode 2"]
+        pods1["Pods..."]
+        pods2["Pods..."]
+    end
+
+    kubectl --> api
+    api <--> etcd
+    sched --> api
+    ctrl --> api
+    api --> kubelet1
+    api --> kubelet2
+    kubelet1 --> pods1
+    kubelet2 --> pods2
+
+    style kubectl fill:#2d2d2d,color:#fff
+    style api fill:#1a5276,color:#fff
+    style etcd fill:#4a235a,color:#fff
+    style pods1 fill:#1e8449,color:#fff
+    style pods2 fill:#1e8449,color:#fff
+```
+
+Любая команда проходит через API Server — это единственная точка входа. Остальные компоненты тоже общаются только с ним, а не друг с другом напрямую.
+
 ---
 
 ## 0.5 k3s — K8s для обучения
 
-k3s =轻量级 Kubernetes. Один бинарник. Идеально для обучения.
+k3s = лёгковесный Kubernetes. Один бинарник. Идеально для обучения.
 
 ### Установка
 

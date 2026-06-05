@@ -74,6 +74,31 @@ spec:
   storageClassName: local-path
 ```
 
+Как PVC проходит путь от запроса к подключению в Pod:
+
+```mermaid
+flowchart LR
+    claim["PVC\n(запрос: 1Gi)"]
+    pending["Pending\n(нет PV)"]
+    sc["StorageClass\nlocal-path"]
+    pv["PersistentVolume\n(реальный диск)"]
+    bound["Bound\n(привязан)"]
+    pod["Pod\nvolumeMount"]
+
+    claim --> pending
+    pending -- "provisioner создаёт диск" --> sc
+    sc --> pv
+    pv --> bound
+    bound --> pod
+
+    style claim fill:#1a5276,color:#fff
+    style pending fill:#7d6608,color:#fff
+    style bound fill:#1e8449,color:#fff
+    style pod fill:#1e8449,color:#fff
+```
+
+PVC завис в `Pending`, если подходящего `StorageClass` нет — диск просто некому создать.
+
 ---
 
 ## 5.3 AccessModes — что значат

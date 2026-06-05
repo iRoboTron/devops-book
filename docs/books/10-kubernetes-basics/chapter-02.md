@@ -2,6 +2,30 @@
 
 > **Запомни:** Deployment = контроллер который следит за Pod'ами. Убей Pod → Deployment поднимет новый.
 
+Deployment управляет Pod'ами не напрямую, а через промежуточный объект ReplicaSet:
+
+```mermaid
+flowchart TD
+    dep["Deployment\n(желаемое: replicas=3)"]
+    rs["ReplicaSet\n(держит ровно 3 Pod)"]
+    p1["Pod\nmyapp-xxx"]
+    p2["Pod\nmyapp-yyy"]
+    p3["Pod\nmyapp-zzz"]
+
+    dep --> rs
+    rs --> p1
+    rs --> p2
+    rs --> p3
+
+    style dep fill:#1a5276,color:#fff
+    style rs fill:#4a235a,color:#fff
+    style p1 fill:#1e8449,color:#fff
+    style p2 fill:#1e8449,color:#fff
+    style p3 fill:#1e8449,color:#fff
+```
+
+Каждая версия образа порождает свой ReplicaSet — именно поэтому возможен откат к предыдущей ревизии.
+
 ---
 
 ## 2.1 Манифест
@@ -56,6 +80,28 @@ kubectl delete pod myapp-xxx
 ```
 
 Deployment заметил что Pod'ов стало 2 вместо 3 → создал новый.
+
+Это и есть reconciliation loop — цикл сверки желаемого и фактического состояния, который крутится постоянно:
+
+```mermaid
+flowchart LR
+    A["Желаемо: 3 Pod"]
+    B["Сравнить\nс фактом"]
+    C["Факт: 2 Pod"]
+    D["Создать\nнедостающий Pod"]
+    A --> B
+    C --> B
+    B -- "не совпадает" --> D
+    D --> C
+    B -- "совпадает" --> E["Ничего не делать"]
+
+    style A fill:#1a5276,color:#fff
+    style B fill:#7d6608,color:#fff
+    style D fill:#1e8449,color:#fff
+    style E fill:#1e8449,color:#fff
+```
+
+K8s не выполняет команды разово — он непрерывно приводит кластер к желаемому состоянию.
 
 ---
 

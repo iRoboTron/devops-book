@@ -82,6 +82,30 @@ kubectl get pods
 
 Pod удалён и НЕ создался заново. Нет контроллера.
 
+Жизненный цикл Pod от создания до удаления:
+
+```mermaid
+flowchart LR
+    A["Pending\n(scheduler ищет ноду)"]
+    B["ContainerCreating\n(тянем образ)"]
+    C["Running\n(контейнер работает)"]
+    D["Succeeded / Failed\n(завершён)"]
+    E["Terminating\n(удаление)"]
+
+    A --> B --> C
+    C --> D
+    C --> E
+    A -. "ошибка образа" .-> F["ImagePullBackOff"]
+    C -. "контейнер падает" .-> G["CrashLoopBackOff"]
+
+    style A fill:#7d6608,color:#fff
+    style C fill:#1e8449,color:#fff
+    style F fill:#6e2f1a,color:#fff
+    style G fill:#6e2f1a,color:#fff
+```
+
+Без контроллера на статусе `Succeeded`/`Failed` или после удаления Pod просто исчезает — никто не создаёт его заново.
+
 > **Запомни:** Pod не запускают напрямую в продакшне.
 > Используй Deployment — он следит за Pod'ами.
 
@@ -124,6 +148,23 @@ Events:
 
 > **Правило:** При любой проблеме с Pod сначала `kubectl describe pod NAME`.
 > Смотри секцию `Events` внизу. Там обычно есть объяснение.
+
+Дерево решений по статусу проблемного Pod:
+
+```mermaid
+flowchart TD
+    start["Pod не Running"]
+    start --> q{"Какой STATUS?"}
+    q -- "CrashLoopBackOff" --> logs["kubectl logs NAME\nприложение падает при старте"]
+    q -- "ImagePullBackOff" --> img["kubectl describe pod\nневерный образ / нет доступа к registry"]
+    q -- "Pending" --> pend["kubectl describe pod → Events\nчасто нет ресурсов на ноде"]
+
+    style start fill:#2d2d2d,color:#fff
+    style q fill:#1a5276,color:#fff
+    style logs fill:#6e2f1a,color:#fff
+    style img fill:#6e2f1a,color:#fff
+    style pend fill:#7d6608,color:#fff
+```
 
 ---
 

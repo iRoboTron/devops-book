@@ -558,6 +558,10 @@
             {
                 "file": "chapter-08.md",
                 "title": "Глава 8: kubectl шпаргалка (справочник)"
+            },
+            {
+                "file": "glossary.md",
+                "title": "Глоссарий терминов"
             }
         ],
         "11-kubernetes-advanced": [

@@ -159,6 +159,26 @@ spec:
 
 ## 7.3 Запустить
 
+Что происходит внутри кластера, когда ты выполняешь `kubectl apply`:
+
+```mermaid
+sequenceDiagram
+    participant U as kubectl
+    participant A as API Server
+    participant E as etcd
+    participant S as Scheduler
+    participant K as kubelet (Node)
+    U->>A: apply -f k8s/
+    A->>E: сохранить желаемое состояние
+    A->>S: есть Pod без ноды
+    S->>A: выбрана Node N
+    A->>K: запусти Pod на Node N
+    K->>K: тянет образ, стартует контейнер
+    K->>A: статус Running
+```
+
+API Server только записывает желание в etcd — Scheduler и kubelet асинхронно приводят кластер к этому состоянию.
+
 ```bash
 kubectl apply -f k8s/
 kubectl get all -n myapp

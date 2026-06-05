@@ -83,6 +83,30 @@ Service selector: app=myapp
 Балансирует трафик между ними
 ```
 
+Service по selector держит актуальный список Endpoints и распределяет на них трафик:
+
+```mermaid
+flowchart LR
+    client["Клиент\ncurl myapp-svc:80"]
+    svc["Service myapp-svc\nselector: app=myapp"]
+    p1["Pod\napp=myapp\n10.42.0.15"]
+    p2["Pod\napp=myapp\n10.42.0.16"]
+    p3["Pod\napp=myapp\n10.42.0.17"]
+
+    client --> svc
+    svc --> p1
+    svc --> p2
+    svc --> p3
+
+    style client fill:#2d2d2d,color:#fff
+    style svc fill:#1a5276,color:#fff
+    style p1 fill:#1e8449,color:#fff
+    style p2 fill:#1e8449,color:#fff
+    style p3 fill:#1e8449,color:#fff
+```
+
+Если ни один Pod не подходит под selector — список Endpoints пуст (`<none>`), и Service отдаёт ошибку соединения.
+
 ---
 
 ## 3.4 Тестировать Service изнутри кластера

@@ -35,6 +35,30 @@ Prod: `myapp-svc` → `myapp-svc.prod.svc.cluster.local`
 
 Разные namespace — разные сервисы с одинаковыми именами.
 
+```mermaid
+flowchart TD
+    cluster["Один кластер"]
+
+    subgraph dev["namespace: dev"]
+        d_app["Deployment myapp"]
+        d_svc["Service myapp-svc"]
+    end
+
+    subgraph prod["namespace: prod"]
+        p_app["Deployment myapp"]
+        p_svc["Service myapp-svc"]
+    end
+
+    cluster --> dev
+    cluster --> prod
+
+    style cluster fill:#2d2d2d,color:#fff
+    style d_svc fill:#1a5276,color:#fff
+    style p_svc fill:#1e8449,color:#fff
+```
+
+Одинаковые имена объектов в разных namespace не конфликтуют — каждый namespace это отдельное пространство имён.
+
 ---
 
 ## 6.4 Системные namespace
