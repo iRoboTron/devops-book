@@ -79,6 +79,21 @@ TLS не только шифрует. Он ещё подтверждает чт�
 
 Этот процесс называется **ACME challenge**.
 
+```mermaid
+sequenceDiagram
+    participant C as Certbot
+    participant LE as Let's Encrypt (CA)
+    participant N as Nginx :80
+
+    C->>LE: Хочу сертификат для myapp.ru
+    LE-->>C: Положи файл по\n/.well-known/acme-challenge/xyz
+    C->>N: размещает challenge-файл
+    LE->>N: GET http://myapp.ru/.well-known/...
+    N-->>LE: содержимое файла
+    Note over LE: файл совпал → домен твой
+    LE-->>C: Вот сертификат (90 дней)
+```
+
 > **Порядок важен:** Для получения сертификата порт 80 **должен быть открыт**.
 > Let's Encrypt подключается к `http://myapp.ru/.well-known/...` чтобы проверить.
 > Закроешь порт 80 в ufw — certbot не сработает.
@@ -211,6 +226,25 @@ server {
 | `ssl_certificate_key` | Приватный ключ |
 | `ssl_protocols TLSv1.2 TLSv1.3` | Только современные версии |
 | `return 301 https://...` | Редирект HTTP → HTTPS |
+
+Два server-блока и поток запросов через них:
+
+```mermaid
+flowchart TD
+    http["Запрос на :80\n(HTTP)"]
+    redir["server :80\nreturn 301 https://"]
+    https["server :443 ssl\nfullchain.pem + privkey.pem"]
+    app["proxy_pass\n127.0.0.1:8000"]
+
+    http --> redir
+    redir -->|"301 → https"| https
+    direct["Запрос на :443\n(HTTPS)"] --> https
+    https --> app
+
+    style redir fill:#7d6608,color:#fff
+    style https fill:#1a5276,color:#fff
+    style app fill:#1e8449,color:#fff
+```
 
 > **Запомни:** Certbot создал два server блока.
 > Один для HTTP (редиректит на HTTPS).

@@ -45,6 +45,11 @@
 - [**Глава 8: Caddy**](chapter-08.md)
   - Caddyfile синтаксис, автоматический SSL, Docker Compose, reload, сравнение с Nginx
 
+### Часть 6: Nginx Proxy Manager — веб-интерфейс
+
+- [**Глава 10: Nginx Proxy Manager**](chapter-10.md)
+  - Веб-UI для управления прокси, Let's Encrypt через UI, несколько сервисов, Access Lists, TCP Streams
+
 ### Итог
 
 - [**Глава 9: Итоговый проект**](chapter-09.md)
@@ -55,6 +60,10 @@
 - [**Приложение A: Шпаргалка команд**](appendix-a.md)
 - [**Приложение B: Готовые конфиги**](appendix-b.md)
 - [**Приложение C: Частые ошибки**](appendix-c.md)
+
+### Справочник
+
+- [**Глоссарий**](glossary.md)
 
 ---
 

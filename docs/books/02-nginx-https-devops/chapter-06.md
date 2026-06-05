@@ -299,6 +299,29 @@ sudo ufw deny 5432                                  # Правило 2
 - Правило 1: `203.0.113.50` в `10.0.0.0/8`? ❌ → дальше
 - Правило 2: deny 5432? ✅ → заблокировано
 
+Как ufw обрабатывает входящий пакет — сверху вниз, первое совпадение побеждает:
+
+```mermaid
+flowchart TD
+    pkt["Входящий пакет"]
+    r1{"Правило 1\nallow from 10.0.0.0/8\nport 5432?"}
+    r2{"Правило 2\ndeny 5432?"}
+    def["Политика по умолчанию\ndeny incoming"]
+    allow["РАЗРЕШЕНО"]
+    block["ЗАБЛОКИРОВАНО"]
+
+    pkt --> r1
+    r1 -->|совпало| allow
+    r1 -->|нет| r2
+    r2 -->|совпало| block
+    r2 -->|нет| def
+    def --> block
+
+    style allow fill:#1e8449,color:#fff
+    style block fill:#6e2f1a,color:#fff
+    style def fill:#7d6608,color:#fff
+```
+
 > **Запомни:** Специфичные правила — вверх. Общие — вниз.
 > Если сначала deny all — остальные правила не сработают.
 
@@ -331,6 +354,25 @@ sudo ufw enable
 # 6. Проверить
 sudo ufw status verbose
 ```
+
+Безопасный порядок включения — SSH разрешаем **до** `enable`, иначе потеряешь доступ:
+
+```mermaid
+flowchart LR
+    a["default deny incoming"]
+    b["allow OpenSSH (22)"]
+    c["allow Nginx Full (80/443)"]
+    d(["ufw enable"])
+    e["status verbose\n(проверка)"]
+
+    a --> b --> c --> d --> e
+
+    style b fill:#1e8449,color:#fff
+    style d fill:#6e2f1a,color:#fff
+    style e fill:#1a5276,color:#fff
+```
+
+> **Опасно:** Пропустишь шаг `allow OpenSSH` перед `enable` — текущая SSH-сессия может оборваться, и зайти получится только через консоль провайдера.
 
 ### Результат
 

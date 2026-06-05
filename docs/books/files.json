@@ -134,6 +134,14 @@
             {
                 "file": "chapter-09.md",
                 "title": "Глава 9: Итоговый проект"
+            },
+            {
+                "file": "chapter-10.md",
+                "title": "Глава 10: Nginx Proxy Manager — веб-интерфейс для обратного прокси"
+            },
+            {
+                "file": "glossary.md",
+                "title": "Глоссарий терминов"
             }
         ],
         "03-docker-devops": [

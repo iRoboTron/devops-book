@@ -57,6 +57,26 @@ domain.ru {
 5. Обновляет сертификат до истечения (за 30 дней)
 ```
 
+То же самое как последовательность шагов при старте Caddy:
+
+```mermaid
+sequenceDiagram
+    participant Cf as Caddyfile
+    participant Cd as Caddy
+    participant LE as Let's Encrypt (ACME)
+    participant Cl as Браузер
+
+    Cf->>Cd: domain.ru { reverse_proxy ... }
+    Cd->>LE: запрос сертификата (ACME)
+    LE->>Cd: GET http://domain.ru/.well-known/...
+    Cd-->>LE: ответ на challenge (порт 80)
+    Note over LE,Cd: проверка пройдена
+    LE-->>Cd: сертификат (90 дней)
+    Cd->>Cd: включает HTTPS :443 + редирект :80→:443
+    Cl->>Cd: HTTPS-запрос
+    Cd-->>Cl: ответ от бэкенда
+```
+
 > **Запомни:** Для этого нужен открытый порт 80 — Caddy делает ACME challenge так же как certbot. Если порт 80 закрыт в ufw, сертификат не получится.
 
 ---
@@ -185,6 +205,19 @@ services:
 ```
 
 С `network_mode: host` контейнер использует сетевой стек хоста напрямую — порты 80 и 443 открываются без лишних прослоек. Это важно: при проброске портов (`ports: "80:80"`) Docker обходит ufw через iptables, что может создать неожиданные дыры в безопасности.
+
+```mermaid
+flowchart LR
+    I["Интернет\n:80 :443"] --> H["Хост\n(сетевой стек)"]
+    H --> Cd["Caddy\nnetwork_mode: host"]
+    Cd --> A1["app1\n127.0.0.1:8000"]
+    Cd --> A2["app2\n127.0.0.1:3000"]
+    Cd --> St["статика\n/srv"]
+
+    style I fill:#2d2d2d,color:#fff
+    style H fill:#1a5276,color:#fff
+    style Cd fill:#1e8449,color:#fff
+```
 
 > **Совет:** `network_mode: host` работает только на Linux. На Mac и Windows используй `ports:`.
 

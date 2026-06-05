@@ -35,6 +35,27 @@
 [ DNS ] — domain.ru → IP твоего сервера
 ```
 
+Та же архитектура в виде диаграммы — видно как запрос проходит сверху вниз через каждый слой:
+
+```mermaid
+flowchart TD
+    user["Браузер пользователя"]
+    ufw["ufw\n(открыты 22/80/443)"]
+    nginx["Nginx\nReverse Proxy + SSL"]
+    app["Python-приложение\nsystemd, 127.0.0.1:8000"]
+    logs[("/var/log/myapp/")]
+
+    user -->|"HTTPS 443"| ufw
+    ufw --> nginx
+    nginx -->|"HTTP 8000\n(только локально)"| app
+    app --> logs
+
+    style user fill:#2d2d2d,color:#fff
+    style ufw fill:#6e2f1a,color:#fff
+    style nginx fill:#1a5276,color:#fff
+    style app fill:#1e8449,color:#fff
+```
+
 **Каждая глава — один кирпич этой архитектуры:**
 
 | Глава | Что добавляешь |
@@ -93,6 +114,26 @@
 
 6. Браузер расшифровывает
    → Показывает страницу пользователю
+```
+
+Те же шаги как обмен сообщениями между участниками:
+
+```mermaid
+sequenceDiagram
+    participant B as Браузер
+    participant D as DNS
+    participant N as Nginx (443)
+    participant P as Python (8000)
+
+    B->>D: Какой IP у myapp.ru?
+    D-->>B: 203.0.113.50
+    B->>N: HTTPS GET / (TLS)
+    Note over N: расшифровка TLS
+    N->>P: HTTP GET / (127.0.0.1:8000)
+    P-->>N: HTML-страница
+    Note over N: шифрование TLS
+    N-->>B: HTTPS-ответ
+    Note over B: показ страницы
 ```
 
 > **Запомни:** Каждый шаг — отдельный компонент.

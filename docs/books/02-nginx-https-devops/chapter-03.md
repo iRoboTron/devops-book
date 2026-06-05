@@ -158,6 +158,28 @@ nginx.conf (глобально)
               └── location {} (один путь на сайте)
 ```
 
+Вложенность блоков наглядно:
+
+```mermaid
+flowchart TD
+    conf["nginx.conf\n(глобальные настройки)"]
+    http["http { }\nнастройки для всех сайтов"]
+    s1["server { }\nmyapp.ru"]
+    s2["server { }\nanother.ru"]
+    l1["location / { }"]
+    l2["location /api/ { }"]
+
+    conf --> http
+    http --> s1
+    http --> s2
+    s1 --> l1
+    s1 --> l2
+
+    style conf fill:#2d2d2d,color:#fff
+    style http fill:#1a5276,color:#fff
+    style s1 fill:#1e8449,color:#fff
+```
+
 > **Запомни:** `nginx.conf` обычно не трогаешь.
 > Все свои конфиги кладёшь в `sites-available/`.
 
@@ -358,6 +380,28 @@ curl http://myapp.local
 ```
 
 Должен вернуть HTML твоей страницы.
+
+Безопасный цикл изменения конфига — проверка обязательна перед перезагрузкой:
+
+```mermaid
+flowchart LR
+    edit["Правка конфига\n(nano)"]
+    test{"nginx -t\nсинтаксис ок?"}
+    fix["Исправить\nпо строке из ошибки"]
+    reload(["systemctl reload nginx"])
+    live["Сайт обновлён"]
+
+    edit --> test
+    test -->|нет| fix
+    fix --> test
+    test -->|да| reload --> live
+
+    style edit fill:#2d2d2d,color:#fff
+    style test fill:#7d6608,color:#fff
+    style fix fill:#6e2f1a,color:#fff
+    style reload fill:#1a5276,color:#fff
+    style live fill:#1e8449,color:#fff
+```
 
 ---
 

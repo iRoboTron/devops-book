@@ -70,6 +70,22 @@
          Nginx → Браузер
 ```
 
+Тот же проброс как обмен сообщениями:
+
+```mermaid
+sequenceDiagram
+    participant B as Браузер
+    participant N as Nginx :80
+    participant P as Python :8000
+
+    B->>N: GET /users\nHost: myapp.ru
+    Note over N: location / → proxy_pass
+    N->>P: GET /users\n+ X-Real-IP, X-Forwarded-*
+    P-->>N: {"users": [...]}
+    N-->>B: {"users": [...]}
+    Note over B,P: Python не знает про браузер напрямую
+```
+
 > **Запомни:** Браузер думает что общается с Nginx.
 > Nginx общается с Python. Python не знает про браузер.
 
@@ -164,6 +180,26 @@ server {
     # 3. Потом регулярки (~)
     location ~ \.php$ { ... }
 }
+```
+
+Как Nginx выбирает `location` для входящего URL:
+
+```mermaid
+flowchart TD
+    req["Входящий URL"]
+    req --> exact{"Точное\n= /path?"}
+    exact -->|совпало| useexact["Берём этот location\n(поиск завершён)"]
+    exact -->|нет| prefix{"Префикс\nсамый длинный?"}
+    prefix -->|совпало| usepref["Запоминаем\nсамый длинный префикс"]
+    prefix --> regex{"Регулярка ~ ?"}
+    usepref --> regex
+    regex -->|совпало| useregex["Берём регулярку"]
+    regex -->|нет| usepref2["Берём запомненный префикс\n(часто location /)"]
+
+    style exact fill:#7d6608,color:#fff
+    style useexact fill:#1e8449,color:#fff
+    style useregex fill:#1e8449,color:#fff
+    style usepref2 fill:#1a5276,color:#fff
 ```
 
 > **Запомни:** `location /` — это catch-all.
@@ -345,6 +381,25 @@ server {
 ```
 
 Nginx будет распределять запросы между тремя серверами.
+
+```mermaid
+flowchart LR
+    b["Браузеры"]
+    n["Nginx\nupstream myapp_backend"]
+    s1["Python :8001"]
+    s2["Python :8002"]
+    s3["Python :8003"]
+
+    b --> n
+    n --> s1
+    n --> s2
+    n --> s3
+
+    style n fill:#1a5276,color:#fff
+    style s1 fill:#1e8449,color:#fff
+    style s2 fill:#1e8449,color:#fff
+    style s3 fill:#1e8449,color:#fff
+```
 
 > **Запомни:** `upstream` — для когда вырастешь.
 > Сейчас используй один сервер на `127.0.0.1:8000`.

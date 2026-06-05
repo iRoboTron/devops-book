@@ -85,6 +85,23 @@ Caddy остаётся альтернативой в конце главы, но
 [ monitor.sh ] — проверка что всё живо
 ```
 
+Та же архитектура как схема компонентов:
+
+```mermaid
+flowchart TD
+    U["Браузер"] -->|"HTTPS :443"| F["ufw\nоткрыты 22, 80, 443"]
+    F --> N["Nginx\n:80 → редирект на :443\n:443 → SSL + proxy_pass"]
+    N -->|"HTTP 127.0.0.1:8000"| P["Python-приложение\nsystemd: myapp"]
+    P --> L["/var/log/myapp/"]
+    CB["certbot.timer"] -. "автопродление SSL" .-> N
+    M["monitor.sh (cron)"] -. "проверка живости" .-> P
+
+    style U fill:#2d2d2d,color:#fff
+    style F fill:#7d6608,color:#fff
+    style N fill:#1a5276,color:#fff
+    style P fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 9.2 Подготовка с чистой Ubuntu

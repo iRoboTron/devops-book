@@ -57,6 +57,27 @@ DNS — переводчик между человеческими именам�
 7. Ответ идёт обратно: браузер → кэш → IP найден!
 ```
 
+Полная цепочка как обмен сообщениями (когда нигде нет кеша):
+
+```mermaid
+sequenceDiagram
+    participant B as Браузер
+    participant R as Резолвер ISP
+    participant Root as Root-сервер
+    participant TLD as TLD .ru
+    participant A as Авторитативный
+
+    B->>R: myapp.ru?
+    R->>Root: myapp.ru?
+    Root-->>R: спроси TLD .ru
+    R->>TLD: myapp.ru?
+    TLD-->>R: спроси ns1.registrar.ru
+    R->>A: myapp.ru?
+    A-->>R: 203.0.113.50
+    R-->>B: 203.0.113.50
+    Note over R: запомнил на время TTL
+```
+
 > **Запомни:** Первый запрос медленный (все 7 шагов).
 > Последующие — мгновенные (кэш).
 > Когда меняешь DNS — нужно ждать пока кеш обновится (TTL).
@@ -213,6 +234,24 @@ dig myapp.ru +trace
 ```
 
 Если запись есть в `/etc/hosts` — система **не спрашивает** DNS.
+
+Порядок, в котором система ищет ответ — первый источник с записью побеждает:
+
+```mermaid
+flowchart TD
+    q["Нужен IP для myapp.ru"]
+    q --> c{"Кеш браузера/ОС?"}
+    c -->|есть| done["Используем IP"]
+    c -->|нет| h{"/etc/hosts?"}
+    h -->|есть| done
+    h -->|нет| dns["Запрос к DNS-резолверу\n(цепочка из 2.2)"]
+    dns --> done
+
+    style q fill:#2d2d2d,color:#fff
+    style h fill:#7d6608,color:#fff
+    style dns fill:#1a5276,color:#fff
+    style done fill:#1e8449,color:#fff
+```
 
 ### Зачем это DevOps'у
 
