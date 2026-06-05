@@ -51,6 +51,7 @@
 - [**Приложение A: Шпаргалка по GitHub Actions**](appendix-a.md)
 - [**Приложение B: Готовые шаблоны workflow**](appendix-b.md)
 - [**Приложение C: Диагностика пайплайнов**](appendix-c.md)
+- [**Глоссарий**](glossary.md)
 
 ---
 

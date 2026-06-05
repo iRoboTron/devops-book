@@ -27,6 +27,22 @@ CI: собирает образ → публикует в ghcr.io
 > **Запомни:** Реестр = CDN для Docker-образов.
 > Собран один раз — работает одинаково везде.
 
+```mermaid
+flowchart LR
+    ci["CI Runner"] --> build["docker build\n+ кэш слоёв"]
+    build --> login["login ghcr.io\nGITHUB_TOKEN"]
+    login --> push["push образа\n:sha"]
+    push --> reg["ghcr.io\nреестр образов"]
+    reg --> pull["docker pull\n(сервер)"]
+    pull --> run["docker compose up -d"]
+
+    style ci fill:#2d2d2d,color:#fff
+    style build fill:#1a5276,color:#fff
+    style reg fill:#4a235a,color:#fff
+    style pull fill:#1a5276,color:#fff
+    style run fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 6.2 GitHub Container Registry (ghcr.io)
@@ -169,6 +185,22 @@ tags: |
 
 > **Запомни:** Для деплоя используй SHA.
 > Для удобства — ещё и `latest` или имя ветки.
+
+```mermaid
+flowchart TD
+    ev{"Тип события"} --> p["push в main"]
+    ev --> t["push тега v*"]
+    ev --> pr["pull_request"]
+    p --> psha["тег :sha\n+ :main"]
+    t --> tver["теги :1.0.0\n:1.0 :1 :latest"]
+    pr --> prtag["тег :pr-42"]
+    psha --> deploy["для деплоя\nберём :sha"]
+
+    style ev fill:#7d6608,color:#fff
+    style psha fill:#1a5276,color:#fff
+    style tver fill:#4a235a,color:#fff
+    style deploy fill:#1e8449,color:#fff
+```
 
 ---
 

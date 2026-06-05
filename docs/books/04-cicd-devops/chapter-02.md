@@ -16,6 +16,21 @@ git commit → pre-commit hook → если ок → commit
 
 Это как триггеры в базе данных. Действие → автоматически что-то происходит.
 
+```mermaid
+flowchart LR
+    commit["git commit"] --> pre["pre-commit\nхук"]
+    pre --> ok{"exit 0?"}
+    ok -- "да" --> msg["commit-msg\nхук"]
+    msg --> done["Коммит создан"]
+    ok -- "нет (exit 1)" --> abort["Коммит отменён"]
+
+    style commit fill:#2d2d2d,color:#fff
+    style pre fill:#1a5276,color:#fff
+    style ok fill:#7d6608,color:#fff
+    style done fill:#1e8449,color:#fff
+    style abort fill:#6e2f1a,color:#fff
+```
+
 ### Где лежат хуки
 
 ```
@@ -172,6 +187,20 @@ Enumerating objects... done.
                               cd /opt/myapp && git pull
                               docker compose build
                               docker compose up -d
+```
+
+```mermaid
+sequenceDiagram
+    participant Dev as Локальная машина
+    participant Bare as Bare repo /opt/myapp.git
+    participant Hook as post-receive
+    participant App as /opt/myapp
+    Dev->>Bare: git push server main
+    Bare->>Hook: запуск после получения
+    Hook->>App: cd /opt/myapp && git pull
+    Hook->>App: docker compose build
+    Hook->>App: docker compose up -d
+    App-->>Dev: ✅ Deploy complete
 ```
 
 ### Настройка

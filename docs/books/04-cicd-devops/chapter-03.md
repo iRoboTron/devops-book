@@ -36,6 +36,24 @@
             └── Step 2: docker build
 ```
 
+```mermaid
+flowchart TD
+    wf["Workflow\nci.yml"] --> ev["Event: push"]
+    wf --> jobs["jobs"]
+    jobs --> test["Job: test"]
+    jobs --> build["Job: build"]
+    test --> s1["Step: checkout"]
+    test --> s2["Step: setup-python"]
+    test --> s3["Step: pytest"]
+    build --> s4["Step: checkout"]
+    build --> s5["Step: docker build"]
+
+    style wf fill:#2d2d2d,color:#fff
+    style ev fill:#7d6608,color:#fff
+    style test fill:#1a5276,color:#fff
+    style build fill:#1a5276,color:#fff
+```
+
 ---
 
 ## 3.2 Файл workflow
@@ -218,6 +236,24 @@ test → build → deploy
 > С `needs:` — последовательны.
 > Если job упал — следующие не запускаются.
 
+```mermaid
+flowchart LR
+    subgraph par["Без needs: — параллельно"]
+        p["push"] --> l["lint"]
+        p --> t["test"]
+        p --> b["build"]
+    end
+    subgraph seq["С needs: — последовательно"]
+        ps["push"] --> ts["test"]
+        ts -- "needs: test" --> bs["build"]
+        bs -- "needs: build" --> ds["deploy"]
+    end
+
+    style p fill:#2d2d2d,color:#fff
+    style ps fill:#2d2d2d,color:#fff
+    style ds fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 3.6 Runner: где выполняется
@@ -349,13 +385,19 @@ on:
 [![CI](https://github.com/user/repo/actions/workflows/ci.yml/badge.svg)](https://github.com/user/repo/actions/workflows/ci.yml)
 ```
 
-Результат в README:
+Результат в README — кликабельная картинка статуса:
 
 ```
-[![CI](https://img.shields.io/github/actions/workflow/status/user/repo/ci.yml?label=CI)](...)
+[ CI 🟢 passing ]   ← ведёт на страницу Actions
 ```
 
 Зелёный бейдж = всё ок. Красный = сломано.
+
+Альтернатива через shields.io (тот же статус, другой стиль):
+
+```markdown
+[![CI](https://img.shields.io/github/actions/workflow/status/user/repo/ci.yml?label=CI)](https://github.com/user/repo/actions/workflows/ci.yml)
+```
 
 ---
 

@@ -171,6 +171,23 @@ Merge заблокирован.
 > **Запомни:** Матрица = параллельные job для каждой комбинации.
 > Можно добавить ещё ОС, версии БД и т.д.
 
+```mermaid
+flowchart LR
+    push["push / PR"] --> matrix["strategy.matrix\npython: 3.11, 3.12"]
+    matrix --> j1["test (3.11)\nparallel"]
+    matrix --> j2["test (3.12)\nparallel"]
+    j1 --> gate{"Все\nзелёные?"}
+    j2 --> gate
+    gate -- "да" --> ok["merge разрешён"]
+    gate -- "нет" --> block["merge заблокирован"]
+
+    style push fill:#2d2d2d,color:#fff
+    style matrix fill:#1a5276,color:#fff
+    style gate fill:#7d6608,color:#fff
+    style ok fill:#1e8449,color:#fff
+    style block fill:#6e2f1a,color:#fff
+```
+
 ---
 
 ## 4.5 Кэш зависимостей: `actions/cache`

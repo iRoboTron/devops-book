@@ -16,6 +16,24 @@ git push → Тесты → Docker build → ghcr.io → Deploy → Health check
  Разработчик  pytest   образ готов   сервер обновлён
 ```
 
+```mermaid
+flowchart LR
+    push["git push main"] --> test["Тесты\npytest matrix"]
+    test --> build["docker build\n+ push"]
+    build --> reg["ghcr.io\n:sha"]
+    reg --> deploy["SSH deploy\npull + up -d"]
+    deploy --> hc{"health\ncheck?"}
+    hc -- "ок" --> ok["Сервер обновлён"]
+    hc -- "fail" --> rb["Rollback\n.prev_tag"]
+
+    style push fill:#2d2d2d,color:#fff
+    style test fill:#1a5276,color:#fff
+    style reg fill:#4a235a,color:#fff
+    style hc fill:#7d6608,color:#fff
+    style ok fill:#1e8449,color:#fff
+    style rb fill:#6e2f1a,color:#fff
+```
+
 **Требования:**
 - ✅ GitHub репозиторий с защищённой веткой `main`
 - ✅ Workflow `ci.yml`: тесты на каждый push/PR

@@ -252,6 +252,22 @@ Deploy production
 > **Совет:** Используй Environments когда есть staging и production.
 > Для одного сервера — не нужно.
 
+```mermaid
+flowchart LR
+    build["build-and-push"] --> stg["deploy-staging\nenvironment: staging"]
+    stg --> prod{"environment:\nproduction"}
+    prod -- "Required reviewers" --> wait["⏳ Waiting\nfor approval"]
+    wait --> approve{"Approve?"}
+    approve -- "да" --> deploy["Деплой в production"]
+    approve -- "Reject" --> stop["Остановлено"]
+
+    style build fill:#1a5276,color:#fff
+    style stg fill:#1e8449,color:#fff
+    style wait fill:#7d6608,color:#fff
+    style deploy fill:#1e8449,color:#fff
+    style stop fill:#6e2f1a,color:#fff
+```
+
 ---
 
 ## 📝 Упражнения

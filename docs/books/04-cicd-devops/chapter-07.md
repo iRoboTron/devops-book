@@ -215,11 +215,27 @@ jobs:
 ```
 push в main
     │
-    ├── test ──────────────────────▶ ✅
-    │                                   │
-    ├── build-and-push ────────────▶ ✅  │ (ждёт test)
-    │                                   │
-    └── deploy ────────────────────▶ ✅  │ (ждёт build-and-push)
+    ▼
+  test ──✅──▶ build-and-push ──✅──▶ deploy ──✅
+              (needs: test)      (needs: build-and-push)
+```
+
+```mermaid
+sequenceDiagram
+    participant Dev as Разработчик
+    participant Test as test
+    participant Build as build-and-push
+    participant Reg as ghcr.io
+    participant Dep as deploy
+    participant Srv as Сервер
+    Dev->>Test: push в main
+    Test->>Test: pytest ✅
+    Test->>Build: needs: test
+    Build->>Reg: docker build + push :sha
+    Build->>Dep: needs: build-and-push
+    Dep->>Srv: ssh: pull + up -d
+    Srv->>Reg: docker compose pull app
+    Srv-->>Dev: ✅ задеплоено
 ```
 
 > **Запомни:** `needs:` гарантирует порядок.

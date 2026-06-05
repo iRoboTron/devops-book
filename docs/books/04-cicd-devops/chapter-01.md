@@ -59,6 +59,22 @@ Git Flow сложнее: `develop`, `release`, `hotfix`, `main`.
 
 GitHub Flow = достаточно для 90% команд.
 
+```mermaid
+flowchart LR
+    m1["main\n(продакшн)"] --> branch["feature/login\nот main"]
+    branch --> work["разработка\nкоммиты"]
+    work --> pr["Pull Request"]
+    pr --> ci{"CI\nтесты прошли?"}
+    ci -- "нет" --> work
+    ci -- "да" --> merge["merge в main"]
+    merge --> deploy["автодеплой\nmain → сервер"]
+
+    style m1 fill:#2d2d2d,color:#fff
+    style ci fill:#7d6608,color:#fff
+    style merge fill:#1a5276,color:#fff
+    style deploy fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 1.3 Работа с ветками
@@ -168,7 +184,7 @@ git push -u origin feature/login
 PR #42: Add login form
 ├── Файлы которые изменились
 ├── Diff (что добавлено/удалено)
-├── CI检查结果  ← GitHub Actions запустил тесты!
+├── Результаты CI  ← GitHub Actions запустил тесты!
 ├── Код-ревью от коллеги
 └── [Merge Pull Request] кнопка
 ```
@@ -231,6 +247,22 @@ git push origin main
 
 > **Запомни:** Защита main — must have для CI/CD.
 > Без неё кто-то (или ты) запушит баг напрямую.
+
+```mermaid
+flowchart TD
+    push["Попытка обновить main"] --> direct{"Прямой push\nили через PR?"}
+    direct -- "прямой push" --> block["Заблокировано\nProtected branch"]
+    direct -- "через PR" --> checks{"Status checks\nпрошли?"}
+    checks -- "нет" --> wait["Merge заблокирован\nчини тесты"]
+    checks -- "да" --> review{"Code review\nодобрен?"}
+    review -- "нет" --> wait
+    review -- "да" --> merge["Merge в main\n→ деплой"]
+
+    style push fill:#2d2d2d,color:#fff
+    style block fill:#6e2f1a,color:#fff
+    style wait fill:#7d6608,color:#fff
+    style merge fill:#1e8449,color:#fff
+```
 
 ---
 

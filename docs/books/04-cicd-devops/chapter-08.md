@@ -207,6 +207,24 @@ Push → CI → деплой
 
 CI покажет ❌ но сайт продолжает работать на старой версии.
 
+```mermaid
+flowchart TD
+    start["push в main"] --> save["Сохранить текущий тег\n→ .prev_tag"]
+    save --> deploy["Деплой нового\nIMAGE_TAG=sha"]
+    deploy --> health{"curl /health\nуспех?"}
+    health -- "да" --> ok["✅ Deploy successful"]
+    health -- "нет" --> rb["Откат:\nIMAGE_TAG=.prev_tag"]
+    rb --> up["up -d --no-deps app"]
+    up --> done["🔄 Rolled back\nсайт работает (старая версия)"]
+
+    style start fill:#2d2d2d,color:#fff
+    style deploy fill:#1a5276,color:#fff
+    style health fill:#7d6608,color:#fff
+    style ok fill:#1e8449,color:#fff
+    style rb fill:#6e2f1a,color:#fff
+    style done fill:#1e8449,color:#fff
+```
+
 > **Запомни:** Rollback = страховка.
 > Лучше иметь и не использовать, чем necesitar и не иметь.
 
@@ -237,6 +255,23 @@ CI покажет ❌ но сайт продолжает работать на �
 
 > **Запомни:** Blue-green — для серьёзных продакшн проектов.
 > Для обучения достаточно rolling update + rollback.
+
+```mermaid
+flowchart LR
+    net["Интернет"] --> nginx["Nginx\n(переключатель)"]
+    nginx -- "трафик сейчас" --> blue["Blue v1.0\nработает"]
+    nginx -. "standby" .-> green["Green v2.0\nразвёрнут, тестируем"]
+    green --> check{"v2.0\nок?"}
+    check -- "да" --> switch["Nginx → Green"]
+    check -- "нет" --> keep["Остаёмся на Blue"]
+
+    style net fill:#2d2d2d,color:#fff
+    style nginx fill:#1a5276,color:#fff
+    style blue fill:#1e8449,color:#fff
+    style green fill:#7d6608,color:#fff
+    style switch fill:#1e8449,color:#fff
+    style keep fill:#6e2f1a,color:#fff
+```
 
 ---
 

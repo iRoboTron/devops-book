@@ -94,6 +94,24 @@ docker compose up -d    ← сломанное приложение в прод�
 
 **Каждый раз одинаково.** Без забывчивости. Без ошибок "забыл шаг".
 
+```mermaid
+flowchart LR
+    push["git push\n(разработчик)"] --> ci["CI/CD конвейер"]
+    ci --> code["1. Забрать код"]
+    code --> test["2. Запустить тесты"]
+    test --> build["3. Собрать образ"]
+    build --> reg["4. Опубликовать\nв реестр"]
+    reg --> deploy["5. Деплой\nна сервер"]
+    deploy --> check["6. Health check"]
+    check --> ok["Сервер обновлён"]
+
+    style push fill:#2d2d2d,color:#fff
+    style test fill:#1a5276,color:#fff
+    style build fill:#1a5276,color:#fff
+    style deploy fill:#1e8449,color:#fff
+    style ok fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 0.3 CI и CD — в чём разница
@@ -131,6 +149,24 @@ Push → [CI: тесты] → [CD: сборка] → [CD: деплой]
 ```
 
 В этой книге мы строим **Continuous Deployment** — полный автопилот.
+
+```mermaid
+flowchart LR
+    push["git push"] --> ci["CI: тесты"]
+    ci --> cd["CD: сборка образа"]
+    cd --> delivery["Continuous Delivery\nготово → нажми кнопку"]
+    cd --> deployment["Continuous Deployment\nдеплой автоматически"]
+    delivery --> manual["Ручной\nApprove"]
+    manual --> srv["Сервер"]
+    deployment --> srv
+
+    style push fill:#2d2d2d,color:#fff
+    style ci fill:#1a5276,color:#fff
+    style cd fill:#1a5276,color:#fff
+    style manual fill:#7d6608,color:#fff
+    style deployment fill:#1e8449,color:#fff
+    style srv fill:#1e8449,color:#fff
+```
 
 ---
 
@@ -179,6 +215,22 @@ Push → [CI: тесты] → [CD: сборка] → [CD: деплой]
     │                      │                           │
     │◄─────────────────────────────────────────────────│
     │  Сайт обновлён!                                  │
+```
+
+```mermaid
+sequenceDiagram
+    participant Dev as Разработчик
+    participant GH as GitHub Actions
+    participant Reg as ghcr.io
+    participant Srv as Сервер
+    Dev->>GH: git push main
+    Note over GH: Событие: push в main
+    GH->>GH: Job 1 — pytest ✅
+    GH->>Reg: Job 2 — docker build + push ✅
+    GH->>Srv: Job 3 — деплой по SSH
+    Srv->>Reg: docker pull
+    Srv->>Srv: docker compose up -d
+    Srv-->>Dev: Сайт обновлён!
 ```
 
 ### Ключевые понятия
