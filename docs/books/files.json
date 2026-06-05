@@ -658,6 +658,10 @@
             {
                 "file": "chapter-07.md",
                 "title": "Глава 7: LogQL — поиск по логам"
+            },
+            {
+                "file": "glossary.md",
+                "title": "Глоссарий терминов"
             }
         ],
         "13-gitops-devops": [

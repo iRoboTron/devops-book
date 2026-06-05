@@ -58,6 +58,33 @@ kubectl describe pod            # нет истории
 - Какой % ошибок?
 - Когда начались проблемы?
 
+Наглядно: одиночные `kubectl`-команды дают только снимок «сейчас», а вопросы о тренде и истории остаются без ответа.
+
+```mermaid
+flowchart TD
+    app["Сломанный сервис\n(leak + slow + 5xx)"]
+    k1["kubectl logs\n(тысячи строк)"]
+    k2["kubectl top\n(только сейчас)"]
+    k3["kubectl describe\n(нет истории)"]
+    q1["Растёт ли память?"]
+    q2["Какой % ошибок?"]
+    q3["Когда началось?"]
+
+    app --> k1 --> q1
+    app --> k2 --> q2
+    app --> k3 --> q3
+
+    q1 --> blind["Ответа нет —\nмы слепы"]
+    q2 --> blind
+    q3 --> blind
+
+    style app fill:#6e2f1a,color:#fff
+    style blind fill:#6e2f1a,color:#fff
+    style q1 fill:#7d6608,color:#fff
+    style q2 fill:#7d6608,color:#fff
+    style q3 fill:#7d6608,color:#fff
+```
+
 **Вывод:** нужна система которая сама всё видит.
 
 ---

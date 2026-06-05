@@ -12,6 +12,28 @@ Prometheus → /metrics приложения
 
 Если /metrics не отвечает — Prometheus знает что сервис упал.
 
+В отличие от push-модели, здесь инициатор всегда Prometheus: он сам ходит к таргетам по расписанию (scrape interval) и сам фиксирует недоступность.
+
+```mermaid
+sequenceDiagram
+    participant P as Prometheus
+    participant T as Target /metrics
+    participant DB as TSDB
+
+    loop каждые 15s (scrape interval)
+        P->>T: GET /metrics
+        alt сервис жив
+            T-->>P: 200 + текст метрик
+            P->>DB: записать sample (up=1)
+        else сервис недоступен
+            T--xP: timeout / ошибка
+            P->>DB: записать up=0
+        end
+    end
+```
+
+Сама недоступность таргета — это уже метрика `up=0`, по которой можно построить алерт.
+
 ---
 
 ## 1.2 Установка
@@ -28,6 +50,34 @@ helm install monitoring prometheus-community/kube-prometheus-stack \
 - Alertmanager (алерты)
 - Node Exporter (метрики нод)
 - kube-state-metrics (метрики K8s)
+
+Как эти компоненты связаны: экспортеры и приложения отдают метрики, Prometheus их скрейпит и хранит, Grafana визуализирует, Alertmanager рассылает уведомления.
+
+```mermaid
+flowchart LR
+    subgraph "Источники метрик"
+        ne["node_exporter\n:9100/metrics"]
+        ksm["kube-state-metrics\n(объекты K8s)"]
+        app["Ваше приложение\n/metrics"]
+    end
+
+    prom["Prometheus\n(scrape + TSDB)"]
+    graf["Grafana\n(дашборды)"]
+    am["Alertmanager\n(маршрутизация)"]
+    chan["Telegram / Email"]
+
+    ne -->|pull| prom
+    ksm -->|pull| prom
+    app -->|pull| prom
+    prom -->|PromQL| graf
+    prom -->|firing alerts| am
+    am --> chan
+
+    style prom fill:#1a5276,color:#fff
+    style graf fill:#1e8449,color:#fff
+    style am fill:#6e2f1a,color:#fff
+    style chan fill:#4a235a,color:#fff
+```
 
 ---
 

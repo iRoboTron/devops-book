@@ -59,6 +59,29 @@ spec:
 
 Prometheus автоматически начнёт скрейпить /metrics.
 
+Связь через labels: `ServiceMonitor` по `matchLabels` находит нужный `Service`, оператор превращает это в scrape-конфиг, и Prometheus добавляет под этим Service в список таргетов.
+
+```mermaid
+flowchart TD
+    pod["Pod приложения\nexpose /metrics"]
+    svc["Service myapp\nlabels: app=myapp"]
+    sm["ServiceMonitor\nselector: app=myapp"]
+    op["Prometheus Operator"]
+    prom["Prometheus\nновый target"]
+
+    pod --> svc
+    sm -->|matchLabels| svc
+    sm --> op
+    op -->|генерирует scrape config| prom
+    svc -->|/metrics| prom
+
+    style svc fill:#1a5276,color:#fff
+    style sm fill:#4a235a,color:#fff
+    style prom fill:#1e8449,color:#fff
+```
+
+Если labels в `Service` и `selector` в `ServiceMonitor` не совпадают — target не появится (частая причина «Prometheus не видит сервис»).
+
 ---
 
 ## 3.3 RED метрики

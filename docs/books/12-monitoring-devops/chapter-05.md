@@ -32,6 +32,29 @@ spec:
         description: "Memory > 500MB"
 ```
 
+Алерт не срабатывает мгновенно: пока условие держится меньше `for`, он в состоянии `Pending`; только после выдержки становится `Firing` и уходит в Alertmanager. Это отсекает кратковременные всплески.
+
+```mermaid
+flowchart LR
+    eval["Prometheus\nоценивает expr"]
+    inactive["Inactive\n(условие ложно)"]
+    pending["Pending\n(истинно < for)"]
+    firing["Firing\n(истинно >= for)"]
+    am["Alertmanager"]
+
+    eval --> inactive
+    eval --> pending
+    pending -->|выдержка for прошла| firing
+    pending -->|условие пропало| inactive
+    firing -->|условие пропало| inactive
+    firing --> am
+
+    style inactive fill:#1e8449,color:#fff
+    style pending fill:#7d6608,color:#fff
+    style firing fill:#6e2f1a,color:#fff
+    style am fill:#1a5276,color:#fff
+```
+
 ---
 
 ## 5.3 Настройка Telegram в Alertmanager
@@ -67,6 +90,26 @@ alertmanager:
 helm upgrade monitoring prometheus-community/kube-prometheus-stack \
   -f alertmanager-values.yaml -n monitoring
 ```
+
+Внутри Alertmanager firing-алерты не летят в канал по одному: они группируются (`group_by`), ждут `group_wait`, маршрутизируются по `route` к нужному `receiver` и только потом превращаются в сообщение.
+
+```mermaid
+flowchart LR
+    fire["Firing alerts\nот Prometheus"]
+    group["Группировка\ngroup_by: alertname\ngroup_wait: 30s"]
+    route["Route\nпо labels"]
+    recv["Receiver\ntelegram"]
+    tg["Telegram чат"]
+
+    fire --> group --> route --> recv --> tg
+
+    style fire fill:#6e2f1a,color:#fff
+    style route fill:#1a5276,color:#fff
+    style recv fill:#4a235a,color:#fff
+    style tg fill:#1e8449,color:#fff
+```
+
+`repeat_interval` не даёт спамить одним и тем же алертом, а `resolve_timeout` помечает проблему как решённую, когда условие исчезло.
 
 ---
 

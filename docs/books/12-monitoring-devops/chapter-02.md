@@ -74,6 +74,27 @@ histogram_quantile(0.99,
 RED = `Rate + Errors + Duration`.
 Если эти три запроса работают, базовый мониторинг сервиса уже есть.
 
+Из одних и тех же сырых counter/histogram PromQL вычисляет три разных взгляда на здоровье сервиса:
+
+```mermaid
+flowchart LR
+    raw["Сырые метрики\nhttp_requests_total\nhttp_request_duration_seconds_bucket"]
+    r["Rate\nrate(...[5m])"]
+    e["Errors\n5xx / total"]
+    d["Duration\nhistogram_quantile(0.99, ...)"]
+    health["Здоровье сервиса\n(RED)"]
+
+    raw --> r --> health
+    raw --> e --> health
+    raw --> d --> health
+
+    style raw fill:#2d2d2d,color:#fff
+    style r fill:#1a5276,color:#fff
+    style e fill:#6e2f1a,color:#fff
+    style d fill:#7d6608,color:#fff
+    style health fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 📝 Упражнения

@@ -40,6 +40,24 @@ Dashboard Settings → Variables → New:
 
 Без переменной дашборд жёстко привязан к одному namespace. С переменной один и тот же дашборд можно использовать для `dev`, `staging`, `prod`.
 
+Grafana сама не хранит данные — она лишь источник запросов: переменная подставляется в PromQL, запрос уходит в datasource, ответ рисуется на панели.
+
+```mermaid
+flowchart LR
+    var["Variable\n$namespace\n(dropdown)"]
+    panel["Панель\nsum(rate(http_requests_total{namespace=$namespace}[5m]))"]
+    ds["Datasource\nPrometheus"]
+    viz["График / таблица"]
+
+    var --> panel
+    panel -->|PromQL| ds
+    ds -->|time series| viz
+
+    style var fill:#7d6608,color:#fff
+    style ds fill:#1a5276,color:#fff
+    style viz fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 📝 Упражнения

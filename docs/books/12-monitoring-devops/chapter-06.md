@@ -43,6 +43,26 @@ loki-promtail-xxx     1/1   Running
 
 `loki` хранит логи. `promtail` собирает их с Pod и отправляет в Loki.
 
+Конвейер логов зеркалит модель метрик, но push-направление: агент на каждой ноде читает файлы логов контейнеров, добавляет labels (namespace, pod) и шлёт их в Loki, а Grafana запрашивает их обратно.
+
+```mermaid
+flowchart LR
+    pods["Pod'ы\nstdout / stderr"]
+    promtail["Promtail\n(агент на ноде)"]
+    loki["Loki\n(хранилище логов)"]
+    graf["Grafana\nExplore (LogQL)"]
+
+    pods -->|читает файлы логов| promtail
+    promtail -->|push + labels| loki
+    loki -->|LogQL запрос| graf
+
+    style promtail fill:#1a5276,color:#fff
+    style loki fill:#4a235a,color:#fff
+    style graf fill:#1e8449,color:#fff
+```
+
+Важно: Loki индексирует только labels, а не сам текст логов — поэтому он дешёвый по хранилищу, а фильтрация по содержимому (`|= "ERROR"`) идёт по уже отобранным по labels потокам.
+
 Проверить последние логи promtail:
 
 ```bash
