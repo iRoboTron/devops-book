@@ -126,6 +126,34 @@ AllowUsers deploy
 
 Если что-то пошло не так — у тебя ещё есть открытая сессия для исправления.
 
+Главная развилка — НЕ отключать пароли, пока вход по ключу в новой сессии не подтверждён:
+
+```mermaid
+flowchart TD
+    start["Добавить публичный ключ\nв authorized_keys"]
+    newsess["Открыть НОВУЮ сессию SSH"]
+    check{"Вход по ключу\nработает?"}
+    fix["Исправить ключ\nчерез старую сессию"]
+    disable["PasswordAuthentication no\nв sshd_config"]
+    test["sshd -t\n(проверка конфига)"]
+    valid{"Конфиг\nвалиден?"}
+    reload["systemctl reload sshd"]
+    keep["Держать 2-3 сессии\nпока не уверен"]
+
+    start --> newsess --> check
+    check -->|"нет"| fix --> newsess
+    check -->|"да"| disable --> test --> valid
+    valid -->|"ошибка"| fix
+    valid -->|"ок"| reload --> keep
+
+    style start fill:#2d2d2d,color:#fff
+    style check fill:#7d6608,color:#fff
+    style fix fill:#6e2f1a,color:#fff
+    style keep fill:#1e8449,color:#fff
+```
+
+> **Запомни:** `reload`, а не `restart` — `reload` применяет конфиг без обрыва текущих сессий.
+
 ---
 
 ## 1.4 Практика: настраиваем sshd

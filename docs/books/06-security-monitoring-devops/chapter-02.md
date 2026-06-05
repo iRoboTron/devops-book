@@ -25,6 +25,27 @@ fail2ban = автоматический охранник.
                        паттерны        IP
 ```
 
+В деталях это цикл: fail2ban читает новые строки лога, считает совпадения по фильтру за окно `findtime` и, превысив `maxretry`, добавляет правило в iptables на время `bantime`.
+
+```mermaid
+flowchart LR
+    log["/var/log/auth.log\nFailed password from IP"]
+    filter["Фильтр sshd\n(regex по <HOST>)"]
+    count{"≥ maxretry\nза findtime?"}
+    wait["Ждать новые\nстроки лога"]
+    ban["iptables: DROP\nвсе пакеты от IP"]
+    expire["bantime истёк\n→ разбан"]
+
+    log --> filter --> count
+    count -->|"нет"| wait --> log
+    count -->|"да"| ban --> expire
+
+    style log fill:#2d2d2d,color:#fff
+    style count fill:#7d6608,color:#fff
+    style ban fill:#6e2f1a,color:#fff
+    style expire fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 2.2 Установка

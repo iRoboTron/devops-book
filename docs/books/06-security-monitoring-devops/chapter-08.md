@@ -51,6 +51,39 @@
   /opt/myapp/scripts/restore.sh /var/backups/myapp/latest/
 ```
 
+Эти шаги — лестница эскалации: каждый следующий применяешь, только если предыдущий не помог. От самого дешёвого действия (рестарт) к самому тяжёлому (восстановление из бэкапа).
+
+```mermaid
+flowchart TD
+    start["Алерт: приложение\nне отвечает"]
+    ps{"Контейнеры\nUp?"}
+    logs["docker compose logs\n--tail=50"]
+    res{"Ресурсы ок?\nдиск/RAM/CPU"}
+    cleanup["Освободить ресурсы\n(см. сценарий 4)"]
+    restart["docker compose restart app"]
+    ok{"healthcheck\n200?"}
+    down["docker compose down && up -d"]
+    ok2{"healthcheck\n200?"}
+    rollback["restore.sh\nlatest backup"]
+    done["Сервис восстановлен"]
+
+    start --> ps
+    ps -->|"нет"| logs --> restart
+    ps -->|"да"| res
+    res -->|"нет"| cleanup --> restart
+    res -->|"да"| restart
+    restart --> ok
+    ok -->|"да"| done
+    ok -->|"нет"| down --> ok2
+    ok2 -->|"да"| done
+    ok2 -->|"нет"| rollback --> done
+
+    style start fill:#7d6608,color:#fff
+    style res fill:#7d6608,color:#fff
+    style rollback fill:#6e2f1a,color:#fff
+    style done fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 8.3 Сценарий 2: Сервер не отвечает на SSH

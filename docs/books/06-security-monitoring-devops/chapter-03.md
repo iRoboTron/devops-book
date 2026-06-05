@@ -152,6 +152,28 @@ jobs:
 > **Запомни:** `latest` тег = неизвестная версия.
 > Фиксируй теги для предсказуемости.
 
+### Кто за что отвечает
+
+Важно понимать границу: `unattended-upgrades` закрывает уязвимости в пакетах хост-системы, но содержимое контейнеров обновляешь ты сам — автоматика их не трогает.
+
+```mermaid
+flowchart TD
+    host["Хост-система\n(Ubuntu, OpenSSL, ядро)"]
+    uu["unattended-upgrades\nежедневно, авто"]
+    img["Docker-образы\n(python, nginx внутри)"]
+    rebuild["docker compose build --pull\nили CI/CD по расписанию"]
+    secure["Сервер без известных\nуязвимостей"]
+
+    host --> uu --> secure
+    img --> rebuild --> secure
+
+    style host fill:#1a5276,color:#fff
+    style img fill:#1a5276,color:#fff
+    style uu fill:#1e8449,color:#fff
+    style rebuild fill:#7d6608,color:#fff
+    style secure fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 3.5 Сканирование уязвимостей (упоминаю)

@@ -4,6 +4,28 @@
 
 ---
 
+Минимизация поверхности атаки — это повторяющийся цикл: проверить что открыто, убрать лишнее, перепроверить. Каждая итерация уменьшает число точек входа для атакующего.
+
+```mermaid
+flowchart LR
+    audit["Аудит\nss -tlnp, nmap, getent"]
+    review{"Есть лишнее?\n(сервис/порт/юзер)"}
+    reduce["Отключить сервис\nзакрыть порт\nудалить юзера"]
+    lynis["lynis audit system\nHardening Index"]
+    done["Минимальная\nповерхность"]
+
+    audit --> review
+    review -->|"да"| reduce --> audit
+    review -->|"нет"| lynis --> done
+
+    style audit fill:#1a5276,color:#fff
+    style review fill:#7d6608,color:#fff
+    style reduce fill:#6e2f1a,color:#fff
+    style done fill:#1e8449,color:#fff
+```
+
+---
+
 ## 4.1 Аудит запущенных сервисов
 
 ### Что работает

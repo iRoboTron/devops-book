@@ -15,6 +15,26 @@ wc -l /var/log/auth.log
 
 logwatch делает одно: читает все логи, находит главное, присылает дайджест.
 
+```mermaid
+flowchart LR
+    auth["auth.log\n15 000 строк"]
+    syslog["syslog"]
+    nginx["nginx access/error"]
+    lw["logwatch\nпарсит + агрегирует"]
+    digest["Дайджест\nFailed logins, Top IPs,\n404/500, sudo"]
+
+    auth --> lw
+    syslog --> lw
+    nginx --> lw
+    lw --> digest
+
+    style auth fill:#2d2d2d,color:#fff
+    style syslog fill:#2d2d2d,color:#fff
+    style nginx fill:#2d2d2d,color:#fff
+    style lw fill:#1a5276,color:#fff
+    style digest fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 7.2 Установка и запуск
@@ -183,6 +203,36 @@ awk -F'"' '{print $6}' /var/log/nginx/access.log | sort | uniq -c | sort -rn | h
 ```
 
 Пустые User-Agent или `sqlmap`, `nikto` = инструменты хакера.
+
+### Дерево распознавания
+
+По паттерну в логах можно определить тип активности и нужное действие:
+
+```mermaid
+flowchart TD
+    log["Подозрительная\nактивность в логах"]
+    q1{"Один IP, сотни\nFailed password?"}
+    bruteforce["Брутфорс SSH\n→ должен сработать fail2ban"]
+    q2{"Запросы к /.env\n/wp-admin /.git?"}
+    scan["Сканирование уязвимостей\n→ кастомный фильтр или ufw deny"]
+    q3{"User-Agent\nsqlmap / nikto / пусто?"}
+    tool["Инструмент атаки\n→ заблокировать IP"]
+    normal["Похоже на легитимный\nтрафик"]
+
+    log --> q1
+    q1 -->|"да"| bruteforce
+    q1 -->|"нет"| q2
+    q2 -->|"да"| scan
+    q2 -->|"нет"| q3
+    q3 -->|"да"| tool
+    q3 -->|"нет"| normal
+
+    style log fill:#2d2d2d,color:#fff
+    style bruteforce fill:#6e2f1a,color:#fff
+    style scan fill:#6e2f1a,color:#fff
+    style tool fill:#6e2f1a,color:#fff
+    style normal fill:#1e8449,color:#fff
+```
 
 ---
 

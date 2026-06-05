@@ -139,6 +139,29 @@ fi
 sudo chmod +x /usr/local/bin/health-monitor.sh
 ```
 
+Логика скрипта: cron запускает его каждые 5 минут, он прогоняет набор проверок, собирает нарушенные пороги в массив и отправляет ОДНО сообщение в Telegram только если есть что сообщить. Тишина = всё в норме.
+
+```mermaid
+flowchart TD
+    cron["cron: */5 * * * *"]
+    checks["Проверки:\nдиск, RAM, healthcheck,\nконтейнеры, fail2ban"]
+    collect["Собрать нарушенные\nпороги в ALERTS[]"]
+    any{"ALERTS\nне пусто?"}
+    silent["Ничего не слать\n(всё в норме)"]
+    send["send_alert →\nTelegram API"]
+    phone["Сообщение\nна телефоне"]
+
+    cron --> checks --> collect --> any
+    any -->|"нет"| silent
+    any -->|"да"| send --> phone
+
+    style cron fill:#2d2d2d,color:#fff
+    style any fill:#7d6608,color:#fff
+    style silent fill:#1e8449,color:#fff
+    style send fill:#6e2f1a,color:#fff
+    style phone fill:#1a5276,color:#fff
+```
+
 ---
 
 ## 6.6 Cron: каждые 5 минут

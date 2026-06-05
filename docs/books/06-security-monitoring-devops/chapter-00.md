@@ -127,6 +127,50 @@ grep "Failed password" /var/log/auth.log | awk '{print $11}' | sort | uniq -c | 
 
 Каждый слой — это отдельная глава книги.
 
+Эти пять слоёв образуют последовательный фильтр: трафик из интернета проходит сквозь них, и на каждом отсеивается часть угроз.
+
+```mermaid
+flowchart TD
+    net["Интернет\n(боты-сканеры 24/7)"]
+    l1["Слой 1: SSH-ключи\nпароли не работают"]
+    l2["Слой 2: fail2ban\nбан после N попыток"]
+    l3["Слой 3: ufw\nтолько 22, 80, 443"]
+    l4["Слой 4: мониторинг\nты узнаёшь об атаке"]
+    l5["Слой 5: бэкапы\nвосстановление"]
+    safe["Сервер защищён"]
+
+    net --> l1 --> l2 --> l3 --> l4 --> l5 --> safe
+
+    style net fill:#6e2f1a,color:#fff
+    style l2 fill:#7d6608,color:#fff
+    style l4 fill:#7d6608,color:#fff
+    style safe fill:#1e8449,color:#fff
+```
+
+Типичная автоматическая атака почти всегда обрывается на первых двух слоях — именно поэтому они дают наибольший эффект при минимальных усилиях.
+
+```mermaid
+flowchart LR
+    bot["Бот находит\nпорт 22"]
+    try["Пробует\nroot:root, admin:admin"]
+    keys{"Пароли\nвключены?"}
+    next1["Идёт дальше\n(ключи не подобрать)"]
+    f2b{"5 попыток\nза 10 минут?"}
+    ban["fail2ban\nблокирует IP"]
+    in["Доступ получен\n(взлом)"]
+
+    bot --> try --> keys
+    keys -->|"нет"| next1
+    keys -->|"да"| f2b
+    f2b -->|"да"| ban
+    f2b -->|"нет, угадал"| in
+
+    style bot fill:#2d2d2d,color:#fff
+    style next1 fill:#1e8449,color:#fff
+    style ban fill:#1e8449,color:#fff
+    style in fill:#6e2f1a,color:#fff
+```
+
 ---
 
 ## 0.5 План книги

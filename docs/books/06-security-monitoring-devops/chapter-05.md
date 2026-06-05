@@ -86,6 +86,24 @@ ssh -L 19999:localhost:19999 deploy@server-ip
 
 Трафик идёт через зашифрованный SSH-туннель. Никто снаружи не видит.
 
+Схема доступа: Netdata слушает только `localhost` сервера, а твой браузер достаёт его через проброшенный SSH-порт. Снаружи порт 19999 закрыт полностью.
+
+```mermaid
+flowchart LR
+    browser["Браузер\nlocalhost:19999"]
+    tunnel["SSH-туннель\nssh -L 19999:localhost:19999"]
+    nd["Netdata\nbind to = 127.0.0.1:19999"]
+    attacker["Атакующий\nиз интернета"]
+
+    browser --> tunnel --> nd
+    attacker -. "порт 19999 закрыт\nufw + bind to localhost" .-> nd
+
+    style browser fill:#2d2d2d,color:#fff
+    style tunnel fill:#4a235a,color:#fff
+    style nd fill:#1e8449,color:#fff
+    style attacker fill:#6e2f1a,color:#fff
+```
+
 > **Запомни:** Никогда не открывай Netdata наружу.
 > Там все метрики сервера — лакомый кусок для злоумышленника.
 

@@ -382,6 +382,10 @@
             {
                 "file": "chapter-09.md",
                 "title": "Глава 9: Итоговый проект — hardened сервер"
+            },
+            {
+                "file": "glossary.md",
+                "title": "Глоссарий терминов"
             }
         ],
         "07-final-project": [
