@@ -177,6 +177,21 @@
 - **Action:** обновить образ до `nginx:1.27-alpine` где openssl >= 3.0.13. Проверить что trivy больше не находит этот CVE.
 - **Status:** 📅 запланировано на 2026-05-07
 
+Путь любой находки в отчёте — пять обязательных полей от обнаружения до статуса:
+
+```mermaid
+flowchart LR
+    Find["Находка\nинструмент сообщил"] --> Sev["Severity\ncritical/high/medium/low"]
+    Sev --> Proof["Proof\nкоманда + строка отчёта"]
+    Proof --> Action["Action\nчто конкретно делать"]
+    Action --> Status["Status\n✅ / 🔄 / 📅"]
+
+    style Find fill:#2d2d2d,color:#fff
+    style Sev fill:#7d6608,color:#fff
+    style Action fill:#1a5276,color:#fff
+    style Status fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 8.6 Практика

@@ -75,7 +75,7 @@ Total: 87 (UNKNOWN: 0, LOW: 71, MEDIUM: 12, HIGH: 3, CRITICAL: 1)
 
 ```
 openssl CVE-2024-0727 CRITICAL — denial of service via null dereference
-Fixed Version: 3.0.13-1~deb12u2
+Fixed Version: 3.0.13-1~deb12u1
 ```
 
 Шаги:
@@ -157,6 +157,24 @@ Total: 0 (UNKNOWN: 0, LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0)
 | Low | принять к сведению |
 
 Но контекст важен: уязвимый пакет внутри образа может быть недостижим из твоего приложения.
+
+Дерево приоритизации CVE: severity задаёт срочность, но контекст может понизить риск.
+
+```mermaid
+flowchart TD
+    CVE["CVE в образе\nиз вывода trivy"] --> Sev{"Severity?"}
+    Sev -->|"CRITICAL / HIGH"| Fixed{"Есть\nFixed Version?"}
+    Sev -->|"MEDIUM / LOW"| Plan["Планово или\nпринять к сведению"]
+    Fixed -->|"Да"| Update["Обновить образ\nдо fixed version"]
+    Fixed -->|"(not fixed)"| Context{"Вектор достижим\nв runtime?"}
+    Context -->|"Да"| Mitigate["Митигация:\nотключить/изолировать сервис"]
+    Context -->|"Нет"| Accept["Принятый риск\nзадокументировать"]
+
+    style CVE fill:#2d2d2d,color:#fff
+    style Update fill:#1e8449,color:#fff
+    style Mitigate fill:#6e2f1a,color:#fff
+    style Accept fill:#7d6608,color:#fff
+```
 
 ---
 

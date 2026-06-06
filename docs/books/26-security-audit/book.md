@@ -18,6 +18,7 @@
 - [Глава 9: Итоговый проект](chapter-09.md)
 - [Приложение A: Шаблон отчёта](appendix-a.md)
 - [Приложение B: Severity и false positives](appendix-b.md)
+- [**Глоссарий**](glossary.md)
 
 ---
 
@@ -33,4 +34,22 @@ scope
   -> приоритеты
   -> исправления
   -> следующий аудит
+```
+
+Тот же цикл как замкнутый процесс: каждый аудит готовит почву для следующего.
+
+```mermaid
+flowchart LR
+    Scope["Scope\nчто проверяем"] --> Tools["Инструменты\nnmap, testssl,\nnikto, trivy, lynis"]
+    Tools --> Results["Результаты\nфайлы сканов"]
+    Results --> Proof["Доказательства\nкоманда + строка"]
+    Proof --> Prio["Приоритеты\nseverity"]
+    Prio --> Fix["Исправления\ncritical/high"]
+    Fix --> Next["Следующий\nаудит"]
+    Next -.-> Scope
+
+    style Scope fill:#2d2d2d,color:#fff
+    style Tools fill:#1a5276,color:#fff
+    style Prio fill:#7d6608,color:#fff
+    style Fix fill:#1e8449,color:#fff
 ```

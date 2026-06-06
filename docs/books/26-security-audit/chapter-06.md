@@ -68,6 +68,22 @@ Hardening index показывает прогресс. Пример:
 
 Индекс 71 лучше чем 58 — это значит внедрили конкретные меры. Индекс 90+ требует специфических настроек (AppArmor, grsecurity) которые часто нецелесообразны на обычном VPS.
 
+Hardening index — это петля обратной связи: исправил → перезапустил lynis → индекс вырос.
+
+```mermaid
+flowchart LR
+    Run["lynis audit system\nindex = 58"] --> Warn["WARNING / Suggestion\nSSH, firewall, updates"]
+    Warn --> Fix["Исправить\nконкретную меру"]
+    Fix --> Rerun["Перезапустить lynis"]
+    Rerun --> New["Index вырос\n58 → 71"]
+    New -.-> Warn
+
+    style Run fill:#1a5276,color:#fff
+    style Warn fill:#7d6608,color:#fff
+    style Fix fill:#1a5276,color:#fff
+    style New fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 6.3 Сохранение результатов для сравнения

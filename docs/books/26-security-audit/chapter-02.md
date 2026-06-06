@@ -12,6 +12,22 @@
 - слабые шифры не используются;
 - HSTS включён только там, где это осознанно.
 
+Логика проверки протоколов: что должно быть включено, а что отключено.
+
+```mermaid
+flowchart TD
+    Run["testssl.sh\nпроверяет протоколы"] --> Old{"TLS 1.0 / 1.1\nofferred?"}
+    Old -->|"Да"| FixOld["Проблема:\nубрать TLSv1/TLSv1.1\nиз ssl_protocols"]
+    Old -->|"Нет"| New{"TLS 1.2 / 1.3\nofferred?"}
+    New -->|"Нет"| FixNew["Включить\nсовременные протоколы"]
+    New -->|"Да"| Grade["Grade A\nконфиг TLS в порядке"]
+
+    style Run fill:#1a5276,color:#fff
+    style FixOld fill:#6e2f1a,color:#fff
+    style FixNew fill:#7d6608,color:#fff
+    style Grade fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 2.2 testssl.sh

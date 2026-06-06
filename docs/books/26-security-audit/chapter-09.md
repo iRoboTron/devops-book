@@ -19,6 +19,30 @@
 11. Исправить critical/high.
 12. Запланировать следующий аудит.
 
+Те же шаги как сквозной конвейер: сбор данных каждым инструментом сходится в один отчёт.
+
+```mermaid
+flowchart TD
+    Scope["Scope\n+ папка аудита"] --> Collect
+    subgraph Collect["Сбор данных"]
+        Nmap["nmap\nпериметр"]
+        TLS["testssl\nTLS"]
+        Headers["curl\nheaders"]
+        Nikto["nikto\nweb scan"]
+        Trivy["trivy\nDocker CVE"]
+        Lynis["lynis\nOS hardening"]
+        Logs["логи\nSSH/nginx/docker"]
+    end
+    Collect --> Report["Отчёт\nseverity + proof + action"]
+    Report --> Fix["Исправить\ncritical/high"]
+    Fix --> Next["Запланировать\nследующий аудит"]
+
+    style Scope fill:#2d2d2d,color:#fff
+    style Report fill:#1a5276,color:#fff
+    style Fix fill:#1e8449,color:#fff
+    style Next fill:#7d6608,color:#fff
+```
+
 ---
 
 ## 9.2 Сохранение результатов каждого инструмента

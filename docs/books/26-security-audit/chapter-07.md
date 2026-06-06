@@ -177,3 +177,20 @@ docker logs <container> --tail=100
 |---|---|---|---|
 
 Проверка: выводы основаны на строках логов, а не ощущениях.
+
+Как отличить фоновый шум интернета от реального инцидента в логах:
+
+```mermaid
+flowchart TD
+    Event["Событие в логе\n(SSH fail, GET /path...)"] --> Result{"Чем\nзакончилось?"}
+    Result -->|"401/403/404,\nFailed password"| Background["Фоновый шум:\nботы, попытки впустую"]
+    Result -->|"200 + большой ответ,\nAccepted с чужого IP"| Suspect["Подозрительно"]
+    Suspect --> Known{"IP / пользователь\nзнакомый?"}
+    Known -->|"Да (свой рабочий IP)"| OK["Норм:\nэто ты сам"]
+    Known -->|"Нет"| Incident["Расследовать:\nAbuseIPDB, авторизация,\nзакрыть порт"]
+
+    style Event fill:#2d2d2d,color:#fff
+    style Background fill:#1e8449,color:#fff
+    style OK fill:#1e8449,color:#fff
+    style Incident fill:#6e2f1a,color:#fff
+```

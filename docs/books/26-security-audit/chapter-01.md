@@ -141,3 +141,20 @@ nmap -p- <YOUR_SERVER_IP>
 | 3000 | unknown | нет | закрыть |
 
 Проверка: каждый open-порт объяснён.
+
+Дерево решений по каждому open-порту — от находки до действия:
+
+```mermaid
+flowchart TD
+    Port["Порт open\nв выводе nmap"] --> Expected{"Ожидался?"}
+    Expected -->|"Да (22, 80, 443)"| Restrict["Оставить,\nпри необходимости\nограничить по IP"]
+    Expected -->|"Нет (8080, 3000...)"| Who["ss -tlnp\nкакой процесс слушает?"]
+    Who --> Need{"Нужен\nснаружи?"}
+    Need -->|"Нет"| Close["Закрыть: ufw deny\nили bind на localhost"]
+    Need -->|"Да"| Harden["Оставить + проверить\nверсию и TLS/auth"]
+
+    style Port fill:#2d2d2d,color:#fff
+    style Restrict fill:#1e8449,color:#fff
+    style Close fill:#6e2f1a,color:#fff
+    style Harden fill:#7d6608,color:#fff
+```

@@ -183,3 +183,20 @@ nikto -h http://yourdomain.com -timeout 10
 |---|---|---|---|
 
 Проверка: нет реакции "всё горит" только из-за количества строк.
+
+Каждую находку nikto прогоняй через одну воронку: проверь curl-ом, реальна ли она.
+
+```mermaid
+flowchart TD
+    Finding["Находка nikto\n(/admin/, /backup/, header...)"] --> Check["Проверить:\ncurl -I путь"]
+    Check --> Code{"Код ответа?"}
+    Code -->|"404"| FP["False positive\nпути не существует"]
+    Code -->|"301/302 на login"| Auth["Норм: есть авторизация,\nзадокументировать"]
+    Code -->|"403"| Restricted["Норм: доступ закрыт,\nпроверить обход"]
+    Code -->|"200 + листинг/панель"| Real["Реальная проблема\nзакрыть немедленно"]
+
+    style Finding fill:#2d2d2d,color:#fff
+    style FP fill:#1e8449,color:#fff
+    style Auth fill:#1e8449,color:#fff
+    style Real fill:#6e2f1a,color:#fff
+```
