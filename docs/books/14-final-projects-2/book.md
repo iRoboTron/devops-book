@@ -10,6 +10,7 @@
 - [**Проект 2: Микросервисы**](project-2.md)
 - [**Проект 3: Disaster Recovery**](project-3.md)
 - [**Проект 4: Platform Engineering**](project-4.md)
+- [**Глоссарий**](glossary.md)
 
 ---
 
@@ -32,6 +33,26 @@
 | Проект 4 | Продолжение проекта 1: поверх базовой платформы добавляются guardrails и self-service |
 
 Если хочешь проходить проект 2, 3 или 4 отдельно, сначала восстанови состояние проекта 1. Минимум: рабочий K8s-кластер, ArgoCD, monitoring stack, домен/Ingress и infra-репозиторий.
+
+Зависимости между проектами. Проект 1 — фундамент (foundation), остальные три надстраиваются над ним:
+
+```mermaid
+flowchart TD
+    p1["Проект 1\nProduction-кластер с нуля\n(foundation)"]
+    p2["Проект 2\nМикросервисы\nповерх foundation"]
+    p3["Проект 3\nDisaster Recovery\nломает и восстанавливает"]
+    p4["Проект 4\nPlatform Engineering\nguardrails + self-service"]
+
+    p1 --> p2
+    p1 --> p4
+    p1 --> p3
+    p2 -.-> p3
+
+    style p1 fill:#1e8449,color:#fff
+    style p2 fill:#1a5276,color:#fff
+    style p3 fill:#6e2f1a,color:#fff
+    style p4 fill:#4a235a,color:#fff
+```
 
 ### Где сохранять состояние
 

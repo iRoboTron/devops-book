@@ -16,6 +16,40 @@ worker → PostgreSQL (StatefulSet)
 Мониторинг: Prometheus scrapes all 3 services
 ```
 
+Та же топология в виде схемы. Видно, что снаружи доступны только `frontend` и `api`, а `worker`, PostgreSQL и Redis спрятаны внутри кластера:
+
+```mermaid
+flowchart TD
+    net(["Интернет"])
+    ing["Ingress"]
+
+    subgraph prod["namespace prod"]
+        fe["frontend\nstatic, 2 реплики"]
+        api["api\nFastAPI, 3 реплики"]
+        wk["worker"]
+        rds["Redis\nStatefulSet, очередь"]
+        pg["PostgreSQL\nStatefulSet"]
+    end
+
+    prom["Prometheus\nscrape api, worker, frontend"]
+
+    net --> ing
+    ing -->|"/"| fe
+    ing -->|"/api"| api
+    api -->|HTTP| wk
+    wk --> rds
+    wk --> pg
+    prom -.-> api
+    prom -.-> wk
+    prom -.-> fe
+
+    style net fill:#2d2d2d,color:#fff
+    style api fill:#1a5276,color:#fff
+    style wk fill:#1a5276,color:#fff
+    style pg fill:#1e8449,color:#fff
+    style prom fill:#7d6608,color:#fff
+```
+
 ---
 
 ## Стартовая точка
@@ -113,6 +147,24 @@ argocd app list
 # Запрос через api → обработан worker → результат в postgres
 curl -X POST https://myapp.ru/api/task -d '{"data":"test"}'
 kubectl exec -it postgres-0 -- psql -U postgres -c "SELECT * FROM tasks;"
+```
+
+Путь одной задачи через сервисы: `api` кладёт её в очередь Redis, `worker` забирает и пишет результат в PostgreSQL. Очередь развязывает сервисы — если `worker` упал, задачи дождутся его в Redis:
+
+```mermaid
+sequenceDiagram
+    participant U as Клиент
+    participant API as api (FastAPI)
+    participant R as Redis (очередь)
+    participant W as worker
+    participant PG as PostgreSQL
+
+    U->>API: POST /api/task
+    API->>R: enqueue task
+    API-->>U: 202 Accepted
+    W->>R: dequeue task
+    W->>PG: INSERT результат
+    Note over R,W: worker упал → задача ждёт в Redis
 ```
 
 ### Финальный тест

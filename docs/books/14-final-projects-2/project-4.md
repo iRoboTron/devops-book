@@ -18,6 +18,31 @@ GitLab CI → test → build → push image
   самообслуживание
 ```
 
+Self-service-поток в виде схемы. Разработчик пушит код, а дальше платформа сама ведёт сервис до production — внутри guardrails (ResourceQuota, LimitRange, NetworkPolicy, PodSecurity), без участия DevOps:
+
+```mermaid
+flowchart TD
+    dev["Developer\npush code"]
+    ci["GitLab CI\ntest + build + push image\n(template + trivy)"]
+    repo["infra-repo\nvalues.yaml обновлён"]
+    argo["ArgoCD\nApplicationSet"]
+
+    subgraph tenant["namespace tenant (guardrails)"]
+        gr["ResourceQuota + LimitRange\nNetworkPolicy + PodSecurity"]
+        app["новый сервис\nDeployment + Service + Ingress"]
+        mon["ServiceMonitor\n→ Grafana/Loki автоматически"]
+    end
+
+    dev --> ci --> repo --> argo --> app
+    gr -.-> app
+    app --> mon
+
+    style dev fill:#2d2d2d,color:#fff
+    style ci fill:#1a5276,color:#fff
+    style gr fill:#7d6608,color:#fff
+    style app fill:#1e8449,color:#fff
+```
+
 ---
 
 ## Стартовая точка
@@ -173,6 +198,25 @@ include:
 4. Создаёт Application в ArgoCD
 
 Итог: новый сервис в production за < 30 минут
+```
+
+Тот же онбординг как последовательность шагов. Все ручные действия разработчика — слева, дальше платформа доводит сервис до production автоматически:
+
+```mermaid
+sequenceDiagram
+    participant D as Developer
+    participant CI as GitLab CI
+    participant Infra as infra-repo
+    participant Argo as ArgoCD
+    participant K8s as K8s (tenant)
+
+    D->>D: создать репозиторий myservice
+    D->>CI: .gitlab-ci.yml с include (template)
+    CI->>CI: test + build + trivy
+    CI->>Infra: push image + values.yaml
+    Argo->>Infra: ApplicationSet видит сервис
+    Argo->>K8s: deploy в namespace tenant
+    K8s-->>D: сервис в production (<30 мин)
 ```
 
 ```bash

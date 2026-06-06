@@ -13,6 +13,31 @@ RTO < 30 минут, RPO < 5 минут.
 | Потеря PVC | < 10 мин | < 1 мин |
 | Потеря сервера | < 30 мин | < 5 мин |
 
+Четыре сценария по нарастанию тяжести — от перезапуска одного Pod'а до полного пересоздания сервера. Чем правее, тем выше RTO и тем больше слоёв восстановления задействовано:
+
+```mermaid
+flowchart LR
+    s1["Сценарий 1\nPod упал\nRTO < 30 сек"]
+    s2["Сценарий 2\nBroken deploy\nRTO < 3 мин"]
+    s3["Сценарий 3\nПотеря PVC\nRTO < 10 мин"]
+    s4["Сценарий 4\nПотеря сервера\nRTO < 30 мин"]
+
+    m1["Deployment\nперезапускает Pod"]
+    m2["ArgoCD / kubectl\nrollback"]
+    m3["restore из\npg_dump / backup"]
+    m4["Terraform + Ansible\n+ GitOps"]
+
+    s1 --> m1
+    s2 --> m2
+    s3 --> m3
+    s4 --> m4
+
+    style s1 fill:#1e8449,color:#fff
+    style s2 fill:#7d6608,color:#fff
+    style s3 fill:#6e2f1a,color:#fff
+    style s4 fill:#4a235a,color:#fff
+```
+
 ---
 
 ## Стартовая точка
@@ -190,6 +215,25 @@ echo "RTO: $(((END - START) / 60)) минут"
 2. kubectl describe pod postgres-0
 3. kubectl logs postgres-0 --tail=100
 4. kubectl exec -it postgres-0 -- psql -U postgres -c "SELECT 1;"
+```
+
+Восстановление сервера (сценарий 4) — самый длинный путь. Каждый слой поднимает следующий, поэтому критично, чтобы код Terraform/Ansible и бэкапы были актуальны:
+
+```mermaid
+flowchart LR
+    destroy["terraform destroy\nсервер уничтожен"]
+    tf["terraform apply\nVM + сеть + диски"]
+    ans["ansible-playbook\nK8s + ArgoCD"]
+    gitops["ArgoCD sync\nприложение из infra-repo"]
+    restore["restore PostgreSQL\nиз pg_dump / backup"]
+    ok["curl /health\n200 OK"]
+
+    destroy --> tf --> ans --> gitops --> restore --> ok
+
+    style destroy fill:#6e2f1a,color:#fff
+    style tf fill:#1a5276,color:#fff
+    style ans fill:#1a5276,color:#fff
+    style ok fill:#1e8449,color:#fff
 ```
 
 ---

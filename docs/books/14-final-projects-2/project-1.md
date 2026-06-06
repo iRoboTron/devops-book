@@ -22,6 +22,35 @@ Developer → git push → GitHub Actions
         └── Логи всех Pod'ов
 ```
 
+Та же архитектура в виде схемы. Видно, как код проходит путь от `git push` через CI/CD и GitOps до production-кластера и как мониторинг наблюдает за приложением:
+
+```mermaid
+flowchart TD
+    dev["Developer\ngit push"]
+    gha["GitHub Actions\npytest + docker build"]
+    ghcr["ghcr.io\nобраз с тегом"]
+    infra["infra-repo\nобновлён image tag"]
+    argo["ArgoCD\nsync"]
+
+    subgraph k8s["K8s кластер (namespace prod)"]
+        deploy["Deployment\n2 реплики, HPA 2-8"]
+        svc["Service + Ingress\nHTTPS"]
+        db["StatefulSet\nPostgreSQL + PVC"]
+    end
+
+    mon["Prometheus + Grafana + Loki\nRED-метрики, логи, алерты"]
+
+    dev --> gha --> ghcr
+    gha --> infra --> argo --> deploy
+    svc --> deploy --> db
+    deploy --> mon
+
+    style dev fill:#2d2d2d,color:#fff
+    style argo fill:#1a5276,color:#fff
+    style deploy fill:#1e8449,color:#fff
+    style mon fill:#7d6608,color:#fff
+```
+
 ---
 
 ## Стартовая точка
@@ -125,6 +154,27 @@ git push
 # GitHub Actions: зелёный
 # ArgoCD: Synced
 # curl https://myapp.ru/health → 200
+```
+
+Полный CI/CD-цикл во времени — кто кого вызывает от push до живого endpoint'а:
+
+```mermaid
+sequenceDiagram
+    participant Dev as Developer
+    participant GHA as GitHub Actions
+    participant Reg as ghcr.io
+    participant Repo as infra-repo
+    participant Argo as ArgoCD
+    participant K8s as K8s (prod)
+
+    Dev->>GHA: git push
+    GHA->>GHA: pytest
+    GHA->>Reg: docker build + push (tag)
+    GHA->>Repo: bump image tag
+    Argo->>Repo: detect change (poll)
+    Argo->>K8s: sync Deployment
+    K8s->>K8s: rolling update, probes OK
+    K8s-->>Dev: curl /health 200 OK
 ```
 
 ### Финальный тест
