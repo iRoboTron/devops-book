@@ -55,6 +55,34 @@ Internet -> edge -> WAF/CDN -> public zone -> app zone -> data zone
                  -> central logging / IAM / backup services
 ```
 
+Enterprise-схема — это та же defense in depth, но с большим числом независимых слоёв и shared services сбоку. Каждый слой имеет owner и проходит trust boundary к следующему.
+
+```mermaid
+flowchart TD
+    NET["Интернет"] --> EDGE["Edge: WAF / CDN"]
+    EDGE --> PUB["Public zone"]
+    PUB --> APP["App zone"]
+    APP --> DATA["Data zone"]
+    ADM["Admin"] -->|"VPN + PAM"| MGMT["Management zone"]
+    MGMT --> APP
+
+    subgraph SHARED["Shared services"]
+        IAM["IAM / SSO"]
+        LOG["Central logging / SIEM"]
+        BCK["Backup services"]
+    end
+
+    APP -.-> IAM
+    APP -.-> LOG
+    DATA -.-> BCK
+
+    style NET fill:#2d2d2d,color:#fff
+    style EDGE fill:#1a5276,color:#fff
+    style DATA fill:#1e8449,color:#fff
+    style MGMT fill:#4a235a,color:#fff
+    style LOG fill:#7d6608,color:#fff
+```
+
 ---
 
 ## 4.4 Практика
@@ -90,6 +118,26 @@ cat /tmp/enterprise-ideas.txt
 ### Шаг 3: Опиши shared responsibility
 - между платформой, ops и разработкой всегда есть границы ответственности;
 - письменно зафиксируй их для своего контекста.
+
+Zero trust в enterprise означает: доверие не выдаётся по факту нахождения внутри сети, а проверяется на каждом запросе — identity, состояние устройства и политика.
+
+```mermaid
+sequenceDiagram
+    participant U as Пользователь
+    participant P as Policy enforcement
+    participant I as IAM / SSO
+    participant R as Ресурс
+    U->>P: Запрос к сервису
+    P->>I: Проверить identity + MFA
+    I-->>P: Identity подтверждён
+    P->>P: Проверить device posture\nи политику доступа
+    alt Политика разрешает
+        P->>R: Allow (least privilege)
+        R-->>U: Ответ
+    else Политика отклоняет
+        P-->>U: Deny + лог события
+    end
+```
 
 ```bash
 cat > /tmp/shared-responsibility.md <<'EOF'

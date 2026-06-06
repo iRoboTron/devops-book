@@ -57,6 +57,24 @@
 - наблюдаемость и поддержка
 ```
 
+Выбор self-hosted vs managed — это не вопрос моды, а дерево решений по компетенции команды, ops burden и допустимому vendor lock-in.
+
+```mermaid
+flowchart TD
+    START["Новый security-компонент"] --> Q1{"Есть owner\nи навык поддержки?"}
+    Q1 -->|"нет"| MAN["Managed:\nменьше ops burden"]
+    Q1 -->|"да"| Q2{"Критична\nнезависимость\nи контроль данных?"}
+    Q2 -->|"да"| SELF["Self-hosted:\nполный контроль"]
+    Q2 -->|"нет"| Q3{"Lock-in\nи export path\nприемлемы?"}
+    Q3 -->|"да"| MAN
+    Q3 -->|"нет"| SELF
+
+    style START fill:#2d2d2d,color:#fff
+    style SELF fill:#1e8449,color:#fff
+    style MAN fill:#1a5276,color:#fff
+    style Q2 fill:#7d6608,color:#fff
+```
+
 ---
 
 ## 5.4 Практика

@@ -48,6 +48,29 @@
 - понимаешь, какие привычки потом масштабируются в production;
 - можешь описать домашнюю инфраструктуру как набор trust zones.
 
+Разница между flat-сетью и сегментацией — это размер blast radius: в плоской сети компрометация любого устройства открывает путь ко всем. Логические зоны ограничивают распространение.
+
+```mermaid
+flowchart TD
+    subgraph FLAT["Flat: одна зона, большой blast radius"]
+        IOT1["IoT / TV"] --- WS1["Workstation"]
+        WS1 --- SRV1["Сервер"]
+        SRV1 --- MGMT1["Управление"]
+    end
+
+    subgraph SEG["Сегментация: ограниченный blast radius"]
+        ZG["Guest / IoT"] -->|"deny по умолчанию"| ZW["Workstation"]
+        ZW -->|"только нужные порты"| ZS["Servers"]
+        ZM["Management"] -->|"VPN / отдельный path"| ZS
+    end
+
+    style IOT1 fill:#6e2f1a,color:#fff
+    style SRV1 fill:#6e2f1a,color:#fff
+    style ZS fill:#1e8449,color:#fff
+    style ZM fill:#1a5276,color:#fff
+    style ZG fill:#7d6608,color:#fff
+```
+
 ```bash
 virsh list --all 2>/dev/null || true
 ip a

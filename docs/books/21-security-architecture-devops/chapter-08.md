@@ -41,6 +41,32 @@
 - сложность эксплуатации;
 - время восстановления.
 
+Две reference-схемы для одной задачи отличаются числом trust boundaries и operational cost. Вариант A проще и дешевле, вариант B даёт сегментацию и отдельный admin path ценой большей эксплуатационной нагрузки.
+
+```mermaid
+flowchart TD
+    TASK["Задача:\nнебольшой интернет-сервис"]
+    TASK --> A
+    TASK --> B
+
+    subgraph A["Вариант A: один VPS"]
+        A1["cloud + host firewall"] --> A2["reverse proxy"]
+        A2 --> A3["app + db + backup\nна одном узле"]
+    end
+
+    subgraph B["Вариант B: разнесённые роли"]
+        B1["gateway"] --> B2["app server"]
+        B3["VPN для админки"] --> B2
+        B2 --> B4["central logs"]
+    end
+
+    style TASK fill:#2d2d2d,color:#fff
+    style A3 fill:#7d6608,color:#fff
+    style B1 fill:#1a5276,color:#fff
+    style B2 fill:#1e8449,color:#fff
+    style B3 fill:#4a235a,color:#fff
+```
+
 ---
 
 ## 8.3 Практика дорожной карты

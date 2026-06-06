@@ -74,6 +74,23 @@ Security roadmap — это способ выбрать правильную п�
 - WAF перед приложением;
 - advanced threat hunting.
 
+Roadmap строится по зрелости: пока не закрыта база (backup restore, SSH, firewall, secrets hygiene), advanced tooling не имеет смысла. Каждый уровень — фундамент для следующего.
+
+```mermaid
+flowchart TD
+    P1["P1 — база (сейчас):\nbackup restore, SSH hardening,\nfirewall, secrets out of git"]
+    P2["P2 — рост (2-3 мес):\nсегментация, central logs,\ndependency scanning, rate limit"]
+    P3["P3 — зрелость (позже):\nIDS/IPS, SIEM, WAF,\nthreat hunting"]
+    P1 -->|"база закрыта"| P2
+    P2 -->|"процессы устойчивы"| P3
+    SKIP["Advanced tooling\nбез базы"] -.->|"антипаттерн"| P1
+
+    style P1 fill:#1e8449,color:#fff
+    style P2 fill:#1a5276,color:#fff
+    style P3 fill:#7d6608,color:#fff
+    style SKIP fill:#6e2f1a,color:#fff
+```
+
 ---
 
 ## 6.4 Практика

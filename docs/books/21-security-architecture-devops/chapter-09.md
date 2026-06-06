@@ -27,6 +27,23 @@
 - recovery baseline;
 - roadmap развития.
 
+Проект проходит четыре фазы: от описания контекста к выбору controls, затем сравнение с альтернативой и roadmap. Защищённость решения проверяется тем, можно ли восстановить архитектуру с нуля.
+
+```mermaid
+flowchart LR
+    F1["Фаза 1:\nконтекст\n(активы, зоны,\nattack surface)"] --> F2["Фаза 2:\ncontrols\n(P1 зелёные)"]
+    F2 --> F3["Фаза 3:\nсравнить\nальтернативу"]
+    F3 --> F4["Фаза 4:\nroadmap\n30 / 90 / later"]
+    F4 --> DEF{"Defensible?\nвосстановимо\nс нуля?"}
+    DEF -->|"да"| OK["Проект защищён"]
+    DEF -->|"нет"| F2
+
+    style F1 fill:#2d2d2d,color:#fff
+    style F2 fill:#1a5276,color:#fff
+    style F4 fill:#7d6608,color:#fff
+    style OK fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 9.3 Фазы проекта

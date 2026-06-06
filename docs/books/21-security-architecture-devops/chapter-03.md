@@ -54,6 +54,24 @@
                  -> internal services
 ```
 
+Ключевая идея small business — gateway как единая точка входа и разделение зон. Публичные сервисы изолированы в DMZ, управление доступно только через VPN, внутренние системы и backup не видны из интернета.
+
+```mermaid
+flowchart TD
+    NET["Интернет"] --> GW["Gateway / Firewall"]
+    GW -->|"443"| DMZ["DMZ:\npublic apps"]
+    GW -->|"VPN + MFA"| MGMT["Management zone"]
+    DMZ -->|"только нужные потоки"| INT["Internal services"]
+    MGMT --> INT
+    INT --> BCK["Backup zone\n(restore-only)"]
+
+    style NET fill:#2d2d2d,color:#fff
+    style GW fill:#1a5276,color:#fff
+    style MGMT fill:#4a235a,color:#fff
+    style INT fill:#1e8449,color:#fff
+    style BCK fill:#7d6608,color:#fff
+```
+
 ---
 
 ## 3.4 Практика

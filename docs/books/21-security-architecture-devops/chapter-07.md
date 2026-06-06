@@ -116,7 +116,24 @@ cat /tmp/small-scale-enterprise-habits.txt
 | Small biz | pfSense/OPNsense | VPN + MFA | Vault/SOPS | Central logs / SIEM basic |
 | Enterprise | NGFW + WAF | SSO + MFA + PAM | Vault/KMS | SIEM + SOC |
 
-Принцип не меняется: defence in depth остаётся тем же, просто на каждом уровне меняются инструменты и количество владельцев.
+Принцип не меняется: defense in depth остаётся тем же, просто на каждом уровне меняются инструменты и количество владельцев.
+
+Linux-хост перестаёт быть изолированной коробкой, когда подключён к общим процессам организации: identity, logging, patching, backup и inventory. Каждая связь закрывает один организационный gap.
+
+```mermaid
+flowchart LR
+    HOST["Linux-хост\n(управляемый актив)"]
+    HOST --> IAM["Central auth / IAM\n(отзыв доступа)"]
+    HOST --> LOG["Log shipping\n(central logging)"]
+    HOST --> PATCH["Patch cadence\n(vuln management)"]
+    HOST --> INV["Inventory + owner\n(asset record)"]
+    HOST --> BCK["Backup policy\n(restore)"]
+
+    style HOST fill:#1a5276,color:#fff
+    style IAM fill:#1e8449,color:#fff
+    style INV fill:#7d6608,color:#fff
+    style BCK fill:#4a235a,color:#fff
+```
 
 ### Что нужно явно показать
 - какие организационные интеграции нужны Linux-хосту;

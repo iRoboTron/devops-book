@@ -54,6 +54,27 @@
 localhost only: db, redis, admin sockets
 ```
 
+Даже на одном узле есть trust boundary: наружу выставлен только reverse proxy с TLS, а данные и служебные сервисы слушают localhost. Admin-доступ идёт отдельным путём, а не через публичный порт.
+
+```mermaid
+flowchart LR
+    NET["Интернет"] -->|"443 TLS"| RP["nginx\nreverse proxy"]
+    RP -->|"localhost"| APP["app"]
+    APP -->|"localhost"| DB[("db / redis")]
+    ADM["Админ"] -.->|"VPN / SSH key\nотдельный path"| MGMT["admin socket"]
+
+    subgraph TRUST["Доверенная зона: только localhost"]
+        APP
+        DB
+        MGMT
+    end
+
+    style NET fill:#2d2d2d,color:#fff
+    style RP fill:#1a5276,color:#fff
+    style DB fill:#1e8449,color:#fff
+    style ADM fill:#4a235a,color:#fff
+```
+
 ---
 
 ## 2.4 Практика
