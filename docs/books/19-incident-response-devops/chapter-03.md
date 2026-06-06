@@ -113,6 +113,31 @@ sudo journalctl --since "2 hours ago" | grep sudoers
 
 `FAILED` означает, что файл менялся после создания baseline и это нужно отдельно объяснить.
 
+Вся host-level детекция строится на сравнении «нормы» и «сейчас». Сначала снимается baseline, потом текущее состояние, а отличие классифицируется: это deploy, админское действие или аномалия.
+
+```mermaid
+flowchart TD
+    base["Baseline\n(порты, процессы,\nпакеты, хэши)"]
+    now["Текущее состояние\n(тот же снимок)"]
+    diff{"Есть отличие?"}
+    ok["Норма\n→ продолжать мониторинг"]
+    known{"Объяснимо?\ndeploy / sudo / cron"}
+    accept["Обновить baseline\n→ закрыть"]
+    anomaly["Аномалия\n→ triage и расследование"]
+
+    base --> diff
+    now --> diff
+    diff -->|нет| ok
+    diff -->|да| known
+    known -->|да| accept
+    known -->|нет| anomaly
+
+    style base fill:#2d2d2d,color:#fff
+    style accept fill:#1e8449,color:#fff
+    style anomaly fill:#6e2f1a,color:#fff
+    style known fill:#7d6608,color:#fff
+```
+
 ### Что нужно явно показать
 - baseline listening ports и сервисов;
 - журналы sudo, ssh и systemd;

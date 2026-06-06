@@ -44,6 +44,23 @@
 - умеешь связать алерт с логами и состоянием узла;
 - можешь убрать шум из алертинга.
 
+Хороший алерт — это не конец, а начало цепочки реакции: метрика пересекает порог, монитор шлёт уведомление, дежурный получает его и открывает runbook.
+
+```mermaid
+sequenceDiagram
+    participant M as Метрика (exporter)
+    participant P as Prometheus / монитор
+    participant A as Alertmanager
+    participant E as On-call инженер
+
+    M->>P: scrape: 5xx rate, auth failures, disk
+    P->>P: expr пересёк threshold (for: 5m)
+    P->>A: firing alert + контекст (хост, сервис)
+    A->>E: уведомление (Telegram / PagerDuty)
+    E->>E: открыть runbook алерта
+    E->>P: проверить дашборд и связанные логи
+```
+
 ```bash
 free -h
 df -h

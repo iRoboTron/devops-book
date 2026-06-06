@@ -44,6 +44,28 @@ Triage — это не глубокая экспертиза, а дисципл�
 - знаешь, какие команды полезны в первые минуты;
 - можешь отделить подтвержденный факт от гипотезы.
 
+Дисциплина первых минут: зафиксировать время, снять снимок состояния, определить scope — и только потом решать про containment. Починка идёт последней, чтобы не уничтожить следы.
+
+```mermaid
+flowchart LR
+    signal["Сигнал\n(alert / жалоба)"]
+    time["Зафиксировать время\nи affected scope"]
+    snap["Снять снимок:\nps, ss, journalctl, df"]
+    facts["Разделить\nфакты и гипотезы"]
+    decide{"Нужен\ncontainment\nсейчас?"}
+    contain["Изолировать\n(сохранив доступ)"]
+    cont["Продолжить\nрасследование"]
+
+    signal --> time --> snap --> facts --> decide
+    decide -->|да| contain
+    decide -->|нет| cont
+
+    style signal fill:#6e2f1a,color:#fff
+    style snap fill:#7d6608,color:#fff
+    style decide fill:#1a5276,color:#fff
+    style contain fill:#1a5276,color:#fff
+```
+
 ```bash
 date -Is
 hostnamectl
@@ -112,6 +134,30 @@ sudo iptables -A OUTPUT -d YOUR_ADMIN_IP -j ACCEPT
 ```
 
 Сначала всегда разрешай свой IP, иначе потеряешь SSH-доступ.
+
+Главный конфликт triage — сохранить улики против остановить распространение. Решение зависит от того, растёт ли impact и успел ли ты собрать артефакты.
+
+```mermaid
+flowchart TD
+    start["Подтверждён инцидент"]
+    public{"Затронут\nпубличный сервис?\nimpact растёт?"}
+    saved{"Артефакты\nуже сохранены?"}
+    collect["Быстро снять\nволатильные данные\n(ps, ss, netstat)"]
+    isolate["Изолировать сервис/хост\nдоступ админа оставить"]
+    monitor["Не трогать,\nнаблюдать,\nсобирать улики"]
+    note["Записать решение\nи причину"]
+
+    start --> public
+    public -->|нет| monitor --> note
+    public -->|да| saved
+    saved -->|да| isolate --> note
+    saved -->|нет| collect --> isolate
+
+    style start fill:#6e2f1a,color:#fff
+    style isolate fill:#1a5276,color:#fff
+    style note fill:#1e8449,color:#fff
+    style collect fill:#7d6608,color:#fff
+```
 
 ### Что нужно явно показать
 - свой triage checklist;

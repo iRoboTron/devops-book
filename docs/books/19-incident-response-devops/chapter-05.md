@@ -44,6 +44,26 @@ Recovery — это не просто “есть бэкап”. Нужны RPO 
 - знаешь, что нужно для полного восстановления сервиса;
 - можешь доказать, что restore действительно работает.
 
+Recovery — это цепочка, а не один dump. Восстановление идёт по порядку: инфраструктура, секреты и конфиг, данные, переключение трафика и обязательный smoke test в конце.
+
+```mermaid
+flowchart LR
+    backup["Backup + snapshot\n(данные, конфиг,\nсекреты)"]
+    vm["Поднять VM /\nконтейнер"]
+    secrets["Восстановить\nсекреты и конфиг"]
+    data["Restore БД\n(test restore)"]
+    switch["Переключить\nDNS / proxy"]
+    smoke["Smoke test\n(login, API)"]
+    done["Сервис восстановлен\n(RTO зафиксирован)"]
+
+    backup --> vm --> secrets --> data --> switch --> smoke --> done
+
+    style backup fill:#2d2d2d,color:#fff
+    style data fill:#1a5276,color:#fff
+    style smoke fill:#7d6608,color:#fff
+    style done fill:#1e8449,color:#fff
+```
+
 ```bash
 pg_restore --list backup.dump | head
 sha256sum backup.tar.gz

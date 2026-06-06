@@ -106,6 +106,26 @@ EOF
 cat /tmp/ransomware-tabletop.md
 ```
 
+Реакция на destructive-сценарий идёт быстро и в строгом порядке: сначала прервать распространение (изоляция + отключение учёток), потом проверить и восстановить из изолированного бэкапа, и только в чистой среде вернуть сервис.
+
+```mermaid
+flowchart LR
+    detect["Сигнал\n(массовые rename/delete,\nрост file changes)"]
+    isolate["Изолировать хост\nотключить app credentials"]
+    scope["Оценить blast radius\n(какие share/системы)"]
+    verify["Проверить бэкапы\n(целость, изоляция)"]
+    restore["Restore в изолированную\nсреду"]
+    comm["Коммуникация:\nуведомить владельцев,\nвести timeline"]
+
+    detect --> isolate --> scope --> verify --> restore
+    isolate -.-> comm
+
+    style detect fill:#6e2f1a,color:#fff
+    style isolate fill:#1a5276,color:#fff
+    style verify fill:#7d6608,color:#fff
+    style restore fill:#1e8449,color:#fff
+```
+
 ### Что нужно явно показать
 - как защищены бэкапы от основной среды;
 - какой runbook изоляции хоста существует;

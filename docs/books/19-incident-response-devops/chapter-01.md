@@ -44,6 +44,26 @@
 - можешь быстро найти путь одного запроса через систему;
 - понимаешь, чего нельзя логировать даже ради удобства.
 
+Главная идея корреляции — один и тот же `request id` проходит через все слои. Тогда по одному идентификатору можно собрать полный путь запроса: от reverse proxy до приложения и базы.
+
+```mermaid
+flowchart LR
+    client["Клиент"]
+    proxy["nginx / reverse proxy\n(access.log)\nrequest_id=abc"]
+    app["Приложение\n(app.log)\nrequest_id=abc"]
+    db["База данных\n(slow/query log)"]
+    central["Централизованный\nсбор логов\nпоиск по request_id"]
+
+    client --> proxy --> app --> db
+    proxy -.-> central
+    app -.-> central
+    db -.-> central
+
+    style proxy fill:#1a5276,color:#fff
+    style app fill:#1a5276,color:#fff
+    style central fill:#1e8449,color:#fff
+```
+
 ```bash
 sudo journalctl -u nginx -n 50 --no-pager
 sudo journalctl -u myapp -n 50 --no-pager

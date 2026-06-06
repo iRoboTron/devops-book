@@ -47,6 +47,29 @@
 
 Event, alert, incident, severity и ожидания по реакции.
 
+Не каждое событие — это инцидент. Сигнал проходит фильтрацию: большинство событий ничего не значат, часть становится алертами, и лишь подтверждённые алерты с реальным impact превращаются в инцидент, требующий реакции по жизненному циклу IR.
+
+```mermaid
+flowchart LR
+    event["Event\n(запись в логе,\nметрика)"]
+    noise["Нормальный шум\n→ игнор"]
+    alert["Alert\n(сработал порог,\nправило)"]
+    fp["False positive\n→ закрыть"]
+    incident["Incident\n(подтверждён,\nесть impact)"]
+    ir["IR lifecycle:\ndetect → contain →\nrecover → lessons"]
+
+    event --> noise
+    event --> alert
+    alert --> fp
+    alert --> incident
+    incident --> ir
+
+    style event fill:#2d2d2d,color:#fff
+    style alert fill:#7d6608,color:#fff
+    style incident fill:#6e2f1a,color:#fff
+    style ir fill:#1a5276,color:#fff
+```
+
 Дальше книга идёт от базовой модели угроз к практическим слоям защиты, затем к безопасным проверкам, а потом к итоговому проекту.
 
 Принцип каждой главы:

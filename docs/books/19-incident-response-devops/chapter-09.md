@@ -12,6 +12,26 @@
 signal -> triage -> containment -> recovery -> postmortem
 ```
 
+Каждая фаза проекта даёт свой артефакт: triage — timeline и scope, containment — зафиксированное решение, recovery — подтверждённый smoke test, postmortem — blameless-выводы. Без последней фазы цикл не закрыт.
+
+```mermaid
+flowchart LR
+    signal["Signal\n(failed logins,\nburst, deviation)"]
+    triage["Triage\n→ timeline, scope"]
+    contain["Containment\n→ block / isolate"]
+    recover["Recovery\n→ restore + smoke test"]
+    post["Postmortem\n(blameless)\n→ конкретные выводы"]
+
+    signal --> triage --> contain --> recover --> post
+    post -.->|улучшить детект\nи runbook| signal
+
+    style signal fill:#6e2f1a,color:#fff
+    style triage fill:#7d6608,color:#fff
+    style contain fill:#1a5276,color:#fff
+    style recover fill:#1e8449,color:#fff
+    style post fill:#4a235a,color:#fff
+```
+
 ---
 
 ## 9.2 Стартовая точка

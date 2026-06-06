@@ -44,6 +44,40 @@
 - понимаешь, какие артефакты стоит собирать первыми;
 - можешь документировать ход разбора так, чтобы его можно было проверить.
 
+Артефакты собирают по порядку волатильности (order of volatility): сначала то, что исчезнет первым (память, сетевые соединения, процессы), потом — то, что переживёт перезагрузку (логи, файлы на диске).
+
+```mermaid
+flowchart LR
+    ram["RAM / процессы\n(исчезнет первым)"]
+    net["Сетевые соединения\nss, netstat"]
+    logs["Логи journald,\naccess.log"]
+    disk["Файлы на диске,\nконфиги, бинарники"]
+
+    ram --> net --> logs --> disk
+
+    style ram fill:#6e2f1a,color:#fff
+    style net fill:#7d6608,color:#fff
+    style logs fill:#1a5276,color:#fff
+    style disk fill:#1e8449,color:#fff
+```
+
+Каждый собранный артефакт проходит chain of custody: фиксируется время, хост, источник и хэш — чтобы позже можно было доказать, что файл не подменялся.
+
+```mermaid
+flowchart LR
+    collect["Собрать артефакт\n(ps/ss/log/файл)"]
+    stamp["Записать: время,\nхост, команда"]
+    hash["Посчитать sha256\nи сохранить хэш"]
+    store["Хранить в отдельном\nкаталоге (read-only)"]
+    verify["Перепроверка хэша\nперед выводами"]
+
+    collect --> stamp --> hash --> store --> verify
+
+    style collect fill:#2d2d2d,color:#fff
+    style hash fill:#1a5276,color:#fff
+    style verify fill:#1e8449,color:#fff
+```
+
 ```bash
 date -Is
 hostnamectl

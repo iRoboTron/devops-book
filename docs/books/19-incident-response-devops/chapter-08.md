@@ -15,6 +15,27 @@
 5. локализовать проблему;
 6. восстановить и зафиксировать выводы.
 
+Это тот же жизненный цикл IR, что и в реальном инциденте, только в управляемой lab. Замыкающая фаза lessons learned превращает упражнение в реальный навык.
+
+```mermaid
+flowchart LR
+    normal["Нормальная\nсистема (baseline)"]
+    event["Controlled\nsecurity event"]
+    detect["Detect:\nувидеть сигнал"]
+    triage["Triage:\nоценить scope"]
+    contain["Contain:\nлокализовать"]
+    recover["Recover:\nвосстановить"]
+    lessons["Lessons learned:\ntimeline + выводы"]
+
+    normal --> event --> detect --> triage --> contain --> recover --> lessons
+
+    style event fill:#6e2f1a,color:#fff
+    style detect fill:#7d6608,color:#fff
+    style contain fill:#1a5276,color:#fff
+    style recover fill:#1e8449,color:#fff
+    style lessons fill:#4a235a,color:#fff
+```
+
 ---
 
 ## 8.2 Примеры controlled drills
