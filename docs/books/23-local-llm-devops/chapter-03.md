@@ -16,6 +16,20 @@ Ollama по умолчанию слушает локальный порт `11434
   -> JSON-ответ
 ```
 
+Один запрос на генерацию как последовательность шагов:
+
+```mermaid
+sequenceDiagram
+    participant S as Скрипт / curl
+    participant O as Ollama (:11434)
+    participant M as Модель в памяти
+
+    S->>O: POST /api/generate (JSON с prompt)
+    O->>M: токенизирует prompt, запускает генерацию
+    M-->>O: токены ответа (по одному)
+    O-->>S: JSON с полем "response" и метриками
+```
+
 Проверка доступности:
 
 ```bash

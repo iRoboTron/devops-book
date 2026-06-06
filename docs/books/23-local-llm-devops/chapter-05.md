@@ -17,6 +17,25 @@ internet
 
 Ollama API на `11434` не должен быть открыт напрямую наружу.
 
+```mermaid
+flowchart LR
+    NET["Интернет\n(клиент)"] --> N["Nginx\n:443 HTTPS"]
+    subgraph local["Только localhost"]
+        WUI["Open-WebUI\n127.0.0.1:3000"]
+        OLL["Ollama\n127.0.0.1:11434"]
+    end
+    N --> WUI
+    WUI --> OLL
+    NET -.->|"закрыто firewall"| OLL
+
+    style NET fill:#2d2d2d,color:#fff
+    style N fill:#1a5276,color:#fff
+    style WUI fill:#1e8449,color:#fff
+    style OLL fill:#1e8449,color:#fff
+```
+
+Пунктирная стрелка показывает прямой путь к Ollama снаружи — именно он должен быть закрыт.
+
 > **Аналогия:** Nginx — это охранник на входе в здание. Снаружи люди говорят с охранником (HTTPS на 443), а он уже проводит их к нужному кабинету внутри (Open-WebUI на 3000). Прямой доступ в кабинеты с улицы закрыт.
 
 ---

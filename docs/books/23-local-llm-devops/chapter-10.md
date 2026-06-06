@@ -15,6 +15,24 @@ Nginx HTTPS
 firewall
 ```
 
+Как этот стек выглядит целиком:
+
+```mermaid
+flowchart TD
+    USER["Пользователь\n(браузер / VPN)"] --> FW["Firewall\n(открыт только 443)"]
+    FW --> NGINX["Nginx\nHTTPS :443"]
+    NGINX --> WUI["Open-WebUI\n127.0.0.1:3000\n(логин)"]
+    WUI --> OLL["Ollama\n127.0.0.1:11434"]
+    OLL --> MODEL["Модель"]
+
+    style USER fill:#2d2d2d,color:#fff
+    style FW fill:#7d6608,color:#fff
+    style NGINX fill:#1a5276,color:#fff
+    style WUI fill:#1a5276,color:#fff
+    style OLL fill:#1a5276,color:#fff
+    style MODEL fill:#1e8449,color:#fff
+```
+
 Критерии готовности с командами проверки:
 
 - **WebUI открывается через домен или VPN:**

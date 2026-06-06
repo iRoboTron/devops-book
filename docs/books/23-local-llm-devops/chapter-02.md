@@ -76,6 +76,26 @@ nvidia-smi
 
 Это не закон, а ориентир. Разные модели и форматы занимают разное количество памяти.
 
+Тот же выбор как дерево решений:
+
+```mermaid
+flowchart TD
+    START["Сколько памяти\nдоступно?"] --> GPU{"Есть NVIDIA GPU\nс VRAM?"}
+    GPU -->|"да"| VRAM["Смотри на размер модели\nи quantization под объём VRAM"]
+    GPU -->|"нет"| RAM{"Сколько RAM?"}
+    RAM -->|"4 GB"| SMALL["Модели 1B-3B"]
+    RAM -->|"8 GB"| MID["Модели 3B-8B"]
+    RAM -->|"16 GB+"| BIG["Модели 7B-13B"]
+
+    style START fill:#2d2d2d,color:#fff
+    style GPU fill:#7d6608,color:#fff
+    style RAM fill:#7d6608,color:#fff
+    style VRAM fill:#1e8449,color:#fff
+    style SMALL fill:#1a5276,color:#fff
+    style MID fill:#1a5276,color:#fff
+    style BIG fill:#1a5276,color:#fff
+```
+
 ---
 
 ## 2.3 Выбор по задаче

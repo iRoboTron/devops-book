@@ -17,6 +17,22 @@
   -> модель
 ```
 
+Та же архитектура как диаграмма с хранением данных:
+
+```mermaid
+flowchart LR
+    B["Браузер"] --> WUI["Open-WebUI\n:3000"]
+    WUI --> OLL["Ollama\n:11434"]
+    OLL --> M["Модель"]
+    WUI --> VOL["Volume open-webui\n(история, пользователи)"]
+
+    style B fill:#2d2d2d,color:#fff
+    style WUI fill:#1a5276,color:#fff
+    style OLL fill:#1a5276,color:#fff
+    style M fill:#1e8449,color:#fff
+    style VOL fill:#4a235a,color:#fff
+```
+
 > **Аналогия:** Ollama — это движок автомобиля, а Open-WebUI — это панель управления и руль. Движок работает без панели, но управлять удобнее с ней.
 
 ---

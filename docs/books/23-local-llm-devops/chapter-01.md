@@ -19,6 +19,22 @@ Ollama service
   -> HTTP API на localhost:11434
 ```
 
+Как устроены роли Ollama:
+
+```mermaid
+flowchart TD
+    CLI["CLI\nollama run / pull / list"] --> SRV["Ollama service\n(серверный процесс)"]
+    API["HTTP API\nlocalhost:11434"] --> SRV
+    SRV --> STORE["Хранилище моделей\n(~/.ollama)"]
+    SRV --> RUN["Запуск модели\nв RAM или VRAM"]
+
+    style CLI fill:#2d2d2d,color:#fff
+    style API fill:#2d2d2d,color:#fff
+    style SRV fill:#1a5276,color:#fff
+    style STORE fill:#4a235a,color:#fff
+    style RUN fill:#1e8449,color:#fff
+```
+
 > **Аналогия:** Ollama — это как Docker для моделей. Ты говоришь `ollama pull llama3.2:3b`, и он сам находит, скачивает и готовит модель к запуску — не нужно разбираться с форматами файлов и настройками вручную.
 
 ---

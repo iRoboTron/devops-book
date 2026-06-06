@@ -1280,6 +1280,10 @@
             {
                 "file": "chapter-10.md",
                 "title": "Глава 10: Итоговый проект"
+            },
+            {
+                "file": "glossary.md",
+                "title": "Глоссарий терминов"
             }
         ],
         "24-wireguard-vpn": [

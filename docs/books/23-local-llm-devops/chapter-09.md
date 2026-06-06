@@ -61,6 +61,25 @@
 
 Главное правило: сначала классифицируй данные, потом выбирай модель.
 
+```mermaid
+flowchart TD
+    START["Новая задача"] --> Q1{"Данные приватные?"}
+    Q1 -->|"да"| LOCAL["Локальная модель"]
+    Q1 -->|"нет"| Q2{"Нужно высокое\nкачество / сложный reasoning?"}
+    Q2 -->|"нет"| LOCAL
+    Q2 -->|"да"| Q3{"Есть подходящее\nжелезо (GPU)?"}
+    Q3 -->|"да"| LOCALBIG["Сильная локальная модель"]
+    Q3 -->|"нет"| CLOUD["Облачный API"]
+
+    style START fill:#2d2d2d,color:#fff
+    style Q1 fill:#7d6608,color:#fff
+    style Q2 fill:#7d6608,color:#fff
+    style Q3 fill:#7d6608,color:#fff
+    style LOCAL fill:#1e8449,color:#fff
+    style LOCALBIG fill:#1e8449,color:#fff
+    style CLOUD fill:#1a5276,color:#fff
+```
+
 ---
 
 ## 9.5 Практика
