@@ -1848,6 +1848,10 @@
             {
                 "file": "appendix-c.md",
                 "title": "Приложение C: Схемы типовых домашних серверов"
+            },
+            {
+                "file": "glossary.md",
+                "title": "Глоссарий терминов"
             }
         ],
         "33-podman-ecosystem": [
