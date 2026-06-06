@@ -61,6 +61,35 @@ spec:
 kubectl apply -f application.yaml -n argocd
 ```
 
+Объект `Application` описывает связку «откуда брать манифесты» (`source`) и «куда применять» (`destination`). ArgoCD непрерывно сверяет desired state из Git с actual state в кластере и при `automated` синхронизирует автоматически.
+
+```mermaid
+flowchart LR
+    git["Git-репозиторий\n(desired state)"]
+
+    subgraph cluster["Кластер Kubernetes"]
+        subgraph argo["namespace argocd"]
+            repo["repo-server\n(рендер манифестов)"]
+            ctrl["application-controller\n(reconciliation)"]
+            api["argocd-server\n(UI / CLI / API)"]
+        end
+        workloads["Рабочие нагрузки\n(Deployment, Service)"]
+    end
+
+    git -->|"тянет манифесты"| repo
+    repo -->|"сравнивает"| ctrl
+    ctrl -->|"applies / prune"| workloads
+    api --> ctrl
+
+    style git fill:#4a235a,color:#fff
+    style repo fill:#1a5276,color:#fff
+    style ctrl fill:#1a5276,color:#fff
+    style api fill:#2d2d2d,color:#fff
+    style workloads fill:#1e8449,color:#fff
+```
+
+`application-controller` — сердце ArgoCD: он крутит цикл reconciliation, выставляя статус `Synced` или `OutOfSync`.
+
 ---
 
 ## 3.4 ArgoCD UI: основные экраны

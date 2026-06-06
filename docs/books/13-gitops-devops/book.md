@@ -12,6 +12,7 @@
 - [**Глава 3: ArgoCD установка**](chapter-03.md)
 - [**Глава 4: CI + ArgoCD**](chapter-04.md)
 - [**Глава 5: Progressive Delivery**](chapter-05.md)
+- [**Глоссарий**](glossary.md)
 
 ---
 

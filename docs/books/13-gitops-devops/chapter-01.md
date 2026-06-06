@@ -69,6 +69,24 @@ build:
   → pushed: ghcr.io/user/myapp:abc123def
 ```
 
+Идея пайплайна одинакова в обеих системах: сначала прогоняются тесты, и только если они зелёные — собирается и пушится образ.
+
+```mermaid
+flowchart LR
+    push["git push\nв main"] --> test["test\npytest"]
+    test -->|"провал"| stop["pipeline упал\nобраз не собран"]
+    test -->|"успех"| build["build\ndocker build"]
+    build --> registry["push образа\nghcr.io / registry\n:SHA коммита"]
+
+    style push fill:#2d2d2d,color:#fff
+    style test fill:#1a5276,color:#fff
+    style build fill:#1a5276,color:#fff
+    style registry fill:#1e8449,color:#fff
+    style stop fill:#6e2f1a,color:#fff
+```
+
+Тег образа — это SHA коммита (`$CI_COMMIT_SHA` / `github.sha`). Так каждый образ однозначно привязан к коммиту кода.
+
 ---
 
 ## 📝 Упражнения

@@ -20,6 +20,29 @@ spec:
 
 20% → 50% → 100%.
 
+Canary вводит новую версию постепенно: на каждом шаге часть трафика идёт на неё, а `pause` даёт время посмотреть метрики и при проблеме прервать выкатку.
+
+```mermaid
+flowchart LR
+    start["Новая версия\nготова"] --> w20["setWeight 20%\nновая получает 20%"]
+    w20 --> p1["pause 5m\nнаблюдаем метрики"]
+    p1 --> w50["setWeight 50%"]
+    w50 --> p2["pause 5m"]
+    p2 --> w100["setWeight 100%\nполный rollout"]
+    p1 -.->|"метрики плохие"| abort["abort\nоткат на стабильную"]
+    p2 -.->|"метрики плохие"| abort
+
+    style start fill:#2d2d2d,color:#fff
+    style w20 fill:#1a5276,color:#fff
+    style w50 fill:#1a5276,color:#fff
+    style p1 fill:#7d6608,color:#fff
+    style p2 fill:#7d6608,color:#fff
+    style w100 fill:#1e8449,color:#fff
+    style abort fill:#6e2f1a,color:#fff
+```
+
+Пунктирные стрелки показывают: на любой паузе можно сделать `abort` и мгновенно вернуть весь трафик на стабильную версию.
+
 ---
 
 ## 5.2 Blue-Green

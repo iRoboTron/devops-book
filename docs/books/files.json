@@ -696,6 +696,10 @@
             {
                 "file": "chapter-05.md",
                 "title": "Глава 5: Progressive Delivery"
+            },
+            {
+                "file": "glossary.md",
+                "title": "Глоссарий терминов"
             }
         ],
         "14-final-projects-2": [

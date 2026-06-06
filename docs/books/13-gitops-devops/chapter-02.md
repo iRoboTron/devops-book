@@ -11,6 +11,29 @@ CI нужны credentials         CI не нужен доступ к класт�
                               ArgoCD синхронизирует сам
 ```
 
+В push-модели наружу торчат права на кластер — их держит CI. В pull-модели агент живёт внутри кластера и сам тянет манифесты из Git, поэтому доступ к кластеру наружу не выдаётся.
+
+```mermaid
+flowchart LR
+    subgraph push["Push-модель"]
+        ci1["CI"] -->|"credentials\nкластера"| k1["Кластер"]
+    end
+    subgraph pull["Pull-модель (GitOps)"]
+        ci2["CI"] -->|"коммит\nманифестов"| git["Git\n(источник правды)"]
+        agent["ArgoCD\n(внутри кластера)"] -->|"тянет"| git
+        agent -->|"применяет"| k2["Кластер"]
+    end
+
+    style ci1 fill:#2d2d2d,color:#fff
+    style ci2 fill:#2d2d2d,color:#fff
+    style k1 fill:#6e2f1a,color:#fff
+    style git fill:#4a235a,color:#fff
+    style agent fill:#1a5276,color:#fff
+    style k2 fill:#1e8449,color:#fff
+```
+
+В pull-модели стрелка от CI к кластеру исчезает — CI больше не нужен доступ к кластеру.
+
 ---
 
 ## 2.2 Два репозитория

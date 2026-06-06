@@ -11,6 +11,23 @@
 
 9 шагов. Нет истории. Нет тестов. Откат = повторить всё.
 
+```mermaid
+flowchart LR
+    code["Написал код"] --> push["git push"]
+    push --> ssh["SSH на сервер"]
+    ssh --> build["docker build"]
+    build --> restart["docker stop\n+ docker run"]
+    restart --> check["Проверить\nвручную"]
+    check -.->|"что-то сломалось"| ssh
+
+    style code fill:#2d2d2d,color:#fff
+    style ssh fill:#7d6608,color:#fff
+    style restart fill:#7d6608,color:#fff
+    style check fill:#6e2f1a,color:#fff
+```
+
+Каждый шаг делается руками, нигде не фиксируется, и при ошибке цикл повторяется заново. Дальше в книге мы автоматизируем всю эту цепочку.
+
 **Цель:** 0 ручных шагов.
 
 ---

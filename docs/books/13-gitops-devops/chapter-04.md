@@ -35,11 +35,32 @@ git push → CI: test → build → push image
 
 0 ручных шагов.
 
+```mermaid
+sequenceDiagram
+    participant Dev as Разработчик
+    participant CI as CI GitLab или GitHub
+    participant Reg as Registry
+    participant Infra as app-infra (Git)
+    participant Argo as ArgoCD
+    participant K8s as Кластер
+
+    Dev->>CI: git push (app-code)
+    CI->>CI: test + build
+    CI->>Reg: push image :SHA
+    CI->>Infra: commit нового tag
+    Argo->>Infra: detect (polling / webhook)
+    Note over Argo: OutOfSync
+    Argo->>K8s: helm upgrade / apply
+    Note over Argo: Synced + Healthy
+```
+
+Разработчик делает один `git push` — дальше цепочка идёт без участия человека.
+
 ---
 
 ## 4.3 Проблемы sed-подхода и альтернативы
 
-`sed -i "s|tag: .*|tag: $CI_COMMIT_SHA|" values.yaml`` работает, но хрупок:
+`sed -i "s|tag: .*|tag: $CI_COMMIT_SHA|" values.yaml` работает, но хрупок:
 
 - ломается если формат `values.yaml` изменился
 - создаёт мусорные коммиты в infra-repo
@@ -75,6 +96,28 @@ argocd app rollback myapp
 ```
 
 Сначала выясни это `OutOfSync`, `Degraded` или проблема конкретного Pod. Потом либо делай `sync`, либо откатывайся на предыдущую рабочую ревизию.
+
+```mermaid
+flowchart TD
+    start["Деплой сломался"] --> q1{"Какой статус\nв argocd app get?"}
+    q1 -->|"OutOfSync"| sync["argocd app sync myapp\n(применить желаемое)"]
+    q1 -->|"Synced, но Degraded"| q2{"Манифест\nили образ виноват?"}
+    q2 -->|"Плохой манифест\nв Git"| revert["git revert\n+ повторный sync"]
+    q2 -->|"Плохой образ\nили конфиг"| rollback["argocd app rollback myapp\nна рабочую ревизию"]
+    sync --> ok["Synced + Healthy"]
+    revert --> ok
+    rollback --> ok
+
+    style start fill:#2d2d2d,color:#fff
+    style q1 fill:#7d6608,color:#fff
+    style q2 fill:#7d6608,color:#fff
+    style sync fill:#1a5276,color:#fff
+    style revert fill:#4a235a,color:#fff
+    style rollback fill:#6e2f1a,color:#fff
+    style ok fill:#1e8449,color:#fff
+```
+
+Откат в GitOps — это не «магическая кнопка», а возврат Git к рабочему состоянию: `git revert` фиксирует откат в истории, и кластер подтягивает его так же, как любой другой коммит.
 
 ---
 
