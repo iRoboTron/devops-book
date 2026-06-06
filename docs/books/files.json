@@ -1718,6 +1718,10 @@
             {
                 "file": "chapter-14.md",
                 "title": "Глава 14: Итоговый проект"
+            },
+            {
+                "file": "glossary.md",
+                "title": "Глоссарий терминов"
             }
         ],
         "32-proxmox-ve": [
