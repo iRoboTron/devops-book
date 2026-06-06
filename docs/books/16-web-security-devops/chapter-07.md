@@ -51,6 +51,26 @@ npm audit --production
 trivy image myapp:latest
 ```
 
+Чужой код приезжает в приложение по цепочке: registry → lock-файл → CI → образ → runtime. Каждое звено — точка, где можно подменить или зафиксировать происхождение.
+
+```mermaid
+flowchart LR
+    reg["Публичный registry\nnpm / pip"]
+    reg --> lock["Lock-файл\npinned версии"]
+    lock --> ci["CI runner\nустановка зависимостей"]
+    ci --> img["Контейнерный образ\nbase + код"]
+    img --> run["Runtime\nна сервере"]
+
+    reg -. typosquatting\nкомпрометация пакета .-> risk["Вредоносный код\nв дереве зависимостей"]
+    lock -. контроль .-> ok["Воспроизводимая сборка\naudit + SBOM"]
+
+    style reg fill:#7d6608,color:#fff
+    style risk fill:#6e2f1a,color:#fff
+    style lock fill:#1a5276,color:#fff
+    style ok fill:#1e8449,color:#fff
+    style run fill:#2d2d2d,color:#fff
+```
+
 ---
 
 ## 7.4 Практика

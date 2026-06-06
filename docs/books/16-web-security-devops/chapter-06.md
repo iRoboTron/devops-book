@@ -55,6 +55,30 @@ SECRET_KEY=REPLACE_WITH_RANDOM_64_CHARS
 STRIPE_SECRET_KEY=REPLACE_WITH_STRIPE_KEY
 ```
 
+Reverse proxy завершает TLS и формирует доверенную границу. Backend должен принимать forwarded-заголовки только от известного прокси — иначе клиент сможет подделать схему и client IP.
+
+```mermaid
+flowchart LR
+    client["Клиент\nHTTPS"]
+    attacker["Чужой клиент\nподдельные X-Forwarded-*"]
+
+    subgraph "Доверенная граница"
+        proxy["Reverse proxy\nзавершает TLS\nставит X-Forwarded-*"]
+    end
+
+    app["Backend\nдоверяет только\nизвестному прокси"]
+
+    client --> proxy
+    proxy --> app
+    attacker -. напрямую на backend-порт .-> app
+    app -. порт закрыт / filtered .-> attacker
+
+    style client fill:#2d2d2d,color:#fff
+    style attacker fill:#6e2f1a,color:#fff
+    style proxy fill:#7d6608,color:#fff
+    style app fill:#1a5276,color:#fff
+```
+
 Реальный `.env` должен жить отдельно от шаблона, не попадать в Git и читаться только приложением или его владельцем.
 
 ```bash

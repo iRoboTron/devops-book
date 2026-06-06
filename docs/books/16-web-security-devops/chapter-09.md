@@ -31,6 +31,26 @@
 
 ## 9.3 Фазы проекта
 
+Проект идёт по четырём фазам: сначала карта границ доверия, затем review baseline, исправления и controlled checks. Если проверки находят слабое место — возвращаешься к исправлениям.
+
+```mermaid
+flowchart LR
+    p1["Фаза 1\nКарта trust boundaries"]
+    p2["Фаза 2\nBaseline review"]
+    p3["Фаза 3\nИсправления"]
+    p4["Фаза 4\nControlled checks"]
+
+    p1 --> p2 --> p3 --> p4
+    p4 -->|Найдено слабое место| p3
+    p4 -->|Всё держит| done["Defensible baseline\nготов к релизу"]
+
+    style p1 fill:#2d2d2d,color:#fff
+    style p2 fill:#7d6608,color:#fff
+    style p3 fill:#1a5276,color:#fff
+    style p4 fill:#1a5276,color:#fff
+    style done fill:#1e8449,color:#fff
+```
+
 ### Фаза 1: Карта trust boundaries
 
 Запиши:

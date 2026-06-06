@@ -47,6 +47,38 @@
 
 Trust boundaries, пользователи, админы, браузер, proxy, app и БД.
 
+Так выглядит модель доверия типового веб-приложения: каждая стрелка пересекает границу, где данным нельзя верить «по умолчанию».
+
+```mermaid
+flowchart LR
+    user["Пользователь\n(браузер)"]
+    admin["Админ"]
+    attacker["Атакующий"]
+
+    subgraph "Периметр (публичный)"
+        proxy["Reverse proxy\nTLS, заголовки"]
+    end
+
+    subgraph "Доверенная зона"
+        app["Backend\nвалидация, авторизация"]
+        db["База данных\nсекреты, PII"]
+    end
+
+    user --> proxy
+    admin --> proxy
+    attacker -. недоверенный ввод .-> proxy
+    proxy --> app
+    app --> db
+
+    style user fill:#2d2d2d,color:#fff
+    style attacker fill:#6e2f1a,color:#fff
+    style proxy fill:#7d6608,color:#fff
+    style app fill:#1a5276,color:#fff
+    style db fill:#1e8449,color:#fff
+```
+
+Границы доверия здесь: браузер→proxy (публичный вход), proxy→app (где заканчивается TLS) и app→БД (где живут секреты и данные).
+
 Дальше книга идёт от базовой модели угроз к практическим слоям защиты, затем к безопасным проверкам, а потом к итоговому проекту.
 
 Принцип каждой главы:

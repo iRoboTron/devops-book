@@ -57,6 +57,29 @@ query = f'SELECT * FROM users ORDER BY {sort} DESC LIMIT %s'
 cur.execute(query, (50,))
 ```
 
+Разница между двумя путями обработки ввода — это и есть граница между уязвимостью и защитой. Слева ввод смешивается с синтаксисом SQL, справа драйвер держит данные отдельно от структуры запроса.
+
+```mermaid
+flowchart TD
+    input["Ввод пользователя\n(payload с кавычкой)"]
+
+    input --> concat["Сборка строки\nf-string / конкатенация"]
+    input --> param["Параметризация\nplaceholder %s"]
+
+    concat --> mix["Ввод стал частью\nсинтаксиса SQL"]
+    mix --> inj["SQL injection\nобход WHERE, утечка данных"]
+
+    param --> sep["Драйвер передаёт ввод\nкак значение"]
+    sep --> safe["Запрос выполнен\nввод остался данными"]
+
+    style input fill:#2d2d2d,color:#fff
+    style concat fill:#7d6608,color:#fff
+    style mix fill:#6e2f1a,color:#fff
+    style inj fill:#6e2f1a,color:#fff
+    style param fill:#1a5276,color:#fff
+    style safe fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 2.4 Практика

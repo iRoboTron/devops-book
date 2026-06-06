@@ -53,6 +53,43 @@ MAX_UPLOAD_SIZE = 5 * 1024 * 1024
 storage_name = f"{uuid4()}.bin"
 ```
 
+При SSRF backend становится прокси: атакующий подставляет внутренний адрес, а сервер сам идёт по нему с доверенной позиции внутри периметра. Allowlist схем и хостов отсекает loopback и metadata-сервисы.
+
+```mermaid
+sequenceDiagram
+    participant A as Атакующий
+    participant S as Backend (import by URL)
+    participant M as Внутренний metadata endpoint
+
+    A->>S: Запрос с url = внутренний адрес
+    alt Без allowlist
+        S->>M: Исходящий запрос изнутри периметра
+        M-->>S: Внутренние данные / токены
+        S-->>A: Утечка ответа наружу
+    else С allowlist схем и хостов
+        S-->>A: URL not allowed
+        Note over S: Loopback, RFC1918,\nmetadata запрещены
+    end
+```
+
+Загрузка файла несёт отдельный класс рисков. Безопасный pipeline проверяет реальный тип и размер на сервере, генерирует своё имя и хранит файл вне web-root.
+
+```mermaid
+flowchart LR
+    up["Загруженный файл"]
+    up --> ext{Проверка только\nрасширения?}
+    ext -->|Да| weak["Подмена MIME проходит\nфайл может стать исполняемым"]
+    ext -->|Нет| srv["Проверка реального\nMIME и размера на сервере"]
+    srv --> rename["Своё имя (uuid)\nхранение вне web-root"]
+    rename --> ok["Файл недоступен\nкак исполняемый контент"]
+
+    style up fill:#2d2d2d,color:#fff
+    style ext fill:#7d6608,color:#fff
+    style weak fill:#6e2f1a,color:#fff
+    style srv fill:#1a5276,color:#fff
+    style ok fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 5.4 Практика

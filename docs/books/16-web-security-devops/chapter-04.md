@@ -58,6 +58,44 @@ ALLOWED_ORIGINS = {
 }
 ```
 
+CSRF эксплуатирует то, что браузер сам прикладывает cookie к запросу — даже когда запрос инициирует чужой сайт. Шаги атаки на state-changing endpoint без защиты:
+
+```mermaid
+sequenceDiagram
+    participant V as Жертва (браузер)
+    participant E as Сайт атакующего
+    participant S as Backend жертвы
+
+    Note over V,S: Жертва уже авторизована (есть cookie)
+    V->>E: Открывает вредоносную страницу
+    E-->>V: Скрытая форма / авто-POST
+    V->>S: POST /transfer (cookie приложена браузером)
+    Note over S: Нет CSRF-токена,\nнет проверки origin
+    S-->>V: 200 — действие выполнено
+    Note over S: Перевод сделан\nот лица жертвы
+```
+
+CSRF и CORS решают разные задачи, их легко перепутать. Дерево ниже помогает выбрать правильный механизм защиты.
+
+```mermaid
+flowchart TD
+    q1{Запрос меняет\nсостояние?}
+    q1 -->|Да| csrf["Нужна CSRF-защита:\nтокен или SameSite cookie"]
+    q1 -->|Нет, только чтение| q2{Чужой origin\nдолжен читать ответ?}
+    q2 -->|Да, доверенный| cors["CORS allowlist\nконкретные origin"]
+    q2 -->|Нет| same["Same-origin\nширокий CORS не нужен"]
+
+    csrf --> bad{Использовать\n* для origin?}
+    bad -->|Нет| good["Точный allowlist\nбез wildcard при cookie"]
+
+    style q1 fill:#7d6608,color:#fff
+    style csrf fill:#1a5276,color:#fff
+    style cors fill:#1a5276,color:#fff
+    style same fill:#1e8449,color:#fff
+    style good fill:#1e8449,color:#fff
+    style bad fill:#6e2f1a,color:#fff
+```
+
 ---
 
 ## 4.4 Практика

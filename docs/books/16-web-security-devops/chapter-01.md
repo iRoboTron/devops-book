@@ -142,6 +142,51 @@ sudo awk '$9 == 401' /var/log/nginx/access.log | awk '{print $1}' | sort | uniq 
 
 Если один IP за короткое время собирает десятки `401`, это либо атака перебором, либо баг клиента.
 
+Полный поток входа и работы сессии выглядит так. Обрати внимание, что session id выдаётся только после успешной проверки пароля, а на каждый защищённый запрос cookie проверяется заново.
+
+```mermaid
+sequenceDiagram
+    participant B as Браузер
+    participant S as Backend
+    participant DB as Хранилище сессий
+
+    B->>S: POST /login (email, пароль)
+    S->>DB: Проверить хэш пароля
+    DB-->>S: Совпадает
+    S->>DB: Создать session id
+    S-->>B: Set-Cookie session\nHttpOnly, Secure, SameSite
+
+    Note over B,S: Последующие запросы
+    B->>S: GET /account (cookie)
+    S->>DB: Сессия валидна?
+    DB-->>S: Да, не истекла
+    S-->>B: 200 OK
+
+    B->>S: POST /logout
+    S->>DB: Удалить сессию
+    S-->>B: Очистить cookie
+```
+
+Поток password reset — это отдельный протокол с одноразовым токеном. Главные точки контроля: токен короткоживущий и инвалидируется сразу после использования.
+
+```mermaid
+flowchart LR
+    A["Запрос reset\n(email)"] --> B["Сервер генерирует\nодноразовый токен"]
+    B --> C["Письмо со ссылкой\n(короткий TTL)"]
+    C --> D["Пользователь\nоткрывает ссылку"]
+    D --> E{Токен валиден\nи не истёк?}
+    E -->|Да| F["Смена пароля\nтокен сгорает"]
+    E -->|Нет| G["Отказ\nобщая ошибка"]
+    F --> H["Сессии\nинвалидированы"]
+
+    style A fill:#2d2d2d,color:#fff
+    style B fill:#1a5276,color:#fff
+    style E fill:#7d6608,color:#fff
+    style F fill:#1e8449,color:#fff
+    style G fill:#6e2f1a,color:#fff
+    style H fill:#1e8449,color:#fff
+```
+
 ### Что нужно явно показать
 - где именно выставляются флаги cookie;
 - как выглядит ошибка входа;

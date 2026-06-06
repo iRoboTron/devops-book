@@ -58,6 +58,30 @@ element.innerHTML = userSuppliedText
 element.textContent = userSuppliedText
 ```
 
+XSS возникает, когда недоверенный текст попадает в DOM как HTML, а не как данные. Контекстное экранирование закрывает первый путь, а CSP работает вторым слоем — если скрипт всё же просочился, политика не даёт ему исполниться.
+
+```mermaid
+flowchart LR
+    input["Недоверенный ввод\n(комментарий, профиль)"]
+    input --> branch{Как попадает\nв страницу?}
+
+    branch -->|innerHTML / raw HTML| dom["Вставлен как HTML"]
+    dom --> exec["Внедрённый скрипт\nисполняется в браузере"]
+    exec --> csp{CSP активна\nи строгая?}
+    csp -->|Нет| steal["Кража сессии,\nдействия от лица жертвы"]
+    csp -->|Да| blocked["Скрипт заблокирован\nвторой слой сработал"]
+
+    branch -->|textContent / encoding| text["Отображён как текст"]
+    text --> safe["Безопасно:\nданные не исполняются"]
+
+    style input fill:#2d2d2d,color:#fff
+    style dom fill:#7d6608,color:#fff
+    style exec fill:#6e2f1a,color:#fff
+    style steal fill:#6e2f1a,color:#fff
+    style blocked fill:#4a235a,color:#fff
+    style safe fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 3.4 Практика

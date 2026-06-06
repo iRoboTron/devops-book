@@ -842,6 +842,10 @@
             {
                 "file": "chapter-09.md",
                 "title": "Глава 9: Итоговый проект"
+            },
+            {
+                "file": "glossary.md",
+                "title": "Глоссарий терминов"
             }
         ],
         "17-network-defense-devops": [
