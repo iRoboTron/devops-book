@@ -294,6 +294,25 @@
 - владелец recovery;
 - аудит доступа.
 
+Этот выбор удобно пройти как дерево решений: от ответа «один ты или команда» и «готов ли ты сам отвечать за backup» зависит почти всё.
+
+```mermaid
+flowchart TD
+    A["Кому нужна\nсистема паролей?"]
+    A --> B{"Команда или\nбизнес?"}
+    B -->|"Да"| T["Team / family plan\n(роли, offboarding)"]
+    B -->|"Нет"| C{"Готов сам отвечать\nза backup и сервер?"}
+    C -->|"Нет"| D["Cloud manager\n(Bitwarden, 1Password,\nProton Pass)"]
+    C -->|"Да, но без сервера"| E["Local-first\n(KeePassXC)"]
+    C -->|"Да, и есть опыт\nсерверов"| F["Self-hosted\n(Vaultwarden, только\nпосле restore-теста)"]
+
+    style A fill:#2d2d2d,color:#fff
+    style D fill:#1e8449,color:#fff
+    style T fill:#1a5276,color:#fff
+    style E fill:#7d6608,color:#fff
+    style F fill:#6e2f1a,color:#fff
+```
+
 ### Self-hosted
 
 Начинай с lab.

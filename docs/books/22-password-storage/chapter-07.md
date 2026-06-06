@@ -164,6 +164,28 @@ docker compose up -d
 Если удалить контейнер, но сохранить `./vw-data`, восстановление возможно.
 Если удалить `./vw-data`, контейнер не поможет — данные потеряны.
 
+Схема показывает разделение: контейнер легко пересоздать из образа, а вот папка с данными — единственное, что нельзя потерять.
+
+```mermaid
+flowchart LR
+    A["Образ\nvaultwarden/server"]
+    B["Контейнер\nvaultwarden"]
+    C["data directory\n./vw-data"]
+    D["База, attachments,\nконфигурация"]
+    E["Удалил контейнер\n-> пересоздать из образа"]
+    F["Удалил vw-data\n-> данные потеряны"]
+
+    A --> B
+    B --> C --> D
+    B -.-> E
+    C -.-> F
+
+    style A fill:#2d2d2d,color:#fff
+    style C fill:#1e8449,color:#fff
+    style E fill:#7d6608,color:#fff
+    style F fill:#6e2f1a,color:#fff
+```
+
 ---
 
 ## 7.8 Backup в self-hosted

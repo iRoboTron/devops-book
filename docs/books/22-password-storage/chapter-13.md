@@ -68,6 +68,29 @@ Family shared: подписки, Wi-Fi, общие сервисы
 Emergency: инструкция и recovery
 ```
 
+Схема показывает границу между личным и общим: личные vault остаются закрытыми, а общий доступ собран в одном управляемом месте, где его можно выдать и отозвать.
+
+```mermaid
+flowchart TD
+    subgraph "Личное (не пересекается)"
+      P1["Personal vault\nчлена А"]
+      P2["Personal vault\nчлена Б"]
+    end
+    subgraph "Общее (управляемый доступ)"
+      S["Family / team\nshared vault"]
+      E["Emergency kit:\nинструкция, recovery"]
+    end
+
+    P1 --> S
+    P2 --> S
+    S --> E
+
+    style P1 fill:#1a5276,color:#fff
+    style P2 fill:#1a5276,color:#fff
+    style S fill:#1e8449,color:#fff
+    style E fill:#7d6608,color:#fff
+```
+
 ---
 
 ## 13.4 Маленькая команда

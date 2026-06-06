@@ -212,6 +212,25 @@ Recovery codes — это аварийные ключи.
 | Hardware key | Среднее | Очень хороший | Высокий без второго ключа | Критичные аккаунты |
 | Passkey | Высокое | Очень хороший | Зависит от recovery | Современные сервисы |
 
+Выбор второго фактора удобно свести к дереву: насколько критичен аккаунт и что сервис вообще поддерживает.
+
+```mermaid
+flowchart TD
+    A["Включаю MFA\nна аккаунте"]
+    A --> B{"Аккаунт\nкритичный?"}
+    B -->|"Да"| C{"Сервис\nподдерживает\nhardware key /\npasskey?"}
+    C -->|"Да"| D["Hardware key\nили passkey\n(+ запасной)"]
+    C -->|"Нет"| E["TOTP\n+ recovery codes"]
+    B -->|"Нет"| F{"Есть\nTOTP?"}
+    F -->|"Да"| E
+    F -->|"Нет"| G["SMS — лучше,\nчем ничего"]
+
+    style A fill:#2d2d2d,color:#fff
+    style D fill:#1e8449,color:#fff
+    style E fill:#1a5276,color:#fff
+    style G fill:#7d6608,color:#fff
+```
+
 ---
 
 ## 8.10 Что выбрать

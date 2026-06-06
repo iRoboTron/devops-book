@@ -21,6 +21,27 @@
 - план миграции оставшихся паролей;
 - план проверки раз в 3 месяца.
 
+Весь итоговый проект — это последовательность фаз: сначала ты строишь основу системы и только потом наполняешь её аккаунтами, MFA и backup.
+
+```mermaid
+flowchart LR
+    A["Фаза 1\nInventory"]
+    B["Фаза 2\nВыбор менеджера"]
+    C["Фаза 3\nОснова + MFA"]
+    D["Фаза 4\nПервые 10\nаккаунтов"]
+    E["Фаза 5\nMFA + recovery"]
+    F["Фаза 6\nBackup + restore"]
+    G["Фаза 7\nEmergency plan"]
+
+    A --> B --> C --> D --> E --> F --> G
+
+    style A fill:#2d2d2d,color:#fff
+    style C fill:#1a5276,color:#fff
+    style E fill:#1e8449,color:#fff
+    style F fill:#7d6608,color:#fff
+    style G fill:#4a235a,color:#fff
+```
+
 ---
 
 ## 15.2 Выбери сценарий

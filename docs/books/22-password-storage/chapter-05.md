@@ -168,6 +168,23 @@ XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX
   → войти в Bitwarden нельзя без кода
 ```
 
+Эта ловушка — замкнутый круг: единственный аварийный ключ нельзя держать за той же дверью, которую он открывает. На схеме видно, как recovery code должен лежать снаружи, а не внутри vault.
+
+```mermaid
+flowchart LR
+    A["Потерял телефон\nс TOTP"]
+    B["Нужен recovery code\nдля Bitwarden"]
+    C{"Где лежит\nrecovery code?"}
+    C -->|"Только внутри\nBitwarden"| D["Тупик:\nвойти нельзя"]
+    C -->|"Бумага / печать /\nотдельный backup"| E["Вход восстановлен"]
+
+    A --> B --> C
+
+    style A fill:#2d2d2d,color:#fff
+    style D fill:#6e2f1a,color:#fff
+    style E fill:#1e8449,color:#fff
+```
+
 ### Шаг 6: проверь, что MFA работает
 
 Выйди из Bitwarden в браузере полностью.

@@ -71,6 +71,7 @@
 - [**Приложение A: Шпаргалка выбора**](appendix-a.md)
 - [**Приложение B: Чеклисты MFA, recovery и backup**](appendix-b.md)
 - [**Приложение C: Шаблоны inventory и recovery kit**](appendix-c.md)
+- [**Глоссарий**](glossary.md)
 
 ---
 
