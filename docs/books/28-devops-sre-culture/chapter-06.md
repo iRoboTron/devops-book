@@ -17,6 +17,30 @@ DORA выделяет четыре важные метрики:
 
 Они полезны не потому, что модные. Они показывают узкие места.
 
+Четыре метрики делятся на две пары: одна про скорость доставки, другая про стабильность. Здоровый процесс держит обе стороны, а не жертвует одной ради другой:
+
+```mermaid
+flowchart LR
+    subgraph "Скорость доставки"
+        A["Deployment frequency\nкак часто выкатываем"]
+        B["Lead time\ncommit → prod"]
+    end
+    subgraph "Стабильность"
+        C["Change failure rate\nкак часто релиз ломает"]
+        D["MTTR\nкак быстро чиним"]
+    end
+    A --> E["Здоровый процесс:\nбыстро И безопасно"]
+    B --> E
+    C --> E
+    D --> E
+
+    style A fill:#1a5276,color:#fff
+    style B fill:#1a5276,color:#fff
+    style C fill:#7d6608,color:#fff
+    style D fill:#7d6608,color:#fff
+    style E fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 6.2 Как не испортить метрики
