@@ -17,6 +17,7 @@
 - [Глава 8: Итоговый проект](chapter-08.md)
 - [Приложение A: Команды WireGuard](appendix-a.md)
 - [Приложение B: Чеклист VPN](appendix-b.md)
+- [**Глоссарий**](glossary.md)
 
 ---
 

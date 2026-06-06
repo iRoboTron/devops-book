@@ -11,6 +11,27 @@
 3. Проверить подключение клиента.
 4. Только потом закрывать или ограничивать сервисы.
 
+```mermaid
+flowchart TD
+    start["Начало"]
+    ssh2["Открыть второй SSH-сеанс"]
+    allow["Разрешить UDP 51820"]
+    test{"Клиент\nподключился?"}
+    fix["Чинить порт/firewall\n(глава 3)"]
+    lock["Только теперь\nограничивать сервисы"]
+
+    start --> ssh2 --> allow --> test
+    test -- "нет" --> fix --> test
+    test -- "да" --> lock
+
+    style start fill:#2d2d2d,color:#fff
+    style test fill:#7d6608,color:#fff
+    style fix fill:#6e2f1a,color:#fff
+    style lock fill:#1e8449,color:#fff
+```
+
+Закрывать сервисы наружу можно только после того, как доступ через VPN подтверждён — иначе рискуешь отрезать себя.
+
 ```bash
 sudo ufw allow 51820/udp
 ```

@@ -14,6 +14,26 @@
 
 Один сервис должен быть доступен через VPN и недоступен без VPN.
 
+```mermaid
+flowchart LR
+    laptop["laptop\n10.0.0.3"]
+    tun["Туннель wg0\n(зашифровано)"]
+    wg["Сервер: интерфейс\nwg0 10.0.0.1"]
+    svc["Сервис\nслушает 10.0.0.1:3000"]
+    outside["Тот же запрос\nбез VPN"]
+    deny["Отклонён\n(сервис не слушает\nпубличный IP)"]
+
+    laptop --> tun --> wg --> svc
+    outside --> deny
+
+    style laptop fill:#2d2d2d,color:#fff
+    style tun fill:#1a5276,color:#fff
+    style svc fill:#1e8449,color:#fff
+    style deny fill:#6e2f1a,color:#fff
+```
+
+Запрос через VPN доходит до сервиса по адресу `10.0.0.1`; тот же запрос из обычного интернета не проходит, потому что сервис не слушает публичный адрес.
+
 ---
 
 ## 8.2 Шаги

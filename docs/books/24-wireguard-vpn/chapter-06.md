@@ -16,6 +16,25 @@
 
 Не используй один и тот же конфиг на телефоне и ноутбуке. Потом ты не поймёшь, кто подключается.
 
+```mermaid
+flowchart TD
+    server["Сервер\n10.0.0.1\nListenPort 51820"]
+    phone["phone\n10.0.0.2"]
+    laptop["laptop\n10.0.0.3"]
+    home["home-pc\n10.0.0.4"]
+
+    phone --> server
+    laptop --> server
+    home --> server
+
+    style server fill:#1a5276,color:#fff
+    style phone fill:#2d2d2d,color:#fff
+    style laptop fill:#2d2d2d,color:#fff
+    style home fill:#2d2d2d,color:#fff
+```
+
+Это топология hub-and-spoke: сервер в центре, клиенты по краям. У каждого клиента свой ключ и свой `/32`-адрес; клиенты по умолчанию общаются через сервер, а не напрямую.
+
 ---
 
 ## 6.2 QR-код для телефона

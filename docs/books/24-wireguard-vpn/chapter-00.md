@@ -17,6 +17,33 @@
 
 WireGuard даёт третий вариант: сервисы слушают приватный VPN-адрес, а ты подключаешься к ним с ноутбука и телефона.
 
+```mermaid
+flowchart TD
+    internet["Интернет\n(весь мир)"]
+    fw["Сервер: firewall"]
+    vpn["VPN-вход\nUDP 51820"]
+    me["Ты\n(ноутбук, телефон)\nчерез VPN"]
+
+    subgraph priv["Приватные сервисы (10.0.0.1)"]
+        nc["Nextcloud"]
+        graf["Grafana"]
+        adm["Админка"]
+    end
+
+    internet -- "блокировано" --> priv
+    internet --> fw
+    fw --> vpn
+    me --> vpn
+    vpn --> priv
+
+    style internet fill:#6e2f1a,color:#fff
+    style vpn fill:#1a5276,color:#fff
+    style me fill:#2d2d2d,color:#fff
+    style priv fill:#1e8449,color:#fff
+```
+
+Внутренние сервисы не видны из интернета напрямую — войти к ним можно только через зашифрованный VPN-вход.
+
 ---
 
 ## 0.2 WireGuard против OpenVPN и IPsec

@@ -53,6 +53,22 @@ PersistentKeepalive = 25
 
 `PersistentKeepalive` полезен для телефона и домашнего интернета за NAT.
 
+Так выглядит установление туннеля между клиентом и сервером:
+
+```mermaid
+sequenceDiagram
+    participant C as Клиент (wg0)
+    participant S as Сервер (wg0)
+    C->>S: Handshake init (по Endpoint, UDP 51820)
+    S->>C: Handshake response
+    Note over C,S: Туннель установлен,<br/>есть общий сеансовый ключ
+    C->>S: Зашифрованный пакет к 10.0.0.1
+    S->>C: Зашифрованный ответ
+    Note over C,S: latest handshake обновляется
+```
+
+Клиент инициирует связь, потому что знает `Endpoint` сервера; сервер отвечает на тот адрес и порт, с которого пришёл пакет.
+
 ---
 
 ## 3.4 Запуск и проверка

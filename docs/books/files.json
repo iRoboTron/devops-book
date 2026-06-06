@@ -1334,6 +1334,10 @@
             {
                 "file": "chapter-08.md",
                 "title": "Глава 8: Итоговый проект"
+            },
+            {
+                "file": "glossary.md",
+                "title": "Глоссарий терминов"
             }
         ],
         "25-linux-hardening": [

@@ -12,6 +12,38 @@
 4. Проверить handshake.
 5. Проверить маршруты, DNS и MTU.
 
+```mermaid
+flowchart TD
+    start["VPN не работает"]
+    hs{"Есть свежий\nhandshake?"}
+    port{"Порт 51820\nслушается и открыт?"}
+    keys["Проверить ключи,\nEndpoint, AllowedIPs"]
+    ping{"ping 10.0.0.1\nпроходит?"}
+    route["Проверить маршруты,\nNAT, forwarding"]
+    site{"Сервис\nоткрывается?"}
+    mtu["Проверить MTU\nи DNS"]
+    ok["Туннель исправен"]
+
+    start --> hs
+    hs -- "нет" --> port
+    port -- "нет" --> port
+    port -- "да" --> keys
+    keys --> hs
+    hs -- "да" --> ping
+    ping -- "нет" --> route --> ping
+    ping -- "да" --> site
+    site -- "нет" --> mtu
+    site -- "да" --> ok
+
+    style start fill:#6e2f1a,color:#fff
+    style hs fill:#7d6608,color:#fff
+    style ping fill:#7d6608,color:#fff
+    style site fill:#7d6608,color:#fff
+    style ok fill:#1e8449,color:#fff
+```
+
+Идти строго сверху вниз: пока нет handshake, бессмысленно проверять DNS или MTU.
+
 ---
 
 ## 7.2 Команды
