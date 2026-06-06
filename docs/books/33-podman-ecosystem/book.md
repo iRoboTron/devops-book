@@ -26,6 +26,7 @@
 - [Приложение C: Карта контейнерной экосистемы](appendix-c.md)
 - [Приложение D: Из Pod в Deployment — адаптация K8s YAML](appendix-d.md)
 - [Приложение E: Podman Machine (Windows и macOS)](appendix-e.md)
+- [**Глоссарий**](glossary.md)
 
 ---
 

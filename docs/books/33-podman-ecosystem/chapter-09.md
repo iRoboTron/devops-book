@@ -84,6 +84,26 @@ Quadlet понимает несколько типов файлов:
 - `~/.config/containers/systemd/` — пользовательские (rootless)
 - `/etc/containers/systemd/` — системные (root)
 
+Ключевое отличие от `generate systemd`: вы не пишете unit-файл руками. При `daemon-reload` генератор Quadlet превращает декларативный `.container` в обычный `.service`, которым дальше управляет systemd.
+
+```mermaid
+flowchart LR
+    quadlet["nginx-web.container\n(декларативный конфиг)"]
+    reload(["systemctl --user\ndaemon-reload"])
+    gen["генератор Quadlet"]
+    unit["nginx-web.service\n(сгенерирован)"]
+    sd["systemd"]
+    cont["контейнер nginx\n(через podman)"]
+    quadlet --> reload --> gen --> unit --> sd
+    sd -->|"start / restart"| cont
+    style quadlet fill:#2d2d2d,color:#fff
+    style gen fill:#4a235a,color:#fff
+    style sd fill:#1a5276,color:#fff
+    style cont fill:#1e8449,color:#fff
+```
+
+Именно поэтому после правки `.container` обязателен `daemon-reload`: без него генератор не перечитает конфиг и `.service` останется старым.
+
 ---
 
 ## Первый Quadlet: контейнер nginx

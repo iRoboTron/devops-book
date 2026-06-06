@@ -38,6 +38,29 @@ DevOps:
   podman kube play deployment.yaml  (без кластера K8s!)
 ```
 
+Podman выступает мостом в обе стороны: `generate` достаёт YAML из работающих контейнеров, `play` запускает YAML обратно без кластера. Между ними — ручная адаптация Pod в Deployment.
+
+```mermaid
+flowchart LR
+    pod["Работающий Pod\n(podman run × N)"]
+    gen(["podman kube generate"])
+    draft["pod.yaml\n(kind: Pod, черновик)"]
+    adapt["адаптация:\nDeployment, реестр,\nsecrets, probes, resources"]
+    deploy["deployment.yaml"]
+    play(["podman kube play\n(локальный тест)"])
+    kubectl(["kubectl apply\n(продакшн K8s)"])
+    pod --> gen --> draft --> adapt --> deploy
+    deploy --> play
+    deploy --> kubectl
+    style pod fill:#2d2d2d,color:#fff
+    style draft fill:#7d6608,color:#fff
+    style adapt fill:#4a235a,color:#fff
+    style deploy fill:#1a5276,color:#fff
+    style kubectl fill:#1e8449,color:#fff
+```
+
+Шаг «адаптация» здесь не опционален: `generate` всегда выдаёт `kind: Pod`, а в продакшн нужен `Deployment`.
+
 ---
 
 ## podman kube generate

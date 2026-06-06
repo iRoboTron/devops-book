@@ -108,6 +108,28 @@ buildah commit $container myapp:latest
 buildah rm $container
 ```
 
+Этот цикл — точное соответствие шагам Dockerfile, только каждый шаг вызывается явной командой. От базового образа через `from` к зафиксированному образу через `commit`:
+
+```mermaid
+flowchart LR
+    base[("python:3.12-slim\nбазовый образ")]
+    from(["buildah from"])
+    work["рабочий контейнер"]
+    run(["buildah run\n(= RUN)"])
+    copy(["buildah copy\n(= COPY)"])
+    config(["buildah config\n(= CMD/ENV/PORT)"])
+    commit(["buildah commit"])
+    img[["myapp:latest\nOCI-образ"]]
+    base --> from --> work
+    work --> run --> copy --> config --> commit --> img
+    style base fill:#2d2d2d,color:#fff
+    style work fill:#1a5276,color:#fff
+    style commit fill:#7d6608,color:#fff
+    style img fill:#1e8449,color:#fff
+```
+
+Между `from` и `commit` рабочий контейнер можно инспектировать и даже зайти в него shell-ом — то, чего не даёт обычный `podman build`.
+
 ### Все опции buildah config
 
 ```bash

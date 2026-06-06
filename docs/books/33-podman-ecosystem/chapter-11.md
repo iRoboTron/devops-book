@@ -23,6 +23,30 @@
 - Используете Docker Desktop на macOS/Windows (Podman Machine уступает по UX)
 - Нет времени разобраться с новыми edge-cases
 
+Свести решение к нескольким вопросам помогает дерево: начинаем с конкретной проблемы или требования, а не с желания «попробовать новое».
+
+```mermaid
+flowchart TD
+    start["Думаю о миграции на Podman"]
+    sec{"Нужен rootless\nили systemd/Quadlet?"}
+    pain{"Docker daemon\nсоздаёт проблемы\n(SPOF, ресурсы, CI)?"}
+    rhel{"Переходите на\nRHEL/Fedora?"}
+    stay["Остаться на Docker\n(миграция ради миграции не нужна)"]
+    migrate["Мигрировать:\nаудит → параллельный запуск → перенос данных"]
+    start --> sec
+    sec -->|да| migrate
+    sec -->|нет| pain
+    pain -->|да| migrate
+    pain -->|нет| rhel
+    rhel -->|да| migrate
+    rhel -->|нет| stay
+    style start fill:#2d2d2d,color:#fff
+    style migrate fill:#1e8449,color:#fff
+    style stay fill:#7d6608,color:#fff
+```
+
+Если ни одна ветка не привела к «Мигрировать» — у вас нет проблемы, которую решает Podman, и рефакторинг можно отложить.
+
 ---
 
 ## Предмиграционный чеклист

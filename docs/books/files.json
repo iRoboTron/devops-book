@@ -1930,6 +1930,10 @@
             {
                 "file": "appendix-e.md",
                 "title": "Приложение E: Podman Machine (Windows и macOS)"
+            },
+            {
+                "file": "glossary.md",
+                "title": "Глоссарий терминов"
             }
         ],
         "31-devops-landscape": [

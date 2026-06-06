@@ -43,6 +43,27 @@ bash / systemd / CI-runner
 
 3. **Systemd-совместимость.** Podman-контейнер — обычный дочерний процесс. systemd может следить за ним, перезапускать, собирать логи — без каких-либо адаптеров.
 
+Что именно происходит при `podman run`, проще увидеть как последовательность вызовов. Сам `podman` не остаётся в дереве процессов — он лишь запускает монитор `conmon`, а тот через `runc` создаёт контейнер и переживает завершение исходной команды.
+
+```mermaid
+sequenceDiagram
+    participant U as Пользователь / CI
+    participant P as podman run
+    participant C as conmon (монитор)
+    participant R as runc
+    participant K as Контейнер
+    U->>P: podman run -d nginx
+    P->>P: подготовить rootfs + config.json
+    P->>C: fork-exec conmon
+    C->>R: runc create + start
+    R->>K: namespaces + cgroups, запуск процесса
+    R-->>C: контейнер запущен
+    P-->>U: вернул ID, podman завершился
+    Note over C,K: conmon и контейнер живут дальше<br/>без родительского podman
+```
+
+В отличие от Docker, где `dockerd` обязан быть запущен всё время жизни контейнера, здесь после `podman run` исходный процесс исчезает — остаётся лёгкий `conmon`, запущенный от того же пользователя.
+
 ---
 
 ## Совместимость команд

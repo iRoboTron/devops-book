@@ -209,6 +209,29 @@ skopeo inspect docker://nginx:latest
 
 ### Копировать между реестрами без скачивания на диск
 
+Главное преимущество `skopeo copy` — образ передаётся между реестрами напрямую, без распаковки слоёв и без записи на диск исполнителя. Сравните с обычным путём через Podman:
+
+```mermaid
+flowchart LR
+    src[("Docker Hub\nnginx:latest")]
+    subgraph podman_way["podman: через локальный диск"]
+        pull(["podman pull"]) --> disk["локальное\nхранилище"] --> push(["podman push"])
+    end
+    subgraph skopeo_way["skopeo: реестр → реестр"]
+        copy(["skopeo copy"])
+    end
+    dst[("GHCR\nnginx:latest")]
+    src --> pull
+    push --> dst
+    src --> copy --> dst
+    style src fill:#2d2d2d,color:#fff
+    style disk fill:#7d6608,color:#fff
+    style copy fill:#1e8449,color:#fff
+    style dst fill:#1a5276,color:#fff
+```
+
+`skopeo` пропускает шаг распаковки на диск целиком — поэтому он быстрее и работает в CI без прав на запуск контейнеров.
+
 ```bash
 # Скопировать nginx из Docker Hub в свой GHCR
 # Образ идёт напрямую: реестр → реестр, без локального диска
