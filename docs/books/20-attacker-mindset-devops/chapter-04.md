@@ -12,6 +12,30 @@ Privilege escalation интересна защитнику не как техн�
 
 Эта глава особенно полезна для Linux-инженеров, которые хотят понимать локальные риски без offensive-практики.
 
+Дерево локального усиления прав показывает, как обычный доступ превращается в контроль над узлом. Защитник ищет не способ эксплуатации, а сам misconfig — каждую ветку нужно закрыть hardening-ом.
+
+```mermaid
+flowchart TD
+    user["Обычный\nпользователь"]
+    sudo["Широкие\nsudoers rules"]
+    suid["Лишний setuid\nбинарник"]
+    writable["Writable service\nscript / cron path"]
+    secrets["Доступные секреты\nroot-процессов"]
+    root["Контроль над\nузлом (root)"]
+
+    user --> sudo --> root
+    user --> suid --> root
+    user --> writable --> root
+    user --> secrets --> root
+
+    style user fill:#2d2d2d,color:#fff
+    style root fill:#6e2f1a,color:#fff
+    style sudo fill:#7d6608,color:#fff
+    style writable fill:#7d6608,color:#fff
+```
+
+Baseline hardening (минимальный sudo, корректные права, review setuid и service accounts) перекрывает все ветки сразу.
+
 ---
 
 ## 4.2 Как выглядит риск

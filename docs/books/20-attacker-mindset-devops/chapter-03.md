@@ -12,6 +12,27 @@ Credential abuse — это защитная тема про учетные да
 
 Эта глава особенно полезна для всех, у кого есть пароли, API keys, SSH keys, tokens и shared accounts.
 
+Злоупотребление учётками — это не взлом криптографии, а слабые процессы: учётка утекает или переиспользуется, а отсутствие сигналов делает её применение неотличимым от обычного входа. MFA и журналирование разрывают эту цепочку.
+
+```mermaid
+flowchart LR
+    leak["Утечка / reuse\nучётки"]
+    valid["Валидный\nдоступ"]
+    nosignal["Нет сигналов\nна аномалию"]
+    foothold["Закрепление\nпод видом\nобычного входа"]
+    mfa["MFA\n+ журналирование"]
+
+    leak --> valid --> nosignal --> foothold
+    mfa -. "разрывает цепочку" .-> valid
+
+    style leak fill:#2d2d2d,color:#fff
+    style nosignal fill:#7d6608,color:#fff
+    style foothold fill:#6e2f1a,color:#fff
+    style mfa fill:#1e8449,color:#fff
+```
+
+Самые опасные — shared accounts и long-lived tokens: ответственность размывается, а отзыв доступа запаздывает.
+
 ---
 
 ## 3.2 Как выглядит риск

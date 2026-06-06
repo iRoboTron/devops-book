@@ -12,6 +12,37 @@
 - какие controls разрывают цепочку;
 - какие пробелы остаются.
 
+Итоговый narrative — это вся kill chain со встроенными точками разрыва. Для каждого этапа отметь контроль, который останавливает продвижение на твоём стенде.
+
+```mermaid
+flowchart LR
+    recon["Recon"]
+    access["Initial\naccess"]
+    cred["Credential\nabuse"]
+    privesc["Priv\nesc"]
+    persist["Persis-\ntence"]
+    lateral["Lateral\nmovement"]
+    impact["Impact /\nexfil"]
+
+    recon --> access --> cred --> privesc --> persist --> lateral --> impact
+
+    c1["Сокращение\nэкспозиции"] -. разрыв .-> recon
+    c2["Min surface\n+ rate limit"] -. разрыв .-> access
+    c3["MFA\n+ ротация"] -. разрыв .-> cred
+    c4["Hardening\nbaseline"] -. разрыв .-> privesc
+    c5["Сегментация\n+ keys per host"] -. разрыв .-> lateral
+    c6["Egress + backup\nisolation"] -. разрыв .-> impact
+
+    style recon fill:#2d2d2d,color:#fff
+    style impact fill:#6e2f1a,color:#fff
+    style c1 fill:#1e8449,color:#fff
+    style c3 fill:#1e8449,color:#fff
+    style c5 fill:#1e8449,color:#fff
+    style c6 fill:#1e8449,color:#fff
+```
+
+Сильный проект показывает не «я могу атаковать», а «я знаю, где именно моя защита ломает каждый этап».
+
 ---
 
 ## 9.2 Стартовая точка

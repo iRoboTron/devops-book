@@ -12,6 +12,47 @@ Exfiltration и impact нельзя рассматривать только ка
 
 Эта глава особенно полезна для всех, кто защищает данные, бэкапы, object storage и бизнес-критичные сервисы.
 
+Путь exfiltration идёт от доступа к данным через исходящий канал наружу. На каждом участке есть контроль, который превращает тихую утечку в наблюдаемое событие.
+
+```mermaid
+flowchart LR
+    access["Широкий доступ\nк хранилищу"]
+    collect["Массовое чтение\n/ snapshot"]
+    egress["Исходящий\nканал наружу"]
+    out["Утечка / impact"]
+
+    audit["Audit logs\nи минимальные права"]
+    alert["Алерт на массовые\nоперации"]
+    egctl["Egress control\n+ baseline"]
+
+    access --> collect --> egress --> out
+    audit -. контроль .-> access
+    alert -. контроль .-> collect
+    egctl -. контроль .-> egress
+
+    style access fill:#2d2d2d,color:#fff
+    style out fill:#6e2f1a,color:#fff
+    style audit fill:#1e8449,color:#fff
+    style alert fill:#1e8449,color:#fff
+    style egctl fill:#1e8449,color:#fff
+```
+
+Когда impact всё же случился, защита переходит к циклу реагирования: бэкап-изоляция здесь важнее «красивого» детектирования.
+
+```mermaid
+flowchart LR
+    signal["Сигнал:\nmass export / delete /\nаномальный egress"]
+    detect["Detection"]
+    contain["Containment\n(изоляция хоста,\nотзыв credentials)"]
+    recover["Recovery\n(проверка бэкапов,\nрестор)"]
+
+    signal --> detect --> contain --> recover
+
+    style signal fill:#7d6608,color:#fff
+    style contain fill:#1a5276,color:#fff
+    style recover fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 7.2 Как выглядит риск

@@ -41,6 +41,28 @@
 - какие сигналы останутся в логах и трафике;
 - что можно быстро починить, а что требует отдельной архитектуры.
 
+Модель угроз связывает четыре вопроса: что защищаем, от кого, какими путями приходит атака и где у нас стоят контроли.
+
+```mermaid
+flowchart TD
+    assets["Активы\n(что защищаем:\nданные, доступы, сервисы)"]
+    actor["Threat actor\n(от кого:\nвнешний, инсайдер, бот)"]
+    surface["Attack surface\n(пути входа:\nпорты, auth, интеграции)"]
+    controls["Controls\n(где защита:\nлоги, сегментация, MFA)"]
+    gaps["Пробелы\n(где защита\nещё не построена)"]
+
+    actor --> surface
+    surface --> assets
+    controls --> surface
+    assets --> gaps
+    controls --> gaps
+
+    style assets fill:#4a235a,color:#fff
+    style actor fill:#2d2d2d,color:#fff
+    style controls fill:#1e8449,color:#fff
+    style gaps fill:#7d6608,color:#fff
+```
+
 ---
 
 ## 0.4 Карта пути
@@ -48,6 +70,29 @@
 Почему вся практика только lab-only и как безопасно организовать стенд.
 
 Дальше книга идёт от базовой модели угроз к практическим слоям защиты, затем к безопасным проверкам, а потом к итоговому проекту.
+
+Цепочка атаки (kill chain) в защитной оптике: каждый этап — это место, где защита может оборвать продвижение. Книга идёт по этим этапам слева направо.
+
+```mermaid
+flowchart LR
+    recon["Reconnaissance\n(разведка)"]
+    access["Initial access\n(первичный доступ)"]
+    cred["Credential abuse\n(злоупотребление\nучётками)"]
+    privesc["Privilege\nescalation\n(повышение прав)"]
+    persist["Persistence\n(закрепление)"]
+    lateral["Lateral movement\n(горизонтальное\nперемещение)"]
+    impact["Exfiltration\n& impact\n(утечка и ущерб)"]
+
+    recon --> access --> cred --> privesc --> persist --> lateral --> impact
+
+    style recon fill:#2d2d2d,color:#fff
+    style access fill:#1a5276,color:#fff
+    style privesc fill:#1a5276,color:#fff
+    style lateral fill:#1a5276,color:#fff
+    style impact fill:#6e2f1a,color:#fff
+```
+
+Для защитника каждая стрелка — это точка, где можно вставить контроль и разорвать цепочку: чем раньше, тем меньше blast radius.
 
 Принцип каждой главы:
 

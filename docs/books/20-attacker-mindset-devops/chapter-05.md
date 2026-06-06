@@ -12,6 +12,32 @@ Persistence в реальной жизни часто выглядит как н
 
 Эта глава особенно полезна для защитника, который хочет знать, где искать следы закрепления на Linux.
 
+Закрепление прячется в штатных механизмах системы. Защитник противопоставляет им документированный baseline: всё, что отклоняется от него, подлежит расследованию.
+
+```mermaid
+flowchart LR
+    subgraph mechanisms["Механизмы закрепления"]
+        keys["Новые SSH keys\nи users"]
+        cron["Cron jobs\nи systemd timers"]
+        rc["Shell rc /\nprofile.d hooks"]
+        units["Unit-файлы\nи drop-ins"]
+    end
+    baseline["Документированный\nbaseline автозапуска"]
+    deviation["Отклонение\n→ расследование"]
+
+    keys --> baseline
+    cron --> baseline
+    rc --> baseline
+    units --> baseline
+    baseline --> deviation
+
+    style mechanisms fill:#2d2d2d,color:#fff
+    style baseline fill:#1e8449,color:#fff
+    style deviation fill:#7d6608,color:#fff
+```
+
+Без baseline закрепление выглядит как ещё одно «нормальное» изменение и живёт до следующего инцидента.
+
 ---
 
 ## 5.2 Как выглядит риск
