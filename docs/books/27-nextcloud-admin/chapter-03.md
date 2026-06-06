@@ -96,6 +96,31 @@ cadviewer removed
 
 Действие: `occ app:disable cadviewer`.
 
+Алгоритм разбора несовместимости как дерево решений:
+
+```mermaid
+flowchart TD
+    err["Ошибка в логах\nпосле обновления"]
+    find["Найти приложение\nпо OCA\\Name в стеке"]
+    disable["occ app:disable name"]
+    gone["Ошибка исчезла?"]
+    update["Есть обновление app?"]
+    apply["occ app:update name\nвключить обратно"]
+    other["Виновато не оно —\nискать дальше в логах"]
+    wait["Ждать совместимую версию\nили удалить app"]
+
+    err --> find --> disable --> gone
+    gone -->|"да"| update
+    gone -->|"нет"| other
+    update -->|"да"| apply
+    update -->|"нет"| wait
+
+    style err fill:#6e2f1a,color:#fff
+    style disable fill:#1a5276,color:#fff
+    style apply fill:#1e8449,color:#fff
+    style gone fill:#7d6608,color:#fff
+```
+
 ---
 
 ## 3.4 Практика

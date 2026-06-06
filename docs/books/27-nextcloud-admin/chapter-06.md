@@ -37,6 +37,25 @@ keyspace_misses:12847
 
 **Как читать:** `keyspace_hits` должны значительно превышать `keyspace_misses`. В примере выше соотношение ~115:1 — Redis работает эффективно. Если hits и misses примерно равны — кэш почти не помогает, возможно Redis слишком часто очищается или неправильно настроен.
 
+Откуда берётся ускорение — Redis отвечает раньше, чем запрос дойдёт до БД:
+
+```mermaid
+flowchart LR
+    req["Запрос Nextcloud\nнапр. сессия, locking"]
+    redis["Redis\nкэш в памяти"]
+    hit["hit: быстрый ответ"]
+    db["PostgreSQL\nответ через диск"]
+
+    req --> redis
+    redis -->|"есть в кэше (hit)"| hit
+    redis -->|"нет (miss)"| db
+
+    style req fill:#2d2d2d,color:#fff
+    style redis fill:#1a5276,color:#fff
+    style hit fill:#1e8449,color:#fff
+    style db fill:#7d6608,color:#fff
+```
+
 Проверка настроек Redis в Nextcloud:
 
 ```bash
@@ -68,6 +87,27 @@ Array
 | System cron | cron на сервере | лучший вариант |
 
 Проверь предупреждения в админке и документации AIO.
+
+Три способа запускать фоновые задачи — что их триггерит:
+
+```mermaid
+flowchart TD
+    jobs["Фоновые задачи\noc_jobs"]
+    ajax["AJAX\nзапускает заходящий\nпользователь"]
+    webcron["Webcron\nвнешний HTTP-вызов\nпо расписанию"]
+    syscron["System cron\ncron на сервере\nкаждые 5 минут"]
+
+    ajax --> jobs
+    webcron --> jobs
+    syscron --> jobs
+
+    style jobs fill:#1a5276,color:#fff
+    style ajax fill:#6e2f1a,color:#fff
+    style webcron fill:#7d6608,color:#fff
+    style syscron fill:#1e8449,color:#fff
+```
+
+AJAX плох тем, что задачи выполняются, только пока кто-то заходит; ночью встанут. System cron — лучший вариант: запускается по расписанию независимо от посетителей.
 
 ---
 

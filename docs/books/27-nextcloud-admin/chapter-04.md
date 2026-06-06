@@ -14,6 +14,30 @@
 
 Если потерять БД, одних файлов недостаточно для полного восстановления нормальной системы.
 
+Что где хранится — почему нужны обе половины:
+
+```mermaid
+flowchart LR
+    user["Файл пользователя"]
+    data["data directory\n/mnt/ncdata\nсами байты файла"]
+    db["PostgreSQL"]
+    fc["oc_filecache\nпуть, размер, владелец"]
+    sh["oc_share\nкому открыт доступ"]
+    us["oc_users / oc_accounts\nпользователи, настройки"]
+
+    user --> data
+    user --> db
+    db --> fc
+    db --> sh
+    db --> us
+
+    style data fill:#1e8449,color:#fff
+    style db fill:#1a5276,color:#fff
+    style fc fill:#1a5276,color:#fff
+```
+
+Потеряешь `data` — нет содержимого файлов. Потеряешь БД — файлы лежат на диске, но Nextcloud не знает, чьи они и кому открыты. Нужны обе половины.
+
 ---
 
 ## 4.2 Подключение

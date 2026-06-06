@@ -56,6 +56,29 @@ local     nextcloud_aio_redis
 
 Имена контейнеров в AIO обычно похожи на `nextcloud-aio-nextcloud`, но сначала всегда проверяй реальные имена через `docker ps`.
 
+Как устроена связка контейнеров AIO (mastercontainer управляет остальными):
+
+```mermaid
+flowchart TD
+    master["nextcloud-aio-mastercontainer\nуправляет, запускает, обновляет"]
+    nc["nextcloud-aio-nextcloud\nприложение, PHP, occ"]
+    db["nextcloud-aio-database\nPostgreSQL — метаданные"]
+    redis["nextcloud-aio-redis\nкэш и file locking"]
+    extra["notify-push / imaginary /\nfulltextsearch — опционально"]
+
+    master --> nc
+    master --> db
+    master --> redis
+    master --> extra
+    nc --> db
+    nc --> redis
+
+    style master fill:#4a235a,color:#fff
+    style nc fill:#1a5276,color:#fff
+    style db fill:#1a5276,color:#fff
+    style redis fill:#1a5276,color:#fff
+```
+
 ---
 
 ## 0.3 Config без утечки секретов
@@ -121,6 +144,27 @@ internet
   -> PostgreSQL
   -> Redis
   -> data directory
+```
+
+Тот же путь запроса в виде потока — от браузера до данных:
+
+```mermaid
+flowchart LR
+    client["Браузер /\nклиент"]
+    nginx["Nginx :443\nHTTPS, reverse proxy"]
+    aio["AIO apache\n:11000"]
+    app["Nextcloud app\nPHP"]
+    db["PostgreSQL\nметаданные"]
+    data["data directory\n/mnt/ncdata"]
+
+    client --> nginx --> aio --> app
+    app --> db
+    app --> data
+
+    style client fill:#2d2d2d,color:#fff
+    style nginx fill:#1a5276,color:#fff
+    style app fill:#1a5276,color:#fff
+    style data fill:#1e8449,color:#fff
 ```
 
 ---

@@ -16,6 +16,28 @@
 - настройки AIO;
 - custom apps/themes, если есть.
 
+Что входит в полный бэкап Nextcloud — три обязательные части:
+
+```mermaid
+flowchart TD
+    backup["Полный backup\nNextcloud"]
+    db["PostgreSQL\npg_dump — метаданные"]
+    data["data directory\nфайлы пользователей"]
+    cfg["config.php\nбез публикации секретов"]
+    offsite["Копия offsite\nпереживёт потерю сервера"]
+
+    backup --> db
+    backup --> data
+    backup --> cfg
+    db --> offsite
+    data --> offsite
+
+    style backup fill:#2d2d2d,color:#fff
+    style db fill:#1a5276,color:#fff
+    style data fill:#1a5276,color:#fff
+    style offsite fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 5.2 Варианты
@@ -126,6 +148,28 @@ zcat /data/backups/nextcloud/db-2024-04-28_0300.sql.gz | head -5
 ## 5.6 Restore drill
 
 Restore drill — тест восстановления на отдельном стенде. Не на боевом Nextcloud.
+
+Цикл «бэкап считается рабочим только после проверки восстановления»:
+
+```mermaid
+flowchart LR
+    make["Создать backup\npg_dump + файлы"]
+    store["Хранить\nлокально + offsite"]
+    drill["Restore drill\nна тестовой VM"]
+    ok["Восстановилось?"]
+    trust["Backup проверен\nзаписать дату"]
+    fix["Backup непригоден\nразобраться, повторить"]
+
+    make --> store --> drill --> ok
+    ok -->|"да"| trust
+    ok -->|"нет"| fix
+    fix --> make
+
+    style make fill:#2d2d2d,color:#fff
+    style trust fill:#1e8449,color:#fff
+    style fix fill:#6e2f1a,color:#fff
+    style ok fill:#7d6608,color:#fff
+```
 
 Минимальная проверка:
 

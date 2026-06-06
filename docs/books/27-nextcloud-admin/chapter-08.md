@@ -22,6 +22,24 @@
 
 Когда Nextcloud работает за Nginx как reverse proxy, два параметра критичны. Без них Nextcloud либо показывает «Access through untrusted domain», либо генерирует неправильные ссылки (http вместо https, внутренний IP вместо домена).
 
+Что происходит с запросом за reverse proxy и зачем каждый параметр:
+
+```mermaid
+sequenceDiagram
+    participant C as Клиент
+    participant N as Nginx (HTTPS)
+    participant A as Nextcloud (HTTP)
+    C->>N: HTTPS, Host: nextcloud.domain
+    N->>A: HTTP + X-Forwarded-For + X-Forwarded-Proto
+    Note over A: trusted_domains: домен в списке?
+    Note over A: trusted_proxies: брать реальный IP из заголовка
+    Note over A: overwriteprotocol: ссылки как https://
+    A-->>N: ответ
+    N-->>C: HTTPS ответ
+```
+
+Без `trusted_proxies` Nextcloud видит всех клиентов с IP Nginx, и brute force protection бьёт по всем сразу. Без `overwriteprotocol` ссылки в share-письмах уходят как `http://`.
+
 ### trusted_domains
 
 Nextcloud проверяет, с какого домена пришёл HTTP-запрос. Если домен не в списке — доступ блокируется.

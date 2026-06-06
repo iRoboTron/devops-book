@@ -89,6 +89,27 @@ occ group:adduser team username
 
 Группы нужны, чтобы не выдавать доступ каждому вручную.
 
+Модель пользователей, групп и шар — почему доступ удобнее выдавать группе:
+
+```mermaid
+flowchart TD
+    g["Группа team-docs"]
+    alice["alice"]
+    bob["bob"]
+    carol["carol"]
+    folder["Папка /Documents\nshare на группу"]
+
+    alice --> g
+    bob --> g
+    carol --> g
+    g --> folder
+
+    style g fill:#1a5276,color:#fff
+    style folder fill:#1e8449,color:#fff
+```
+
+Доступ выдан группе один раз — новый участник получает его автоматически, выбывший теряет. Не нужно править каждую шару вручную.
+
 ---
 
 ## 9.3 Квоты

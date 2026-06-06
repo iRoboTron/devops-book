@@ -18,6 +18,27 @@
 6. Есть ли место на диске?
 7. Не включён ли maintenance mode?
 
+Тот же алгоритм как дерево: идём по слоям от внешнего к внутреннему, пока не найдём виноватый.
+
+```mermaid
+flowchart TD
+    start["Симптом:\nчто не работает?"]
+    nginx["Nginx отвечает?\ncurl -I, nginx -t"]
+    cont["Контейнеры Up?\ndocker ps -a"]
+    logs["Логи Nextcloud\ndocker logs --tail"]
+    db["БД жива?\nlogs database"]
+    disk["Место на диске?\ndf -h"]
+    maint["maintenance mode?\nocc status"]
+    fix["Найден слой —\nчинить точечно"]
+
+    start --> nginx --> cont --> logs --> db --> disk --> maint --> fix
+
+    style start fill:#6e2f1a,color:#fff
+    style logs fill:#1a5276,color:#fff
+    style db fill:#1a5276,color:#fff
+    style fix fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 7.2 Команды
@@ -177,6 +198,21 @@ occ maintenance:mode --off
 
 - **Nginx работает** — иначе была бы ошибка соединения;
 - **Nextcloud (контейнер) не отвечает** — Nginx не может достучаться до него.
+
+Где именно рвётся цепочка при 502:
+
+```mermaid
+sequenceDiagram
+    participant C as Клиент
+    participant N as Nginx
+    participant A as Nextcloud :11000
+    C->>N: GET https://...
+    N->>A: proxy_pass на контейнер
+    A--xN: контейнер упал /\nневерный порт
+    N-->>C: 502 Bad Gateway
+```
+
+То есть Nginx жив (он и вернул 502), а вот апстрим — контейнер Nextcloud — недоступен или указан не тот порт.
 
 ```bash
 # Проверить контейнер

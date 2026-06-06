@@ -94,6 +94,30 @@ docker logs nextcloud-aio-nextcloud --tail=100
 
 Если приложение несовместимо, не включай его обратно вслепую. Сначала проверь логи и совместимость.
 
+Весь цикл обновления как workflow — от бэкапа до проверки:
+
+```mermaid
+flowchart TD
+    backup["Свежий backup\n+ проверка места df -h"]
+    ver["occ status\nзаписать версию"]
+    maint["maintenance:mode --on"]
+    upd["Обновление\nчерез AIO interface"]
+    check["occ status\nновая версия?"]
+    repair["db:add-missing-indices\nmaintenance:repair"]
+    logs["docker logs --tail=100\nесть ошибки?"]
+    off["maintenance:mode --off\nготово"]
+    rollback["Откат на backup\nразобраться с ошибкой"]
+
+    backup --> ver --> maint --> upd --> check --> repair --> logs
+    logs -->|"чисто"| off
+    logs -->|"ошибки app/PHP"| rollback
+
+    style backup fill:#2d2d2d,color:#fff
+    style off fill:#1e8449,color:#fff
+    style rollback fill:#6e2f1a,color:#fff
+    style logs fill:#7d6608,color:#fff
+```
+
 ---
 
 ## 2.4 Практика

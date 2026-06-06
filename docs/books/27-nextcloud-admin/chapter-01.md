@@ -16,6 +16,24 @@ docker exec --user www-data nextcloud-aio-nextcloud php occ status
 
 Если имя контейнера другое, замени его на своё из `docker ps`.
 
+Что происходит, когда ты запускаешь `occ` снаружи контейнера:
+
+```mermaid
+flowchart LR
+    you["Хост\ndocker exec"]
+    cont["nextcloud-aio-nextcloud\nuser: www-data"]
+    php["php occ status"]
+    nc["Ядро Nextcloud +\nconfig.php + БД"]
+
+    you --> cont --> php --> nc
+
+    style you fill:#2d2d2d,color:#fff
+    style cont fill:#1a5276,color:#fff
+    style nc fill:#1a5276,color:#fff
+```
+
+Важно: `occ` запускается под пользователем `www-data` (отсюда `--user www-data`). Под `root` команда либо откажется работать, либо испортит права на файлы.
+
 ---
 
 ## 1.2 Удобная функция
