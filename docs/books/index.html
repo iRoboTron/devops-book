@@ -359,7 +359,7 @@ const PARTS = [
         title: 'Часть 4. Прочее',
         description: 'Практические темы для цифровой самостоятельности: доступы, пароли, данные, инженерное мышление, архитектура, надёжность и ясная коммуникация.',
         from: 22,
-        to: 33
+        to: 99
     }
 ];
 
@@ -627,6 +627,46 @@ const COURSE_META = {
         tags: ["Podman", "Docker", "OCI", "rootless", "buildah", "Kubernetes"],
         color: "#6639ba",
         icon: "box"
+    },
+    "34-git-devops": {
+        title: "Git: практический минимум",
+        label: "От первого коммита до CI/CD",
+        description: "Всё что нужно DevOps-инженеру в Git: ветки, конфликты, rebase vs merge, SSH-ключи, стратегии ветвления. Как Git связан с CI/CD, git-хуки, GitOps. Без лишней теории — только ежедневная практика.",
+        tags: ["Git", "GitHub", "GitLab", "CI/CD", "ветки", "SSH"],
+        color: "#1a7f37",
+        icon: "flow"
+    },
+    "35-networks-devops": {
+        title: "Сети для DevOps",
+        label: "TCP/IP, DNS, HTTP и диагностика",
+        description: "Как данные идут по сети от браузера до сервиса. IP-адреса, подсети, CIDR. DNS, HTTP, HTTPS и TLS. Диагностика через ping, traceroute, tcpdump. iptables, Docker и Kubernetes networking. Алгоритм разбора сетевых инцидентов.",
+        tags: ["TCP/IP", "DNS", "HTTP", "iptables", "tcpdump", "Docker", "Kubernetes"],
+        color: "#0550ae",
+        icon: "server"
+    },
+    "36-vault-devops": {
+        title: "HashiCorp Vault",
+        label: "Секреты под контролем",
+        description: "Центральное хранилище секретов: KV engine, dynamic secrets для PostgreSQL, PKI для сертификатов, AppRole для CI/CD, Kubernetes Auth для подов. Vault Agent, Raft HA, audit log. Никаких паролей в .env и Git.",
+        tags: ["Vault", "секреты", "PKI", "AppRole", "Kubernetes", "security"],
+        color: "#bf3989",
+        icon: "shield"
+    },
+    "37-postgresql-devops": {
+        title: "PostgreSQL для DevOps",
+        label: "Надёжная эксплуатация без паники",
+        description: "Бэкапы и PITR, мониторинг через pg_stat_*, медленные запросы и EXPLAIN, PgBouncer connection pooling, streaming replication, миграции без даунтайма по паттерну expand/contract. Диагностика инцидентов за 5 минут.",
+        tags: ["PostgreSQL", "бэкапы", "WAL", "PgBouncer", "репликация", "мониторинг"],
+        color: "#0969da",
+        icon: "server"
+    },
+    "38-monitoring-devops": {
+        title: "Мониторинг с нуля",
+        label: "Prometheus, Grafana, Alertmanager",
+        description: "Весь стек мониторинга без Kubernetes: Prometheus, Grafana, Alertmanager, Loki. Node Exporter, cAdvisor, Blackbox. 20 PromQL-запросов для реальных задач. Алерты в Telegram. Логи рядом с метриками. Один docker-compose.yml — и готово.",
+        tags: ["Prometheus", "Grafana", "Alertmanager", "Loki", "PromQL", "мониторинг"],
+        color: "#e36209",
+        icon: "flow"
     }
 };
 
