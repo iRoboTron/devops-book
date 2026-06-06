@@ -41,6 +41,24 @@ May  5 14:15:02 myserver sshd[12001]: Accepted publickey for deploy from 93.184.
 
 > **Аналогия:** fail2ban — это охранник, который видит: «этот IP пытался войти 5 раз за 10 минут и провалился» — и вносит его в чёрный список на час. Боты идут дальше, а сервер отдыхает.
 
+Поток событий от неудачного входа до бана:
+
+```mermaid
+flowchart LR
+    fail["Failed password\nв auth.log / journald"] --> filter["Фильтр sshd\nсчитает попытки"]
+    filter --> check{"≥ maxretry\nза findtime?"}
+    check -->|нет| wait["Ждём дальше"]
+    check -->|да| ban["Action: ban\niptables drop IP"]
+    ban --> timer["bantime истёк"]
+    timer --> unban["Автоматический unban"]
+
+    style fail fill:#7d6608,color:#fff
+    style filter fill:#1a5276,color:#fff
+    style check fill:#1a5276,color:#fff
+    style ban fill:#6e2f1a,color:#fff
+    style unban fill:#1e8449,color:#fff
+```
+
 ```bash
 sudo apt install fail2ban
 ```

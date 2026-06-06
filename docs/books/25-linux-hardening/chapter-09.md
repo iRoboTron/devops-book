@@ -6,6 +6,31 @@
 
 ## 9.1 Минимальный baseline
 
+Весь baseline — это слои, которые вместе сужают поверхность атаки:
+
+```mermaid
+flowchart TD
+    subgraph "До hardening"
+        b1["SSH: пароль + root\nоткрыты все порты\nпатчи вручную"]
+    end
+    subgraph "Слои hardening"
+        l1["SSH: ключи, no root\n(глава 1)"]
+        l2["Пользователи: least privilege\n(глава 2)"]
+        l3["Firewall: default deny\n(глава 3)"]
+        l4["Обновления + fail2ban\n(главы 5, 6)"]
+        l5["Docker / sysctl\n(главы 4, 8)"]
+    end
+    after["После: узкая поверхность атаки\n+ план отката"]
+
+    b1 --> l1 --> l2 --> l3 --> l4 --> l5 --> after
+
+    style b1 fill:#6e2f1a,color:#fff
+    style l1 fill:#1a5276,color:#fff
+    style l3 fill:#1a5276,color:#fff
+    style l5 fill:#1a5276,color:#fff
+    style after fill:#1e8449,color:#fff
+```
+
 Для каждого пункта — команда проверки и ожидаемый результат.
 
 **SSH по ключам:**

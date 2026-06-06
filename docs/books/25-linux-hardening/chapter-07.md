@@ -92,6 +92,25 @@ sudo lynis audit system --report-file /tmp/lynis-report.dat
 
 **Score 65–70 для домашнего сервера — это нормально.** Часть рекомендаций lynis рассчитана на enterprise (bootloader password, SELinux, аудит ядра) и для личного VPS бессмысленна. Score 40 — плохо: значит не сделаны базовые вещи из этой книги.
 
+Как расставить приоритеты по выводу lynis:
+
+```mermaid
+flowchart TD
+    out["Вывод lynis"] --> warn{"Warning (!)\nили Suggestion (*)?"}
+    warn -->|Warning| basic{"Базовая вещь?\nSSH, firewall, патчи"}
+    warn -->|Suggestion| enterprise{"Только для enterprise?\nbootloader, MAC, AIDE"}
+    basic -->|да| fix["Исправить сразу"]
+    basic -->|нет| later["В очередь"]
+    enterprise -->|да| skip["Можно пропустить\nдля личного VPS"]
+    enterprise -->|нет| later
+
+    style out fill:#2d2d2d,color:#fff
+    style warn fill:#1a5276,color:#fff
+    style fix fill:#6e2f1a,color:#fff
+    style skip fill:#1e8449,color:#fff
+    style later fill:#7d6608,color:#fff
+```
+
 ---
 
 ## 7.4 Топ предупреждений: что исправить, а что можно пропустить

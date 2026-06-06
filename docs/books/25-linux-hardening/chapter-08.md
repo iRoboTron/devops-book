@@ -62,6 +62,26 @@ services:
 
 Но это может сломать приложение. Сначала тестируй на стенде.
 
+Слои снижения прав контейнера — от внешнего к внутреннему:
+
+```mermaid
+flowchart TD
+    base["Контейнер по умолчанию\nroot, все capabilities, порт 0.0.0.0"] --> port["Привязка порта\n127.0.0.1:8080"]
+    port --> nonroot["user: 1000:1000\nне root внутри"]
+    nonroot --> nonew["no-new-privileges:true\nнельзя поднять права"]
+    nonew --> caps["cap_drop: ALL\n+ только нужные cap_add"]
+    caps --> ro["read_only: true\n+ tmpfs для записи"]
+    ro --> hardened["Минимальная поверхность атаки"]
+
+    style base fill:#6e2f1a,color:#fff
+    style port fill:#1a5276,color:#fff
+    style nonroot fill:#1a5276,color:#fff
+    style caps fill:#1a5276,color:#fff
+    style hardened fill:#1e8449,color:#fff
+```
+
+Каждый слой проверяй отдельно: добавил — посмотрел логи — убедился, что приложение работает.
+
 ---
 
 ## 8.3 Как проверить что cap_drop: ALL не сломало контейнер

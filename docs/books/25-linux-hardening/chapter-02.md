@@ -66,6 +66,22 @@ sudo lastb -n 20
 - удалять или блокировать старые аккаунты;
 - не использовать одного пользователя на всю команду.
 
+```mermaid
+flowchart TD
+    all["Все аккаунты на сервере"] --> human["Люди\n(UID ≥ 1000)"]
+    all --> service["Сервисные\n(UID 100–999)"]
+    human --> admin["Админ\nsudo + shell"]
+    human --> regular["Обычный\nshell без sudo"]
+    service --> noshell["Без shell\n(nologin / false)"]
+    admin --> least["Минимум прав:\nsudo только по необходимости"]
+
+    style all fill:#2d2d2d,color:#fff
+    style admin fill:#6e2f1a,color:#fff
+    style regular fill:#1e8449,color:#fff
+    style noshell fill:#1e8449,color:#fff
+    style least fill:#1a5276,color:#fff
+```
+
 Проверка системных пользователей с shell:
 
 ```bash

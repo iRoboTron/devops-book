@@ -35,6 +35,30 @@ AllowAgentForwarding no
 
 Менять порт SSH можно, но это не настоящая защита. Это снижает шум в логах. Настоящая защита — ключи, запрет паролей, firewall и обновления.
 
+Как сервер решает, пустить клиента, после такого конфига:
+
+```mermaid
+sequenceDiagram
+    participant C as Клиент
+    participant S as sshd
+    C->>S: Запрос на вход (user)
+    S->>S: user в AllowUsers?
+    alt нет в списке
+        S-->>C: Permission denied
+    else разрешён
+        S->>S: PasswordAuthentication no
+        Note over S: пароль не предлагается
+        C->>S: Публичный ключ
+        alt ключ в authorized_keys
+            S-->>C: Accepted publickey
+        else ключа нет
+            S-->>C: Permission denied (publickey)
+        end
+    end
+```
+
+> Если `PermitRootLogin no`, то для пользователя `root` сервер отказывает на самом первом шаге, даже при верном ключе.
+
 ---
 
 ## 1.3 Безопасное применение

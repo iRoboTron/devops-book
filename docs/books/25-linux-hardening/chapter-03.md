@@ -120,6 +120,25 @@ ports:
 
 Тогда Docker создаёт DNAT только на localhost, и снаружи порт недоступен.
 
+Почему ufw не видит часть портов — пакет от Docker идёт другим путём:
+
+```mermaid
+flowchart LR
+    pkt["Входящий пакет\nиз интернета"] --> nat["iptables nat\n(PREROUTING)"]
+    nat --> dockerchain["Цепочка DOCKER\nDNAT на контейнер"]
+    nat --> ufwchain["Цепочка ufw\n(filter)"]
+    dockerchain --> container["Контейнер\nпорт открыт наружу"]
+    ufwchain --> hostsvc["Хостовый сервис\n(ssh, nginx)"]
+
+    style pkt fill:#2d2d2d,color:#fff
+    style dockerchain fill:#6e2f1a,color:#fff
+    style container fill:#6e2f1a,color:#fff
+    style ufwchain fill:#1a5276,color:#fff
+    style hostsvc fill:#1e8449,color:#fff
+```
+
+Вывод: ufw фильтрует только трафик к хостовым сервисам. Публикация портов Docker минует цепочку ufw, поэтому привязка к `127.0.0.1` — основная защита.
+
 ---
 
 ## 3.5 Если что-то пошло не так
