@@ -900,6 +900,10 @@
             {
                 "file": "chapter-09.md",
                 "title": "Глава 9: Итоговый проект"
+            },
+            {
+                "file": "glossary.md",
+                "title": "Глоссарий терминов"
             }
         ],
         "18-cloud-container-security-devops": [

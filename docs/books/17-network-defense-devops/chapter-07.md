@@ -28,6 +28,21 @@
 - делается вывод по одному пакету без контекста — ошибка интерпретации превращается в ложный вывод об инциденте.
   Проверить: смотреть не один SYN, а последовательность DNS -> TCP -> TLS -> HTTP.
 
+Один запрос к сервису — это целая цепочка, и смысл появляется только когда видна вся последовательность. По месту обрыва цепочки сразу понятно, на каком этапе соединение не состоялось.
+
+```mermaid
+flowchart LR
+    DNS["DNS resolve\n(имя -> IP)"] --> TCP["TCP handshake\nSYN / SYN-ACK / ACK"]
+    TCP --> TLS["TLS handshake\n(если https)"]
+    TLS --> HTTP["HTTP request\n+ ответ сервиса"]
+    TCP -. "RST / timeout" .-> FAIL["Соединение не состоялось"]
+
+    style DNS fill:#1a5276,color:#fff
+    style TCP fill:#1a5276,color:#fff
+    style HTTP fill:#1e8449,color:#fff
+    style FAIL fill:#6e2f1a,color:#fff
+```
+
 ### Где особенно важно
 - debug на сервере
 - анализ VPN

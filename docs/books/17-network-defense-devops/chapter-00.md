@@ -47,6 +47,25 @@
 
 North-south и east-west traffic, trust zones и контрольные точки.
 
+Эту модель удобно держать в голове как карту: где трафик пересекает периметр (north-south), где ходит внутри (east-west) и в каких точках его можно контролировать.
+
+```mermaid
+flowchart TD
+    NET["Интернет\n(внешняя зона)"] -->|north-south| GW["Gateway / Firewall\n(контрольная точка)"]
+    GW --> DMZ["DMZ\nпубличные сервисы"]
+    GW --> USERS["Users / рабочие станции"]
+    GW --> SRV["Servers\nприложения и БД"]
+    GW --> MGMT["Management\nадмин-доступ"]
+    USERS -. "east-west" .-> SRV
+    SRV -. "east-west" .-> DMZ
+
+    style NET fill:#2d2d2d,color:#fff
+    style GW fill:#1a5276,color:#fff
+    style DMZ fill:#7d6608,color:#fff
+    style SRV fill:#1e8449,color:#fff
+    style MGMT fill:#4a235a,color:#fff
+```
+
 Дальше книга идёт от базовой модели угроз к практическим слоям защиты, затем к безопасным проверкам, а потом к итоговому проекту.
 
 Принцип каждой главы:

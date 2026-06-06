@@ -48,6 +48,27 @@ DMZ в бытовом роутере и DMZ как сетевая зона — �
 - умеешь минимизировать port forwarding;
 - можешь описать, какие сервисы должны быть публичными, а какие нет.
 
+Разница нагляднее на схеме: бытовой DMZ toggle отправляет весь входящий трафик на один хост, который при этом остаётся в общей сети; настоящая DMZ — отдельный сегмент, изолированный от внутренней сети правилами.
+
+```mermaid
+flowchart TD
+    subgraph SOHO["SOHO DMZ toggle"]
+        N1["Интернет"] --> H1["Один хост\nвесь трафик + внутренние сервисы"]
+        H1 -. "нет изоляции" .-> LAN1["Внутренняя сеть"]
+    end
+    subgraph REAL["Архитектурная DMZ"]
+        N2["Интернет"] --> GW["Gateway / Firewall"]
+        GW --> PUB["DMZ-сегмент\nтолько публичные сервисы"]
+        GW --> LAN2["Внутренняя сеть"]
+        PUB -. "default deny" .-x LAN2
+    end
+
+    style H1 fill:#6e2f1a,color:#fff
+    style GW fill:#1a5276,color:#fff
+    style PUB fill:#7d6608,color:#fff
+    style LAN2 fill:#1e8449,color:#fff
+```
+
 ```nft
 table ip nat {
   chain prerouting {

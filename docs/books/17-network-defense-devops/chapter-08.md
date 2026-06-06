@@ -42,6 +42,24 @@ admin/client
   -> отдельный app host
 ```
 
+В виде топологии видно, что админский и пользовательский пути расходятся на gateway, а server zone доступна только через контролируемый шлюз — IoT и guest туда не ходят напрямую.
+
+```mermaid
+flowchart TD
+    ADMIN["Admin"] --> GW["Gateway / Firewall"]
+    CLIENT["Client / users"] --> GW
+    IOT["IoT / guest"] --> GW
+    GW --> SRVNET["Server-net"]
+    SRVNET --> APP["App host"]
+    IOT -. "deny" .-x SRVNET
+
+    style ADMIN fill:#4a235a,color:#fff
+    style GW fill:#1a5276,color:#fff
+    style SRVNET fill:#1e8449,color:#fff
+    style APP fill:#1e8449,color:#fff
+    style IOT fill:#6e2f1a,color:#fff
+```
+
 Что проверять:
 - админский доступ не смешан с пользовательским;
 - IoT/пользовательские устройства не имеют прямого доступа к server zone;

@@ -56,6 +56,24 @@ guest -> servers deny
 iot -> management deny
 ```
 
+Та же матрица потоков читается нагляднее как граф зон: разрешённые направления — сплошные стрелки, запрещённые — пунктир с пометкой `deny`. Всё, что не нарисовано как allow, режется по умолчанию.
+
+```mermaid
+flowchart LR
+    USERS["Users"] -->|"443"| APP["App servers"]
+    APP -->|"5432"| DB["DB"]
+    MGMT["Management"] -->|"admin ports"| APP
+    MGMT -->|"admin ports"| DB
+    GUEST["Guest"] -. "deny" .-x APP
+    IOT["IoT"] -. "deny" .-x MGMT
+
+    style USERS fill:#1a5276,color:#fff
+    style MGMT fill:#4a235a,color:#fff
+    style DB fill:#1e8449,color:#fff
+    style GUEST fill:#6e2f1a,color:#fff
+    style IOT fill:#6e2f1a,color:#fff
+```
+
 ---
 
 ## 3.4 Практика

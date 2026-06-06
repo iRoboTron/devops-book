@@ -43,6 +43,21 @@
 - логирование событий граничного устройства;
 - инвентаризация внешней экспозиции с регулярной проверкой.
 
+Каждый слой закрывает свой уровень, и важно не путать их зоны ответственности: router выбирает маршрут, firewall фильтрует адреса и порты, WAF разбирает HTTP, а host-firewall даёт второй независимый рубеж.
+
+```mermaid
+flowchart LR
+    NET["Интернет"] --> R["Router / Gateway\n(маршрутизация, NAT)"]
+    R --> FW["Firewall policy\n(L3/L4 фильтрация)"]
+    FW --> WAF["Reverse proxy / WAF\n(HTTP-уровень, TLS)"]
+    WAF --> H["Hosts\n+ host firewall"]
+
+    style NET fill:#2d2d2d,color:#fff
+    style FW fill:#1a5276,color:#fff
+    style WAF fill:#1a5276,color:#fff
+    style H fill:#1e8449,color:#fff
+```
+
 ### Практический результат главы
 - ты отличаешь маршрутизацию, фильтрацию и прикладную защиту;
 - можешь обосновать, нужен ли отдельный firewall appliance или достаточно cloud firewall + host firewall;

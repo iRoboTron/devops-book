@@ -48,6 +48,21 @@ VPN дает контролируемую management surface: отдельная
 - знаешь, какие настройки SSH обязательны в baseline;
 - можешь объяснить, когда нужен bastion, а когда достаточно VPN.
 
+Сравни два пути администрирования. Открытый SSH принимает bot noise и brute-force прямо из интернета; доступ через VPN или bastion прячет порт `22` за доверенным каналом, и снаружи он остаётся `filtered`.
+
+```mermaid
+flowchart LR
+    NET["Интернет\n(bots, brute-force)"] -->|"22 открыт"| SRV1["Server\nSSH наружу"]
+    ADMIN["Админ"] -->|"VPN-туннель"| VPN["VPN / Bastion\n(management subnet)"]
+    VPN -->|"22 только изнутри"| SRV2["Server"]
+    NET -. "22 filtered" .-x SRV2
+
+    style NET fill:#2d2d2d,color:#fff
+    style SRV1 fill:#6e2f1a,color:#fff
+    style VPN fill:#1a5276,color:#fff
+    style SRV2 fill:#1e8449,color:#fff
+```
+
 ```ini
 PermitRootLogin no
 PasswordAuthentication no

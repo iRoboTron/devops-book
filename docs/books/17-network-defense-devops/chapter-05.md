@@ -10,6 +10,24 @@ Firewall решает “пускать или не пускать”, а IDS/IP
 
 Главная ошибка — ставить IDS ради галочки и утонуть в false positive, не понимая, что именно она анализирует: зеркало трафика, span, inline-позицию или host-based источник.
 
+Где именно стоит сенсор — определяет, что он вообще способен увидеть. SPAN/TAP дают пассивную копию трафика (режим IDS), inline-позиция позволяет блокировать (режим IPS), а host-based видит только трафик своего узла.
+
+```mermaid
+flowchart LR
+    NET["Интернет"] --> GW["Gateway / Switch"]
+    GW -. "копия трафика" .-> SPAN["SPAN / TAP\n(пассивный NIDS)"]
+    GW -->|"inline"| IPS["IPS\n(может блокировать)"]
+    IPS --> SRV["Server\n+ host sensor"]
+    SPAN --> LOG["fast.log / EVE\nалерты"]
+    IPS --> LOG
+
+    style NET fill:#2d2d2d,color:#fff
+    style SPAN fill:#1a5276,color:#fff
+    style IPS fill:#1a5276,color:#fff
+    style SRV fill:#1e8449,color:#fff
+    style LOG fill:#7d6608,color:#fff
+```
+
 Эта глава особенно полезна для small business, VPS-групп и лабораторий, где нужно научиться видеть сетевые события, а не только открытые порты.
 
 ---
@@ -47,6 +65,23 @@ Firewall решает “пускать или не пускать”, а IDS/IP
 - ты понимаешь, где ставить sensor и что он реально увидит;
 - умеешь отличать IDS от IPS;
 - можешь показать, как сетевой сигнал связывается с хостовым событием.
+
+Ценность сенсора не в самом алерте, а в цепочке от детекта до решения. Сетевое событие нужно сопоставить с host-логами по времени, иначе его нельзя ни подтвердить, ни отличить от ложного срабатывания.
+
+```mermaid
+sequenceDiagram
+    participant Net as Трафик
+    participant IDS as Sensor (Suricata)
+    participant Log as fast.log / SIEM
+    participant Host as Host logs
+    participant Eng as Защитник
+    Net->>IDS: подозрительный паттерн
+    IDS->>Log: алерт (сигнатура)
+    Eng->>Log: читает алерт
+    Eng->>Host: корреляция по времени
+    Host-->>Eng: nginx / ssh / firewall
+    Eng->>Eng: реальный инцидент или false positive?
+```
 
 ```bash
 sudo suricata -T -c /etc/suricata/suricata.yaml
