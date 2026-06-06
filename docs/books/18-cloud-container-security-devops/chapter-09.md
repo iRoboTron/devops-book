@@ -62,6 +62,25 @@
 - проверить публичную экспозицию;
 - проверить runtime свойства контейнера/Pod.
 
+Фазы итогового проекта складываются в единый baseline:
+
+```mermaid
+flowchart LR
+    p1["Фаза 1\nCloud / network\nreview"]
+    p2["Фаза 2\nSecrets / IAM\nreview"]
+    p3["Фаза 3\nImage / runtime\nhardening"]
+    p4["Фаза 4\nControlled\nvalidation"]
+    base["Hardened\nbaseline"]
+
+    p1 --> p2 --> p3 --> p4 --> base
+    p4 -.->|findings| p3
+
+    style p1 fill:#1a5276,color:#fff
+    style p3 fill:#7d6608,color:#fff
+    style p4 fill:#1a5276,color:#fff
+    style base fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 9.4 Варианты проекта

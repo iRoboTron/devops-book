@@ -62,6 +62,40 @@ services:
       - /tmp
 ```
 
+Как runtime-флаги расширяют или сужают власть контейнера:
+
+```mermaid
+flowchart TD
+    cont["Контейнер"]
+
+    subgraph "Опасно: расширяет власть"
+        priv["--privileged"]
+        sock["mount docker.sock"]
+        hostnet["network_mode: host"]
+        rwfs["writable rootfs"]
+    end
+
+    subgraph "Безопасно: сужает власть"
+        capdrop["cap_drop: ALL"]
+        rofs["read_only: true"]
+        nonew["no-new-privileges"]
+        seccomp["seccomp / AppArmor"]
+    end
+
+    priv --> host["Доступ к хосту"]
+    sock --> host
+    hostnet --> host
+    cont --> priv
+    cont --> capdrop
+
+    style priv fill:#6e2f1a,color:#fff
+    style sock fill:#6e2f1a,color:#fff
+    style host fill:#6e2f1a,color:#fff
+    style capdrop fill:#1e8449,color:#fff
+    style rofs fill:#1e8449,color:#fff
+    style nonew fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 5.4 Практика

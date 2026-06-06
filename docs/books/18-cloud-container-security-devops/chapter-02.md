@@ -55,6 +55,32 @@ Allow: s3:GetObject on arn:aws:s3:::myapp-assets/*
 Deny:  s3:* on *
 ```
 
+Разделение доступа по функциям вместо одной admin-роли:
+
+```mermaid
+flowchart TD
+    subgraph "Антипаттерн"
+        all["Одна admin-роль\n* на всё"]
+        human1["Человек"]
+        ci1["CI/CD"]
+        svc1["Runtime"]
+        human1 --> all
+        ci1 --> all
+        svc1 --> all
+    end
+
+    subgraph "Least privilege"
+        human2["Человек"] --> hrole["Роль человека\n(SSO, MFA)"]
+        ci2["CI/CD"] --> crole["Роль деплоя\n(short-lived)"]
+        svc2["Runtime"] --> srole["Роль сервиса\n(только нужные ресурсы)"]
+    end
+
+    style all fill:#6e2f1a,color:#fff
+    style hrole fill:#1e8449,color:#fff
+    style crole fill:#1e8449,color:#fff
+    style srole fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 2.4 Практика

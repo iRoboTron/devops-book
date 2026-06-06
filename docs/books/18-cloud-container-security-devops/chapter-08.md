@@ -2,6 +2,24 @@
 
 > **Запомни:** cloud и container security бессмысленны без цикла `scan -> fix -> redeploy -> verify`.
 
+Базовый рабочий цикл безопасных проверок:
+
+```mermaid
+flowchart LR
+    scan["Scan / review\n(trivy, inspect)"]
+    triage["Triage\n(важное vs шум)"]
+    fix["Fix\n(Dockerfile, policy)"]
+    redeploy["Redeploy"]
+    verify["Verify\n(повторный scan)"]
+
+    scan --> triage --> fix --> redeploy --> verify
+    verify -->|остались findings| scan
+
+    style scan fill:#1a5276,color:#fff
+    style fix fill:#7d6608,color:#fff
+    style verify fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 8.1 Что проверяем

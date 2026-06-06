@@ -12,6 +12,28 @@
 
 Эта глава особенно полезна для VPS, облачных VM и небольших кластеров, где сервисы выставляются в интернет.
 
+Путь входящего трафика по слоям периметра:
+
+```mermaid
+flowchart LR
+    client["Клиент\n(интернет)"]
+    sg["Security group\n(cloud firewall)"]
+    lb["Load balancer\n(TLS termination)"]
+    proxy["Reverse proxy\n/ WAF"]
+    fw["Host firewall\n(ufw / nftables)"]
+    app["Приложение"]
+
+    client --> sg --> lb --> proxy --> fw --> app
+
+    style client fill:#2d2d2d,color:#fff
+    style sg fill:#1a5276,color:#fff
+    style lb fill:#1a5276,color:#fff
+    style proxy fill:#1a5276,color:#fff
+    style app fill:#1e8449,color:#fff
+```
+
+Каждый слой может фильтровать, завершать TLS или журналировать — важно знать, кто за что отвечает.
+
 ---
 
 ## 1.2 Как выглядит риск

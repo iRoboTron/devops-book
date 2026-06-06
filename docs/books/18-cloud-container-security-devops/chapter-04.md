@@ -64,6 +64,32 @@ USER app
 CMD ["python", "main.py"]
 ```
 
+Multi-stage build оставляет в runtime только то, что нужно, и сокращает поверхность атаки:
+
+```mermaid
+flowchart TD
+    subgraph "Build stage (отбрасывается)"
+        base1["Base image"]
+        comp["Компиляторы\nи build tools"]
+        deps["Установка\nзависимостей"]
+        base1 --> comp --> deps
+    end
+
+    subgraph "Runtime stage (в production)"
+        base2["Slim base"]
+        artifacts["Только артефакты\nи зависимости"]
+        nonroot["Non-root USER"]
+        base2 --> artifacts --> nonroot
+    end
+
+    deps -->|COPY --from=build| artifacts
+
+    style comp fill:#7d6608,color:#fff
+    style deps fill:#7d6608,color:#fff
+    style artifacts fill:#1a5276,color:#fff
+    style nonroot fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 4.4 Практика

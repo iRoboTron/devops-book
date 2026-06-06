@@ -89,6 +89,29 @@ ghi789    5m ago    ENV DATABASE_URL=postgres://user:SuperSecret... 0B
 
 Даже если слой весит `0B`, секрет остаётся в метаданных образа.
 
+Один секрет может утечь сразу по нескольким каналам:
+
+```mermaid
+flowchart LR
+    secret["Секрет\n(token, DSN, key)"]
+
+    secret --> img["Image layer\n(ENV / COPY)"]
+    secret --> ci["CI logs\n(echo / set -x)"]
+    secret --> mani["Manifest / compose\n(plain text)"]
+    secret --> bkp["Backup / bucket\n(.env, дампы)"]
+
+    img --> reg["Registry\n(уезжает наружу)"]
+    ci --> view["Любой, кто видит job"]
+    mani --> repo["Git-репозиторий"]
+    bkp --> obj["Object storage"]
+
+    style secret fill:#7d6608,color:#fff
+    style img fill:#6e2f1a,color:#fff
+    style ci fill:#6e2f1a,color:#fff
+    style mani fill:#6e2f1a,color:#fff
+    style bkp fill:#6e2f1a,color:#fff
+```
+
 Как найти утечку:
 
 ```bash

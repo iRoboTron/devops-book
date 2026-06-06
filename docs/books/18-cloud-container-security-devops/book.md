@@ -42,6 +42,7 @@
 
 - [**Приложение A: Шпаргалка и быстрые команды**](appendix-a.md)
 - [**Приложение B: Лаборатория и reference-manifests**](appendix-b.md)
+- [**Глоссарий**](glossary.md)
 
 ---
 

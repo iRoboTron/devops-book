@@ -41,6 +41,38 @@
 - какие сигналы останутся в логах и трафике;
 - что можно быстро починить, а что требует отдельной архитектуры.
 
+Карта активов и границ доверия, через которые проходит угроза:
+
+```mermaid
+flowchart LR
+    attacker["Внешний\nатакующий"]
+
+    subgraph "Публичная зона"
+        edge["Cloud perimeter\n(SG, LB, WAF)"]
+        app["Публичное\nприложение"]
+    end
+
+    subgraph "Внутренняя зона"
+        secrets["Secrets\n(токены, ключи)"]
+        registry["Registry\n(образы)"]
+        cplane["Control plane\n(IAM, K8s API)"]
+        runtime["Runtime\n(контейнеры)"]
+    end
+
+    attacker --> edge
+    edge --> app
+    app -.->|утечка прав| secrets
+    secrets -.-> cplane
+    registry --> runtime
+    cplane --> runtime
+
+    style attacker fill:#6e2f1a,color:#fff
+    style edge fill:#1a5276,color:#fff
+    style secrets fill:#7d6608,color:#fff
+    style cplane fill:#4a235a,color:#fff
+    style runtime fill:#1e8449,color:#fff
+```
+
 ---
 
 ## 0.4 Карта пути

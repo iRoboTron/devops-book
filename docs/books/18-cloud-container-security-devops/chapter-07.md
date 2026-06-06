@@ -62,6 +62,28 @@ securityContext:
 automountServiceAccountToken: false
 ```
 
+Слои контроля доступа в кластере — от subject до пода:
+
+```mermaid
+flowchart TD
+    subject["Subject\n(user / ServiceAccount)"]
+    binding["RoleBinding /\nClusterRoleBinding"]
+    role["Role / ClusterRole\n(минимум verbs)"]
+    ns["Namespace\n(изоляция по среде)"]
+    pod["Pod\n(securityContext)"]
+    netpol["NetworkPolicy\n(east-west)"]
+
+    subject --> binding --> role
+    role --> ns
+    ns --> pod
+    pod --> netpol
+
+    style subject fill:#2d2d2d,color:#fff
+    style role fill:#1a5276,color:#fff
+    style pod fill:#1e8449,color:#fff
+    style netpol fill:#4a235a,color:#fff
+```
+
 ---
 
 ## 7.4 Практика

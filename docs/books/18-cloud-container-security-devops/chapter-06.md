@@ -54,6 +54,28 @@ docker pull registry.example.com/myapp@sha256:...
 trivy image registry.example.com/myapp:1.4.3
 ```
 
+Доверенная цепочка поставки образа от сборки до деплоя:
+
+```mermaid
+flowchart LR
+    src["Исходный код\n(pinned commit)"]
+    build["Build\n(CI)"]
+    scan["Scan\n(trivy)"]
+    sign["Sign\n(cosign)"]
+    reg["Registry\n(immutable tag)"]
+    admit["Admission\n(verify подписи)"]
+    deploy["Deploy по digest\n@sha256:..."]
+
+    src --> build --> scan --> sign --> reg --> admit --> deploy
+    scan -.->|CRITICAL findings| stop["Блок релиза"]
+
+    style src fill:#2d2d2d,color:#fff
+    style scan fill:#1a5276,color:#fff
+    style sign fill:#1e8449,color:#fff
+    style deploy fill:#1e8449,color:#fff
+    style stop fill:#6e2f1a,color:#fff
+```
+
 ---
 
 ## 6.4 Практика
@@ -100,6 +122,32 @@ python3.11 CVE-2023-6597  HIGH      3.11.2             3.11.8
 - `CRITICAL` в base image обычно означает обновить `FROM` и пересобрать образ;
 - `HIGH` в приложенческой зависимости означает обновить пакет и прогнать тесты;
 - не надо обновлять всё разом без понимания, что именно изменится.
+
+Дерево решений по результату скана:
+
+```mermaid
+flowchart TD
+    finding["CVE найдена"]
+    sev{"Severity?"}
+    where{"Где компонент?"}
+
+    finding --> sev
+    sev -->|CRITICAL / HIGH| where
+    sev -->|LOW / шум| triage["Отложить, но\nзафиксировать"]
+
+    where -->|base image| rebuild["Обновить FROM\nи пересобрать"]
+    where -->|зависимость| update["Обновить пакет\nи прогнать тесты"]
+
+    rebuild --> verify["Повторный scan"]
+    update --> verify
+    verify --> ok{"Чисто?"}
+    ok -->|да| release["Релиз"]
+    ok -->|нет| where
+
+    style finding fill:#6e2f1a,color:#fff
+    style verify fill:#1a5276,color:#fff
+    style release fill:#1e8449,color:#fff
+```
 
 Проверка digest вместо `latest`:
 
