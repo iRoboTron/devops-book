@@ -93,7 +93,7 @@ HashiCorp Vault — архитектура, политики, AppRole, K8s-ин�
 ### Дефолт
 
 **Authentik** `self-hosted` `★★` `Docker: да`
-Self-hosted Identity Provider с понятным веб-UI, поддержкой OAuth2, OIDC и SAML. Проще в настройке чем Keycloak, гибче чем Authelia. Flows (потоки аутентификации) настраиваются визуально. Поддерживает LDAP, MFA, invitation-ссылки, группы, поlistens аудит. Для homelab и стартапа — первый выбор если SSO нужен вообще.
+Self-hosted Identity Provider с понятным веб-UI, поддержкой OAuth2, OIDC и SAML. Проще в настройке чем Keycloak, гибче чем Authelia. Flows (потоки аутентификации) настраиваются визуально. Поддерживает LDAP, MFA, invitation-ссылки, группы, аудит. Для homelab и стартапа — первый выбор если SSO нужен вообще.
 
 ### Альтернативы
 
