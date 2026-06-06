@@ -54,6 +54,30 @@
 
 Если хотя бы один лишний сервис смотрит наружу, ты уже увеличил площадь атаки.
 
+Та же карта в виде диаграммы — наглядно видно, что нужное и лишнее живут рядом на одном хосте:
+
+```mermaid
+flowchart TD
+    NET["Интернет\n(боты, сканеры)"] --> SSH["SSH :22"]
+    NET --> HTTP["HTTP :80"]
+    NET --> HTTPS["HTTPS :443"]
+    NET --> EXTRA["Лишние порты\n:5432 :3306 :8080 :9000"]
+    NET --> META["DNS / домен\nбаннеры / сертификаты"]
+
+    SSH --> HOST["Публичный хост"]
+    HTTP --> HOST
+    HTTPS --> HOST
+    EXTRA --> HOST
+    META --> HOST
+
+    style NET fill:#2d2d2d,color:#fff
+    style EXTRA fill:#6e2f1a,color:#fff
+    style HTTPS fill:#1e8449,color:#fff
+    style HOST fill:#1a5276,color:#fff
+```
+
+Зелёным выделено то, что обычно должно быть открыто, красным — лишние сервисы, которые расширяют поверхность атаки без необходимости.
+
 ---
 
 ## 0.3 Дом, VPS, small business, enterprise
@@ -112,6 +136,24 @@
   -> SSH hardening
   -> fail2ban / CrowdSec
   -> логи и сигналы
+```
+
+Те же слои в виде потока трафика — каждый следующий слой видит уже отфильтрованный предыдущим трафик:
+
+```mermaid
+flowchart LR
+    NET["Интернет"] --> EDGE["edge device\nrouter / firewall"]
+    EDGE --> PROXY["reverse proxy\nWAF basics"]
+    PROXY --> FW["host firewall"]
+    FW --> SSH["SSH hardening"]
+    SSH --> F2B["fail2ban\nCrowdSec"]
+    F2B --> LOG["логи и сигналы"]
+
+    style NET fill:#2d2d2d,color:#fff
+    style EDGE fill:#1a5276,color:#fff
+    style FW fill:#1a5276,color:#fff
+    style F2B fill:#1e8449,color:#fff
+    style LOG fill:#7d6608,color:#fff
 ```
 
 И не менее важно: ты должен уметь безопасно проверить, что это всё реально работает.

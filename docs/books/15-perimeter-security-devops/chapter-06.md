@@ -21,6 +21,27 @@ Fail2ban читает логи и при совпадении шаблона:
 
 Это полезно против автоматических ботов и дешёвого brute-force.
 
+Цикл реакции fail2ban: сервис пишет в лог, fail2ban читает совпадения и через firewall блокирует IP:
+
+```mermaid
+sequenceDiagram
+    participant Bot as Бот (IP)
+    participant SSH as sshd
+    participant Log as auth.log / journald
+    participant F2B as fail2ban
+    participant FW as firewall
+
+    Bot->>SSH: попытка входа (неверный пароль)
+    SSH->>Log: Failed password from IP
+    F2B->>Log: читает совпадения по фильтру
+    Note over F2B: maxretry превышен\nв окне findtime
+    F2B->>FW: добавить правило DROP для IP
+    Bot--xSSH: следующие попытки отброшены
+    Note over F2B,FW: через bantime правило снимается
+```
+
+fail2ban не стоит на пути трафика — он реагирует постфактум по логам и просит firewall заблокировать шумный IP.
+
 ---
 
 ## 6.2 CrowdSec

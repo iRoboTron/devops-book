@@ -53,6 +53,32 @@ client VM
   -> app VM
 ```
 
+Та же схема с зонами: gateway разделяет внешнюю сторону, DMZ с публичным сервисом и внутреннюю сеть:
+
+```mermaid
+flowchart TD
+    CLIENT["client VM\n(внешняя сторона)"] --> GW["gateway / firewall VM\nполитика между зонами"]
+
+    subgraph DMZ["DMZ"]
+        APP["app VM\nпубличный сервис :443"]
+    end
+
+    subgraph INTERNAL["Внутренняя сеть"]
+        DB["БД / внутренние сервисы"]
+    end
+
+    GW --> APP
+    APP -->|только нужное| DB
+    CLIENT -.->|нет прямого доступа| DB
+
+    style CLIENT fill:#2d2d2d,color:#fff
+    style GW fill:#1a5276,color:#fff
+    style APP fill:#7d6608,color:#fff
+    style DB fill:#1e8449,color:#fff
+```
+
+Смысл DMZ в том, что публичный сервис изолирован: даже если app VM скомпрометируют, до внутренней сети ещё один контролируемый шаг через gateway.
+
 ### Что должно быть в результате
 
 - административный доступ отделён от пользовательского;

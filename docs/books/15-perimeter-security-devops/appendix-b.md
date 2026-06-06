@@ -162,3 +162,15 @@ Host app-server
 - сначала SSH подключается к `bastion`;
 - потом через него прокидывает соединение к `app-server`;
 - сам внутренний сервер можно вообще не публиковать в интернет.
+
+```mermaid
+flowchart LR
+    ADMIN["Админ\n~/.ssh/config"] -->|SSH :22| BASTION["bastion\nbastion.example.com\nединственная публичная дверь"]
+    BASTION -->|ProxyJump\nвнутренняя сеть| APP["app-server\n10.0.0.20\nне публикуется в интернет"]
+
+    style ADMIN fill:#2d2d2d,color:#fff
+    style BASTION fill:#7d6608,color:#fff
+    style APP fill:#1e8449,color:#fff
+```
+
+Наружу торчит только bastion, а внутренние серверы доступны исключительно через него.

@@ -18,6 +18,23 @@ allow only what is required
 - не держать БД доступной снаружи;
 - не публиковать админки, если можно не публиковать.
 
+Как входящий пакет проходит через политику `deny by default`: правила allow проверяются по очереди, и всё, что не совпало ни с одним, отбрасывается:
+
+```mermaid
+flowchart TD
+    PKT["Входящий пакет"] --> Q1{"Порт 22/80/443?"}
+    Q1 -->|Да| ALLOW["ALLOW\nпропустить к сервису"]
+    Q1 -->|Нет| Q2{"Совпал с другим\nallow-правилом?"}
+    Q2 -->|Да| ALLOW
+    Q2 -->|Нет| DENY["default deny\nотбросить пакет"]
+
+    style PKT fill:#2d2d2d,color:#fff
+    style ALLOW fill:#1e8449,color:#fff
+    style DENY fill:#6e2f1a,color:#fff
+```
+
+Ключевая идея: ветка `default deny` ловит всё, что не разрешено явно. Поэтому забытый открытый порт БД не станет публичным сам по себе.
+
 ---
 
 ## 4.2 Что обычно нужно открыть
@@ -48,6 +65,24 @@ allow only what is required
 - ошибка в одном не сразу открывает всё;
 - проще отделить публичную публикацию от поведения самого хоста;
 - логи и правила можно проверять отдельно.
+
+Два независимых фильтра на пути к сервису:
+
+```mermaid
+flowchart LR
+    NET["Интернет"] --> CLOUD["Cloud firewall\nsecurity group\n(до хоста)"]
+    CLOUD --> UFW["Host firewall\nufw на Linux\n(на сервере)"]
+    UFW --> SVC["Сервис\n:80 :443"]
+    UFW -.->|режет| BAD["БД :5432\nадминки :8080"]
+
+    style NET fill:#2d2d2d,color:#fff
+    style CLOUD fill:#1a5276,color:#fff
+    style UFW fill:#1a5276,color:#fff
+    style SVC fill:#1e8449,color:#fff
+    style BAD fill:#6e2f1a,color:#fff
+```
+
+Даже если в одном слое ошибиться, второй слой ещё держит периметр.
 
 ---
 

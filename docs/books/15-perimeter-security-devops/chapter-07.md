@@ -21,6 +21,27 @@ Intrusion Prevention System:
 
 На практике small teams часто начинают с detection, а не с prevention.
 
+Разница в расположении: IDS наблюдает копию трафика сбоку, IPS стоит на самом пути и может его рвать:
+
+```mermaid
+flowchart LR
+    NET["Интернет"] --> IPS["IPS\ninline в потоке"]
+    IPS -->|пропущенный| HOST["Сервер"]
+    IPS -.->|блок| DROP["Отбросить трафик"]
+
+    TAP["копия трафика"] -.-> IDS["IDS\nнаблюдает сбоку"]
+    IPS --- TAP
+    IDS --> ALERT["Алерт защитнику"]
+
+    style NET fill:#2d2d2d,color:#fff
+    style IPS fill:#1a5276,color:#fff
+    style DROP fill:#6e2f1a,color:#fff
+    style IDS fill:#7d6608,color:#fff
+    style HOST fill:#1e8449,color:#fff
+```
+
+IDS можно поставить, ничего не разрывая в потоке, а IPS требует доверия к качеству правил, потому что он реально блокирует трафик.
+
 ---
 
 ## 7.2 Примеры инструментов

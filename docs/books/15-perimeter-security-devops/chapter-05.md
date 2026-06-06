@@ -17,6 +17,20 @@ Reverse proxy стоит перед приложением и может:
 
 Если backend слушает только localhost или внутреннюю сеть, это уже большой выигрыш.
 
+Reverse proxy как единственная публичная дверь перед скрытым backend:
+
+```mermaid
+flowchart LR
+    NET["Интернет\n:443"] --> PROXY["Reverse proxy\nTLS, headers, rate limit"]
+    PROXY -->|"proxy_pass\n127.0.0.1:8000"| APP["Backend\n127.0.0.1:8000\nне виден наружу"]
+
+    style NET fill:#2d2d2d,color:#fff
+    style PROXY fill:#1a5276,color:#fff
+    style APP fill:#1e8449,color:#fff
+```
+
+Наружу торчит только proxy, а приложение слушает локально и недоступно напрямую.
+
 ---
 
 ## 5.2 Rate limiting
@@ -63,6 +77,23 @@ server: nginx
 ```
 
 Это означает, что nginx режет лишние запросы на входе, не отдавая их приложению.
+
+Как nginx решает судьбу запроса к `/login` при лимите `5r/m` и `burst=3`:
+
+```mermaid
+flowchart TD
+    REQ["Запрос к /login"] --> Q1{"В пределах\n5 запросов в минуту?"}
+    Q1 -->|Да| PASS["Пропустить на backend"]
+    Q1 -->|Нет| Q2{"Есть место\nв burst (3)?"}
+    Q2 -->|Да| PASS
+    Q2 -->|Нет| DROP["503 — отказ\nbackend не трогаем"]
+
+    style REQ fill:#2d2d2d,color:#fff
+    style PASS fill:#1e8449,color:#fff
+    style DROP fill:#6e2f1a,color:#fff
+```
+
+Лишние запросы получают отказ сразу на proxy и не доходят до приложения.
 
 ---
 

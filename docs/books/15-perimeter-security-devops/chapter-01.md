@@ -76,6 +76,24 @@ WAF смотрит именно на HTTP/HTTPS:
 
 WAF не заменяет firewall. Он решает другой уровень проблемы.
 
+Где каждый класс устройства стоит в потоке и на каком уровне работает:
+
+```mermaid
+flowchart LR
+    NET["Интернет"] --> RT["Router / gateway\nNAT, port forwarding\nуровень IP"]
+    RT --> FW["Firewall\nallow/deny по портам\nуровень L3/L4"]
+    FW --> WAF["Reverse proxy / WAF\nанализ HTTP\nуровень L7"]
+    WAF --> HOST["Linux host"]
+    HOST --> APP["app"]
+
+    style NET fill:#2d2d2d,color:#fff
+    style FW fill:#1a5276,color:#fff
+    style WAF fill:#7d6608,color:#fff
+    style APP fill:#1e8449,color:#fff
+```
+
+Router и firewall работают на уровне адресов и портов, WAF — на уровне HTTP-запросов. Это разные уровни, и один не заменяет другой.
+
 ---
 
 ## 1.3 Что разумно для разных сценариев

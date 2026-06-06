@@ -60,6 +60,27 @@ Linux-сервер не может:
 
 Это уже внешний слой, который нужен, когда проблема превышает локальные ресурсы.
 
+Где какой тип мусора реально останавливается — и почему volumetric DDoS не должен доходить до самого VPS:
+
+```mermaid
+flowchart LR
+    SCAN["Бот-сканирование"] --> FW["Host firewall"]
+    FLOOD["HTTP flood\nbrute-force /login"] --> PROXY["Reverse proxy\n+ rate limit"]
+    VOL["Volumetric DDoS\n> ~1 Gbps"] --> CDN["CDN / провайдер\nanti-DDoS scrubbing"]
+
+    FW --> SRV["VPS"]
+    PROXY --> SRV
+    CDN -->|чистый трафик| SRV
+
+    style VOL fill:#6e2f1a,color:#fff
+    style CDN fill:#4a235a,color:#fff
+    style FW fill:#1a5276,color:#fff
+    style PROXY fill:#1a5276,color:#fff
+    style SRV fill:#1e8449,color:#fff
+```
+
+Сканы и часть HTTP-мусора VPS отбивает сам, но забитый канал должен фильтроваться выше — у провайдера или CDN, ещё до origin.
+
 ---
 
 ## 8.4 Практика: controlled load на своей lab
