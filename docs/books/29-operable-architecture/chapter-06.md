@@ -74,6 +74,22 @@ ALTER TABLE users ADD COLUMN last_name TEXT;
 3. **Switch** — переключить приложение на новый формат.
 4. **Contract** — удалить старое только после проверки.
 
+Ключевая идея — расширять схему и сжимать её разными релизами, а между ними держать окно совместимости, когда и старый, и новый код работают с базой:
+
+```mermaid
+flowchart LR
+    expand["Expand\nдобавить новые колонки\nстарое не трогаем"] --> dual["Dual-write\nкод пишет в оба формата"]
+    dual --> backfill["Backfill\nперенести старые данные\nбатчами"]
+    backfill --> switch["Switch\nчтение из нового формата"]
+    switch --> observe["Наблюдение\nошибок нет, rollback не нужен"]
+    observe --> contract["Contract\nудалить старую колонку"]
+
+    style expand fill:#1e8449,color:#fff
+    style dual fill:#1a5276,color:#fff
+    style switch fill:#7d6608,color:#fff
+    style contract fill:#6e2f1a,color:#fff
+```
+
 ---
 
 ## 6.4. Пример безопасной миграции

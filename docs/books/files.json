@@ -1640,6 +1640,10 @@
             {
                 "file": "chapter-11.md",
                 "title": "Глава 11. Итоговый проект: эксплуатационный разбор системы"
+            },
+            {
+                "file": "glossary.md",
+                "title": "Глоссарий терминов"
             }
         ],
         "30-engineering-communication": [

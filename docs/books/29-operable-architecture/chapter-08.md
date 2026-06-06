@@ -60,6 +60,23 @@
              Email / Telegram / отчёты
 ```
 
+В виде потока запроса видно главное: пользователь получает ответ сразу после сохранения и постановки задачи, а медленные и ненадёжные операции уходят воркеру за пределы запроса:
+
+```mermaid
+flowchart LR
+    user["Пользователь"] --> api["Web / API"]
+    api --> db[("База данных")]
+    api --> q["Очередь"]
+    api -->|"быстрый ответ"| user
+    q --> worker["Worker"]
+    worker --> ext["Email / Telegram / отчёты"]
+
+    style user fill:#1e8449,color:#fff
+    style api fill:#1a5276,color:#fff
+    style q fill:#4a235a,color:#fff
+    style worker fill:#1a5276,color:#fff
+```
+
 Плюсы:
 
 - пользователь быстрее получает ответ;
@@ -249,6 +266,23 @@ Worker забирает задачу и выполняет её.
 5-я попытка: отправить в DLQ
 ```
 
+Жизненный цикл задачи: воркер берёт её из очереди, при ошибке откладывает с растущим backoff, а после исчерпания лимита попыток отправляет в DLQ на ручной разбор — вместо бесконечных повторов:
+
+```mermaid
+flowchart TD
+    take["Worker берёт задачу"] --> run{"Выполнилась?"}
+    run -->|"Да"| done["Готово\nпометить done"]
+    run -->|"Нет"| limit{"Попытки\nне исчерпаны?"}
+    limit -->|"Да"| wait["Отложить\nbackoff: 1м, 5м, 30м"]
+    wait --> take
+    limit -->|"Нет"| dlq["Dead Letter Queue\nалерт администратору"]
+
+    style take fill:#2d2d2d,color:#fff
+    style done fill:#1e8449,color:#fff
+    style wait fill:#7d6608,color:#fff
+    style dlq fill:#6e2f1a,color:#fff
+```
+
 ---
 
 ## 8.7. Dead letter queue
@@ -376,6 +410,26 @@ Web/API → Database transaction
           └─ insert outbox event
 
 Outbox worker → Queue → Notification worker
+```
+
+Заявка и событие пишутся в одной транзакции, поэтому они либо появляются вместе, либо не появляются вовсе. Отдельный outbox-воркер уже потом надёжно перекладывает события в очередь:
+
+```mermaid
+flowchart LR
+    api["Web / API"] --> tx["Транзакция БД"]
+    subgraph tx_box["Одна транзакция"]
+        ins["insert application"]
+        out["insert outbox event"]
+    end
+    tx --> tx_box
+    out --> ow["Outbox worker"]
+    ow --> q["Очередь"]
+    q --> nw["Notification worker"]
+
+    style api fill:#2d2d2d,color:#fff
+    style tx_box fill:#1a5276,color:#fff
+    style q fill:#4a235a,color:#fff
+    style nw fill:#1e8449,color:#fff
 ```
 
 Плюс: заявка и событие создаются атомарно.

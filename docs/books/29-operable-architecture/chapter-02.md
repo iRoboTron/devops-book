@@ -16,6 +16,26 @@ web container -> обрабатывает HTTP -> ходит в БД -> сам �
 
 Такой контейнер удобно деплоить и масштабировать.
 
+Именно потому, что важное состояние вынесено наружу, stateless-приложение можно запускать в нескольких экземплярах за балансировщиком и пересоздавать любой из них без потери данных:
+
+```mermaid
+flowchart LR
+    lb["Балансировщик"] --> a1["app #1\nstateless"]
+    lb --> a2["app #2\nstateless"]
+    lb --> a3["app #3\nstateless"]
+    a1 --> db[("PostgreSQL\nстейт")]
+    a2 --> db
+    a3 --> db
+    a1 --> store[("Хранилище\nuploads")]
+    a2 --> store
+    a3 --> store
+
+    style lb fill:#2d2d2d,color:#fff
+    style a2 fill:#1a5276,color:#fff
+    style db fill:#4a235a,color:#fff
+    style store fill:#4a235a,color:#fff
+```
+
 ---
 
 ## 2.2 Stateful

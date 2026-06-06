@@ -34,6 +34,41 @@ GET /healthz -> 200 OK
 /metrics -> метрики для мониторинга
 ```
 
+Разные пробы решают разные задачи: liveness отвечает на вопрос «нужно ли перезапустить процесс», а readiness — «можно ли слать трафик прямо сейчас». Важно их не путать.
+
+```mermaid
+flowchart TD
+    orch["Оркестратор / балансировщик"] --> live{"liveness\n/healthz: процесс жив?"}
+    live -->|"Нет"| restart["Перезапустить контейнер"]
+    live -->|"Да"| ready{"readiness\n/readyz: БД и миграции готовы?"}
+    ready -->|"Нет"| nodrain["Снять с балансировки\nбез перезапуска"]
+    ready -->|"Да"| traffic["Принимать трафик"]
+
+    style orch fill:#2d2d2d,color:#fff
+    style restart fill:#6e2f1a,color:#fff
+    style nodrain fill:#7d6608,color:#fff
+    style traffic fill:#1e8449,color:#fff
+```
+
+Как выглядит регулярный опрос пробы во времени — orchestrator периодически дёргает endpoint, а приложение отвечает быстро и без тяжёлых запросов:
+
+```mermaid
+sequenceDiagram
+    participant O as Orchestrator
+    participant A as Приложение
+    participant D as БД
+    O->>A: GET /readyz
+    A->>D: лёгкая проверка соединения
+    D-->>A: OK
+    A-->>O: 200 ready
+    Note over O,A: трафик идёт
+    O->>A: GET /readyz
+    A->>D: проверка соединения
+    D-->>A: timeout
+    A-->>O: 503 not ready
+    Note over O,A: временно снят с балансировки,\nпроцесс не убит
+```
+
 ---
 
 ## 4.3 Ошибки

@@ -175,6 +175,26 @@ PostgreSQL / MariaDB
 - monitoring
 ```
 
+На схеме компонентов сразу видно точки отказа (SPOF): база данных и файловое хранилище — stateful-узлы, потеря которых критична, поэтому именно они требуют бэкапов и проверки восстановления.
+
+```mermaid
+flowchart TD
+    user["Пользователь"] -->|"HTTPS"| proxy["Nginx / reverse proxy"]
+    proxy --> app["Nextcloud app"]
+    app --> db[("PostgreSQL / MariaDB\nSPOF: метаданные")]
+    app --> files[("Файловое хранилище\nSPOF: файлы")]
+    app --> redis["Redis\nблокировки / кэш"]
+    cron["cron container"] --> app
+    backup["backup job"] -.-> db
+    backup -.-> files
+
+    style user fill:#2d2d2d,color:#fff
+    style proxy fill:#1a5276,color:#fff
+    style db fill:#6e2f1a,color:#fff
+    style files fill:#6e2f1a,color:#fff
+    style backup fill:#1e8449,color:#fff
+```
+
 ### 4. Stateful/stateless
 
 | Компонент | Тип | Почему |

@@ -68,6 +68,22 @@ prod  -> реальные данные и осторожные изменени�
 
 Сервис должен позволять менять настройки без изменения кода.
 
+Один и тот же образ должен запускаться в любом окружении — отличаются только переменные окружения и источник секретов, а не код:
+
+```mermaid
+flowchart LR
+    img["Один образ\nприложения"] --> dev["dev\n.env: тестовые ключи"]
+    img --> stage["stage\nenv: почти как prod"]
+    img --> prod["prod\nenv + secret manager"]
+    sm["Secret manager\nпароли, токены"] -.-> prod
+
+    style img fill:#2d2d2d,color:#fff
+    style dev fill:#1a5276,color:#fff
+    style stage fill:#7d6608,color:#fff
+    style prod fill:#1e8449,color:#fff
+    style sm fill:#4a235a,color:#fff
+```
+
 ---
 
 ## 3.5 Практика

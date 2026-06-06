@@ -20,6 +20,7 @@
 - [Глава 11: Итоговый проект — operability review](chapter-11.md)
 - [Приложение A: Operability cheatsheet](appendix-a.md)
 - [Приложение B: Ресурсы и дальнейшее чтение](appendix-b.md)
+- [**Глоссарий**](glossary.md)
 
 ---
 

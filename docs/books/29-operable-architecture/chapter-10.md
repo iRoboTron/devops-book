@@ -54,6 +54,20 @@ green -> новая версия
 
 Минус: нужно больше ресурсов и аккуратность с БД.
 
+Суть в том, что обе версии живут одновременно, а переключение трафика — это одно действие на балансировщике. Если с green что-то не так, трафик возвращают на blue, который всё это время остаётся целым:
+
+```mermaid
+flowchart LR
+    lb["Балансировщик"] -->|"трафик сейчас"| blue["blue\nтекущий prod"]
+    lb -.->|"переключить после healthcheck"| green["green\nновая версия"]
+    green -.->|"если ошибки"| rb["rollback:\nвернуть трафик на blue"]
+
+    style lb fill:#2d2d2d,color:#fff
+    style blue fill:#1a5276,color:#fff
+    style green fill:#1e8449,color:#fff
+    style rb fill:#6e2f1a,color:#fff
+```
+
 ---
 
 ## 10.4 Canary

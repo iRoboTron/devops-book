@@ -73,6 +73,21 @@ Trace помогает понять путь запроса через неск�
 frontend -> api -> payment -> database
 ```
 
+Один `request_id` (или trace id) проходит через все сервисы, поэтому по нему можно собрать всю цепочку и увидеть, на каком шаге запрос замедлился или упал:
+
+```mermaid
+flowchart LR
+    fe["frontend\nrequest_id=abc123"] --> api["api\nrequest_id=abc123"]
+    api --> pay["payment\nrequest_id=abc123"]
+    pay --> db[("database\nrequest_id=abc123")]
+    pay -.->|"payment_timeout"| err["лог ошибки\nс тем же request_id"]
+
+    style fe fill:#2d2d2d,color:#fff
+    style api fill:#1a5276,color:#fff
+    style db fill:#4a235a,color:#fff
+    style err fill:#6e2f1a,color:#fff
+```
+
 Для маленького монолита полноценная трассировка может быть лишней. Но request_id полезен почти всегда.
 
 ---
