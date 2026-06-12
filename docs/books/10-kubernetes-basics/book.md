@@ -45,7 +45,15 @@
   - Обновление без даунтайма
 
 - [**Глава 10: Ресурсы (limits, requests)**](chapter-08.md)
-  - Limits, requests, quotas, OOM
+  - Limits, requests, quotas, OOM, QoS-классы
+
+### Часть 4: Диагностика и развитие
+
+- [**Глава 11: Диагностика — когда что-то сломалось**](chapter-11.md)
+  - get/describe/logs, Pending/CrashLoop/ImagePull, «Service не работает», kubectl debug, упражнение «найди баг»
+
+- [**Глава 12: Куда дальше — карта продвинутых тем**](chapter-12.md)
+  - RBAC, NetworkPolicy, scheduling, DaemonSet/Job/CronJob, etcd, kubeadm vs managed
 
 ### Приложения
 
