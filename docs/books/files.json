@@ -76,6 +76,10 @@
       {
         "file": "practice-drill.md",
         "title": "Тренировочный список — Книга 1: Linux для DevOps"
+      },
+      {
+        "file": "glossary.md",
+        "title": "Глоссарий терминов"
       }
     ],
     "02-nginx-https-devops": [
