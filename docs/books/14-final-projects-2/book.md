@@ -10,6 +10,7 @@
 - [**Проект 2: Микросервисы**](project-2.md)
 - [**Проект 3: Disaster Recovery**](project-3.md)
 - [**Проект 4: Platform Engineering**](project-4.md)
+- [**Тренажёр: найди и почини**](debug-drill.md)
 - [**Глоссарий**](glossary.md)
 
 ---

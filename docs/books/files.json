@@ -410,6 +410,10 @@
         "title": "Playbook: Production-сервер с нуля"
       },
       {
+        "file": "debug-drill.md",
+        "title": "Тренажёр: найди и почини"
+      },
+      {
         "file": "glossary.md",
         "title": "Глоссарий терминов"
       }
@@ -742,6 +746,10 @@
       {
         "file": "project-4.md",
         "title": "Проект 4: Platform Engineering"
+      },
+      {
+        "file": "debug-drill.md",
+        "title": "Тренажёр: найди и почини"
       },
       {
         "file": "glossary.md",
