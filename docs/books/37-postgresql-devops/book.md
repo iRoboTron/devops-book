@@ -89,3 +89,7 @@ psql команды, администрирование (pg_dump, pg_restore, pg
 ### Приложение E — Матрица совместимости инструментов
 
 Версионная совместимость pgBackRest, WAL-G, PgBouncer, Patroni, CloudNativePG, postgres_exporter с PostgreSQL 14-17.
+
+### Глоссарий
+
+Ключевые термины книги с указанием глав — [**glossary.md**](glossary.md).

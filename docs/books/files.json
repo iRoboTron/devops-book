@@ -2090,6 +2090,10 @@
       {
         "file": "appendix-c.md",
         "title": "Приложение C: Конфиг и алиасы"
+      },
+      {
+        "file": "glossary.md",
+        "title": "Глоссарий терминов"
       }
     ],
     "35-networks-devops": [
@@ -2160,6 +2164,10 @@
       {
         "file": "appendix-c.md",
         "title": "Приложение C: Алгоритмы диагностики — флоучарты"
+      },
+      {
+        "file": "glossary.md",
+        "title": "Глоссарий терминов"
       }
     ],
     "36-vault-devops": [
@@ -2234,6 +2242,10 @@
       {
         "file": "appendix-c.md",
         "title": "Приложение C: Шаблоны HCL"
+      },
+      {
+        "file": "glossary.md",
+        "title": "Глоссарий терминов"
       }
     ],
     "37-postgresql-devops": [
@@ -2316,6 +2328,10 @@
       {
         "file": "appendix-e.md",
         "title": "Приложение E: Матрица совместимости инструментов"
+      },
+      {
+        "file": "glossary.md",
+        "title": "Глоссарий терминов"
       }
     ],
     "38-monitoring-devops": [
@@ -2390,6 +2406,10 @@
       {
         "file": "appendix-d.md",
         "title": "Приложение D: Установка через systemd (без Docker)"
+      },
+      {
+        "file": "glossary.md",
+        "title": "Глоссарий терминов"
       }
     ]
   }

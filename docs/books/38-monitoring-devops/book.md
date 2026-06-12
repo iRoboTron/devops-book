@@ -85,3 +85,7 @@ PromQL: selectors, функции (rate, irate, increase, histogram_quantile, pr
 ### Приложение D: Установка через systemd (без Docker)
 
 Полные systemd unit-файлы для Prometheus, Grafana, Alertmanager, Node Exporter. Trade-offs: Docker vs systemd — изоляция и автообновление против простоты для одного сервера.
+
+### Глоссарий
+
+Ключевые термины книги с указанием глав — [**glossary.md**](glossary.md).
