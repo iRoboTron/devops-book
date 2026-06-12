@@ -324,13 +324,28 @@
         <p>Этот курс помогает разобраться, как сайты и приложения попадают на сервер, как они работают в интернете, как их защищать и как безопасно обращаться со своими доступами и данными. Начинать лучше с первой части: она объясняет базовые вещи простым языком и постепенно ведёт к практике.</p>
     </section>
 
+    <section class="intro" style="margin-top:-10px">
+        <details style="border:1px solid #d0d7de;border-radius:8px;background:#fff;padding:14px 16px">
+            <summary style="cursor:pointer;font-weight:650;color:#1f2328">Об авторе и что нового</summary>
+            <div style="margin-top:10px;color:#57606a;font-size:15px;line-height:1.6">
+                <p style="margin-bottom:10px"><strong>Автор — Алексей Андреев.</strong> Бесплатный открытый курс «DevOps: путь с нуля до самостоятельности», сделанный практиком с помощью ИИ-инструментов: от основ Linux до безопасности инфраструктуры и цифровой самостоятельности. Сейчас в курсе 38 книг.</p>
+                <p style="margin:0 0 6px"><strong>Что нового</strong></p>
+                <ul style="margin:0 0 0 18px;padding:0">
+                    <li><strong>Июнь 2026</strong> — диагностика и тренажёры: в книге 10 добавлены главы по troubleshooting Kubernetes и «куда расти дальше»; в книге 1 — раздел «как читать ошибки»; в книге 31 — «российский контекст 2026» (облака, 152-ФЗ, ФСТЭК); в книгах 7 и 14 — тренажёры «найди и почини».</li>
+                    <li><strong>Июнь 2026</strong> — во все книги добавлены наглядные схемы (Mermaid) и глоссарии терминов.</li>
+                    <li><strong>Весна 2026</strong> — добавлены книги по Git, сетям, Vault, PostgreSQL и мониторингу (34–38).</li>
+                </ul>
+            </div>
+        </details>
+    </section>
+
     <div id="loading" class="loading">Загружаю список книг...</div>
     <div id="error" class="error" hidden></div>
     <div id="parts" hidden></div>
 </main>
 
 <script>
-const ASSET_VERSION = '20260606-diagrams-glossaries';
+const ASSET_VERSION = '20260612-troubleshooting-ru-glossaries';
 
 const PARTS = [
     {
